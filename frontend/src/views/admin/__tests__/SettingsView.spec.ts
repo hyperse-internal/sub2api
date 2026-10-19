@@ -1215,6 +1215,7 @@ describe("admin SettingsView payment visible method controls", () => {
     expect(updateSettings).toHaveBeenCalledWith(
       expect.objectContaining({
         affiliate_admin_recharge_enabled: true,
+        affiliate_rebate_first_recharge_only: false,
       }),
     );
   });

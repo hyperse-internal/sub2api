@@ -726,7 +726,8 @@ export default {
     transferFailed: 'Failed to transfer affiliate quota',
     stats: {
       rebateRate: 'My Rebate Rate',
-      rebateRateHint: 'What you earn each time an invitee recharges',
+      rebateRateHint: 'You earn this percentage of each real payment made by an invited user',
+      rebateRateHintFirst: 'After an invited user makes their first real payment, you earn this percentage as rebate quota',
       invitedUsers: 'Invited Users',
       availableQuota: 'Available Rebate Quota',
       frozenQuota: 'Frozen',
@@ -754,7 +755,8 @@ export default {
     tips: {
       title: 'How It Works',
       line1: 'Share your affiliate code or invite link with new users.',
-      line2: 'When invitees recharge, you receive {rate} of the recharge as rebate quota.',
+      line2: 'Each time an invited user recharges, you receive {rate} of that recharge as rebate quota.',
+      line2First: 'You receive {rate} of an invited user’s first recharge as rebate quota. Later recharges do not.',
       line3: 'Transfer rebate quota to balance at any time.',
       line4: 'Newly earned rebates may have a waiting period before they can be transferred.'
     }

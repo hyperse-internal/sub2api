@@ -112,5 +112,37 @@ describe('AffiliateView', () => {
       `${window.location.origin}/register?aff=${encodeURIComponent(affiliateCode)}`,
       'affiliate.linkCopied',
     )
+    expect(wrapper.text()).toMatch(/affiliate\.stats\.rebateRateHint(?!First)/)
+    expect(wrapper.text()).not.toContain('affiliate.stats.rebateRateHintFirst')
+    expect(wrapper.text()).toMatch(/affiliate\.tips\.line2(?!First)/)
+  })
+
+  it('shows first-recharge copy when the setting is enabled', async () => {
+    getAffiliateDetail.mockResolvedValueOnce({
+      user_id: 1,
+      aff_code: affiliateCode,
+      inviter_id: null,
+      aff_count: 0,
+      aff_quota: 0,
+      aff_frozen_quota: 0,
+      aff_history_quota: 0,
+      effective_rebate_rate_percent: 10,
+      rebate_first_recharge_only: true,
+      invitees: [],
+    })
+
+    const wrapper = mount(AffiliateView, {
+      global: {
+        stubs: {
+          AppLayout: { template: '<main><slot /></main>' },
+          Icon: true,
+        },
+      },
+    })
+
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('affiliate.stats.rebateRateHintFirst')
+    expect(wrapper.text()).toContain('affiliate.tips.line2First')
   })
 })

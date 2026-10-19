@@ -98,6 +98,17 @@ func (s *SettingService) IsAffiliateAdminRechargeEnabled(ctx context.Context) bo
 	return value == "true"
 }
 
+// IsAffiliateRebateFirstRechargeOnly reports whether an invitee generates
+// a rebate only on the first recharge that has already accrued one.
+// Missing or invalid values stay off so every recharge keeps the current rules.
+func (s *SettingService) IsAffiliateRebateFirstRechargeOnly(ctx context.Context) bool {
+	value, err := s.settingRepo.GetValue(ctx, SettingKeyAffiliateRebateFirstRechargeOnly)
+	if err != nil {
+		return AffiliateRebateFirstRechargeOnlyDefault
+	}
+	return value == "true"
+}
+
 // GetAffiliateRebateRatePercent 读取并 clamp 全局返利比例。
 // 解析失败、缺失或越界都回退到 AffiliateRebateRateDefault — 该比例从不抛错，
 // 调用方只关心一个可用的数值。

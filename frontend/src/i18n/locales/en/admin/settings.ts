@@ -95,6 +95,8 @@ export default {
           enabledHint: 'When off, the affiliate menu is hidden, the aff parameter is ignored at signup, and new recharges generate no rebate. Existing rebate balances can still be transferred.',
           adminRechargeRebate: 'Rebate Admin Deposits',
           adminRechargeRebateHint: 'When enabled, balance added through User Management > Deposit generates affiliate rebates. Setting a balance or withdrawing funds does not.',
+          firstRechargeOnly: 'First recharge only',
+          firstRechargeOnlyHint: 'When enabled, each invited user generates a rebate only on the first credit that earns one. Later recharges, subscriptions, redemptions, and admin deposits do not. When off, every eligible credit follows the current rules.',
           rebateRate: 'Global Rebate Rate',
           rebateRateHint: 'Default percentage given back to the inviter on recharges (0-100, e.g. 10 = 10%).',
           freezeHours: 'Rebate Freeze Period (hours)',

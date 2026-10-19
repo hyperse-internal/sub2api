@@ -17,8 +17,8 @@
             <p class="mt-2 text-2xl font-semibold text-primary-600 dark:text-primary-400">
               {{ formattedRebateRate }}<span class="ml-0.5 text-base font-medium">%</span>
             </p>
-            <p class="mt-1 text-xs text-gray-400 dark:text-dark-500">
-              {{ t('affiliate.stats.rebateRateHint') }}
+            <p class="mt-1 text-xs text-red-400">
+              {{ t(firstRechargeOnly ? 'affiliate.stats.rebateRateHintFirst' : 'affiliate.stats.rebateRateHint') }}
             </p>
           </div>
           <div class="card p-5">
@@ -76,7 +76,7 @@
             <p class="text-sm font-medium text-primary-800 dark:text-primary-200">{{ t('affiliate.tips.title') }}</p>
             <ul class="mt-2 space-y-1 text-sm text-primary-700 dark:text-primary-300">
               <li>1. {{ t('affiliate.tips.line1') }}</li>
-              <li>2. {{ t('affiliate.tips.line2', { rate: `${formattedRebateRate}%` }) }}</li>
+              <li>2. {{ t(firstRechargeOnly ? 'affiliate.tips.line2First' : 'affiliate.tips.line2', { rate: `${formattedRebateRate}%` }) }}</li>
               <li>3. {{ t('affiliate.tips.line3') }}</li>
               <li v-if="detail.aff_frozen_quota > 0">4. {{ t('affiliate.tips.line4') }}</li>
             </ul>
@@ -169,6 +169,8 @@ const inviteLink = computed(() => {
 
 // Rebate rate is a percentage in the range [0, 100]; backend already clamps it.
 // We trim trailing zeros (e.g. 20.00 → "20", 12.50 → "12.5") for a cleaner UI.
+const firstRechargeOnly = computed(() => detail.value?.rebate_first_recharge_only === true)
+
 const formattedRebateRate = computed(() => {
   const v = detail.value?.effective_rebate_rate_percent ?? 0
   const rounded = Math.round(v * 100) / 100

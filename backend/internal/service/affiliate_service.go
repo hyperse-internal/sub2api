@@ -95,8 +95,10 @@ type AffiliateDetail struct {
 	// EffectiveRebateRatePercent 是当前用户作为邀请人时实际生效的返利比例：
 	// 优先用户自己的专属比例（aff_rebate_rate_percent），否则回退到全局比例。
 	// 用于在用户的 /affiliate 页面直观展示「分享后能拿到多少」。
-	EffectiveRebateRatePercent float64            `json:"effective_rebate_rate_percent"`
-	Invitees                   []AffiliateInvitee `json:"invitees"`
+	EffectiveRebateRatePercent float64 `json:"effective_rebate_rate_percent"`
+	// RebateFirstRechargeOnly 为 true 时，下级用户只有第一笔已产生返利的入账会计入返利。
+	RebateFirstRechargeOnly bool               `json:"rebate_first_recharge_only"`
+	Invitees                []AffiliateInvitee `json:"invitees"`
 }
 
 type AffiliateRepository interface {
@@ -277,6 +279,10 @@ func (s *AffiliateService) GetAffiliateDetail(ctx context.Context, userID int64)
 	if err != nil {
 		return nil, err
 	}
+	firstRechargeOnly := false
+	if s != nil && s.settingService != nil {
+		firstRechargeOnly = s.settingService.IsAffiliateRebateFirstRechargeOnly(ctx)
+	}
 	return &AffiliateDetail{
 		UserID:                     summary.UserID,
 		AffCode:                    summary.AffCode,
@@ -286,6 +292,7 @@ func (s *AffiliateService) GetAffiliateDetail(ctx context.Context, userID int64)
 		AffFrozenQuota:             summary.AffFrozenQuota,
 		AffHistoryQuota:            summary.AffHistoryQuota,
 		EffectiveRebateRatePercent: s.resolveRebateRatePercent(ctx, summary),
+		RebateFirstRechargeOnly:    firstRechargeOnly,
 		Invitees:                   invitees,
 	}, nil
 }
@@ -368,6 +375,16 @@ func (s *AffiliateService) AccrueInviteRebateForOrder(ctx context.Context, invit
 	if s.settingService != nil {
 		if durationDays := s.settingService.GetAffiliateRebateDurationDays(ctx); durationDays > 0 {
 			if time.Now().After(inviteeSummary.CreatedAt.AddDate(0, 0, durationDays)) {
+				return 0, nil
+			}
+		}
+		// 仅首次充值返利：该下级已经产生过返利时，后续充值不再入账。
+		if s.settingService.IsAffiliateRebateFirstRechargeOnly(ctx) {
+			existing, err := s.repo.GetAccruedRebateFromInvitee(ctx, *inviteeSummary.InviterID, inviteeUserID)
+			if err != nil {
+				return 0, err
+			}
+			if existing > 0 {
 				return 0, nil
 			}
 		}

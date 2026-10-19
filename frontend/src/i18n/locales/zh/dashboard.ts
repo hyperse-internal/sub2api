@@ -730,7 +730,8 @@ export default {
     transferFailed: '转入余额失败',
     stats: {
       rebateRate: '我的返利比例',
-      rebateRateHint: '被邀请用户每次充值后你可获得的返利比例',
+      rebateRateHint: '被邀请用户每次真实支付后，您可获得的返利比例',
+      rebateRateHintFirst: '被邀请新用户首次真实支付后，您可获得的返利比例',
       invitedUsers: '邀请人数',
       availableQuota: '可转返利额度',
       frozenQuota: '冻结中',
@@ -758,7 +759,8 @@ export default {
     tips: {
       title: '使用说明',
       line1: '将邀请码或邀请链接分享给新用户。',
-      line2: '被邀请用户充值后，你可获得 {rate} 的返利额度。',
+      line2: '被邀请用户每次充值后，你可获得 {rate} 的返利额度。',
+      line2First: '被邀请用户仅首次充值后，你可获得 {rate} 的返利额度。',
       line3: '返利额度可随时转入账户余额。',
       line4: '新产生的返利需要经过冻结期后才能提现。'
     }

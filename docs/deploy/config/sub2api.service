@@ -1,0 +1,20 @@
+[Unit]
+Description=Sub2API - AI API 聚合网关
+After=network.target postgresql.service redis-server.service
+Wants=postgresql.service redis-server.service
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/sub2api
+EnvironmentFile=/opt/sub2api/.env
+ExecStart=/opt/sub2api/bin/server
+Restart=always
+RestartSec=5
+StandardOutput=append:/opt/sub2api/logs/stdout.log
+StandardError=append:/opt/sub2api/logs/stderr.log
+# 安全加固
+NoNewPrivileges=true
+PrivateTmp=true
+LimitNOFILE=65536
+[Install]
+WantedBy=multi-user.target

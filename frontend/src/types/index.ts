@@ -163,6 +163,8 @@ export interface UserAffiliateDetail {
   aff_history_quota: number
   /** 当前用户作为邀请人时实际生效的返利比例（专属覆盖全局）。0-100。 */
   effective_rebate_rate_percent: number
+  /** 为 true 时只对下级用户首次已产生返利的入账返利。 */
+  rebate_first_recharge_only?: boolean
   invitees: AffiliateInvitee[]
 }
 

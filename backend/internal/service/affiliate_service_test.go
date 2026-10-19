@@ -4,6 +4,7 @@ package service
 
 import (
 	"context"
+	"errors"
 	"math"
 	"strings"
 	"testing"
@@ -244,4 +245,83 @@ func TestAdminWithdrawQuota_PropagatesRepositoryErrors(t *testing.T) {
 		_, err := svc.AdminWithdrawQuota(context.Background(), 1, 1, testAffiliateWithdrawKey)
 		require.ErrorIs(t, err, want)
 	}
+}
+
+type affiliateFirstRechargeRepoStub struct {
+	AffiliateRepository
+	accrued     float64
+	accrueCalls int
+}
+
+func (s *affiliateFirstRechargeRepoStub) EnsureUserAffiliate(_ context.Context, userID int64) (*AffiliateSummary, error) {
+	inviterID := int64(2)
+	if userID == 1 {
+		return &AffiliateSummary{UserID: 1, InviterID: &inviterID}, nil
+	}
+	return &AffiliateSummary{UserID: userID}, nil
+}
+
+func (s *affiliateFirstRechargeRepoStub) GetAccruedRebateFromInvitee(context.Context, int64, int64) (float64, error) {
+	return s.accrued, nil
+}
+
+func (s *affiliateFirstRechargeRepoStub) AccrueQuota(context.Context, int64, int64, float64, int, *int64) (bool, error) {
+	s.accrueCalls++
+	return true, nil
+}
+
+type affiliateFirstRechargeSettingRepo struct {
+	SettingRepository
+	values map[string]string
+}
+
+func (s *affiliateFirstRechargeSettingRepo) GetValue(_ context.Context, key string) (string, error) {
+	value, ok := s.values[key]
+	if !ok {
+		return "", errors.New("missing setting")
+	}
+	return value, nil
+}
+
+func TestAccrueInviteRebate_FirstRechargeOnly(t *testing.T) {
+	t.Parallel()
+
+	newSvc := func(firstOnly bool, accrued float64) (*AffiliateService, *affiliateFirstRechargeRepoStub) {
+		values := map[string]string{
+			SettingKeyAffiliateEnabled: "true",
+		}
+		if firstOnly {
+			values[SettingKeyAffiliateRebateFirstRechargeOnly] = "true"
+		}
+		repo := &affiliateFirstRechargeRepoStub{accrued: accrued}
+		svc := &AffiliateService{
+			repo:           repo,
+			settingService: &SettingService{settingRepo: &affiliateFirstRechargeSettingRepo{values: values}},
+		}
+		return svc, repo
+	}
+
+	t.Run("off keeps rebating after the first credit", func(t *testing.T) {
+		svc, repo := newSvc(false, 8)
+		rebate, err := svc.AccrueInviteRebate(context.Background(), 1, 100)
+		require.NoError(t, err)
+		require.InDelta(t, 20, rebate, 1e-9)
+		require.Equal(t, 1, repo.accrueCalls)
+	})
+
+	t.Run("on skips invitees that already earned a rebate", func(t *testing.T) {
+		svc, repo := newSvc(true, 8)
+		rebate, err := svc.AccrueInviteRebate(context.Background(), 1, 100)
+		require.NoError(t, err)
+		require.Zero(t, rebate)
+		require.Zero(t, repo.accrueCalls)
+	})
+
+	t.Run("on still rebates the first credit", func(t *testing.T) {
+		svc, repo := newSvc(true, 0)
+		rebate, err := svc.AccrueInviteRebate(context.Background(), 1, 100)
+		require.NoError(t, err)
+		require.InDelta(t, 20, rebate, 1e-9)
+		require.Equal(t, 1, repo.accrueCalls)
+	})
 }
