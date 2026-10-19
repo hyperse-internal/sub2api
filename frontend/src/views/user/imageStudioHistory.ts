@@ -100,11 +100,29 @@ export function deleteImageStudioHistory(id: number) {
   })
 }
 
+export function blobFromImageSource(url: string): Promise<Blob> {
+  if (!url.startsWith('data:')) {
+    return fetch(url).then((response) => {
+      if (!response.ok) throw new Error('image')
+      return response.blob()
+    })
+  }
+  const comma = url.indexOf(',')
+  if (comma < 0) return Promise.reject(new Error('image'))
+  const meta = url.slice('data:'.length, comma)
+  const payload = url.slice(comma + 1)
+  const mime = meta.split(';')[0] || 'application/octet-stream'
+  const binary = meta.split(';').includes('base64') ? atob(payload) : decodeURIComponent(payload)
+  const bytes = new Uint8Array(binary.length)
+  for (let index = 0; index < binary.length; index += 1) bytes[index] = binary.charCodeAt(index)
+  return Promise.resolve(new Blob([bytes], { type: mime }))
+}
+
 export async function saveImageStudioHistory(dataUrls: string[], draft: ImageStudioHistoryDraft) {
   const createdAt = Date.now()
   const entries = await Promise.all(
     dataUrls.map(async (url, index) => {
-      const blob = await (await fetch(url)).blob()
+      const blob = await blobFromImageSource(url)
       const mimeType = blob.type || 'image/png'
       const dimensions = await readImageDimensions(blob).catch(() => ({ width: 0, height: 0 }))
       const suffix = dataUrls.length > 1 ? `-${index + 1}` : ''
