@@ -2,12 +2,53 @@ const DATABASE = 'sub2api.image.studio'
 const STORE = 'images'
 const LIMIT = 10
 
-export interface ImageStudioHistoryEntry {
+export interface ImageStudioImageInfo {
+  name: string
+  byteSize: number
+  width: number
+  height: number
+  mimeType: string
+  size: string
+  quality: string
+  format: string
+}
+
+export interface ImageStudioHistoryEntry extends ImageStudioImageInfo {
   id: number
   blob: Blob
   prompt: string
   model: string
   createdAt: number
+}
+
+export interface ImageStudioHistoryDraft {
+  prompt: string
+  model: string
+  size: string
+  quality: string
+  format: string
+}
+
+function imageExtension(mimeType: string) {
+  if (mimeType === 'image/jpeg') return 'jpg'
+  if (mimeType === 'image/webp') return 'webp'
+  return 'png'
+}
+
+export function readImageDimensions(blob: Blob): Promise<{ width: number; height: number }> {
+  const url = URL.createObjectURL(blob)
+  return new Promise((resolve, reject) => {
+    const image = new Image()
+    image.onload = () => {
+      URL.revokeObjectURL(url)
+      resolve({ width: image.naturalWidth, height: image.naturalHeight })
+    }
+    image.onerror = () => {
+      URL.revokeObjectURL(url)
+      reject(new Error('image'))
+    }
+    image.src = url
+  })
 }
 
 function openHistory(): Promise<IDBDatabase> {
@@ -59,17 +100,32 @@ export function deleteImageStudioHistory(id: number) {
   })
 }
 
-export async function saveImageStudioHistory(dataUrls: string[], prompt: string, model: string) {
+export async function saveImageStudioHistory(dataUrls: string[], draft: ImageStudioHistoryDraft) {
   const createdAt = Date.now()
   const entries = await Promise.all(
-    dataUrls.map(async (url) => ({
-      prompt,
-      model,
-      createdAt,
-      blob: await (await fetch(url)).blob()
-    }))
+    dataUrls.map(async (url, index) => {
+      const blob = await (await fetch(url)).blob()
+      const mimeType = blob.type || 'image/png'
+      const dimensions = await readImageDimensions(blob).catch(() => ({ width: 0, height: 0 }))
+      const suffix = dataUrls.length > 1 ? `-${index + 1}` : ''
+      return {
+        prompt: draft.prompt,
+        model: draft.model,
+        createdAt,
+        blob,
+        name: `image-${createdAt}${suffix}.${imageExtension(mimeType)}`,
+        byteSize: blob.size,
+        width: dimensions.width,
+        height: dimensions.height,
+        mimeType,
+        size: draft.size,
+        quality: draft.quality,
+        format: draft.format
+      }
+    })
   )
-  return historyTransaction('readwrite', (store) => {
+  await historyTransaction('readwrite', (store) => {
     for (const entry of entries) store.add(entry)
   })
+  return entries
 }

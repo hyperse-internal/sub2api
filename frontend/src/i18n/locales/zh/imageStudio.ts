@@ -3,6 +3,7 @@ export default {
     title: '图片生成',
     description: '使用你的 API 密钥可调度的模型生成图片。',
     subtitle: '模型和密钥来自当前登录账号。',
+    backToSystem: '返回系统',
     prompt: '提示词',
     promptPlaceholder: '描述你想要的图片',
     promptHelper: {
@@ -59,7 +60,23 @@ export default {
       delete: '删除',
       add: '添加所选'
     },
-    canvas: { flipX: '水平翻转', flipY: '垂直翻转', reset: '重置' },
+    canvas: {
+      flipX: '水平翻转',
+      flipY: '垂直翻转',
+      reset: '重置',
+      infoTitle: '图片信息',
+      info: {
+        name: '名称',
+        byteSize: '大小',
+        resolution: '分辨率',
+        format: '格式',
+        model: '模型',
+        size: '尺寸',
+        quality: '质量',
+        createdAt: '时间',
+        prompt: '提示词'
+      }
+    },
     errors: {
       invalid_prompt: '请输入提示词。',
       prompt_too_long: '提示词过长。',

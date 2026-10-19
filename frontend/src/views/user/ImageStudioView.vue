@@ -1,15 +1,27 @@
 <template>
   <div class="flex h-screen min-h-0 flex-col bg-gray-50 text-gray-900 dark:bg-dark-950 dark:text-gray-100">
     <header class="flex items-center justify-between gap-4 border-b border-gray-200 bg-white px-4 py-3 dark:border-dark-700 dark:bg-dark-900">
-      <div class="min-w-0">
-        <h1 class="truncate text-base font-medium">{{ t('imageStudio.title') }}</h1>
-        <p class="truncate text-xs text-gray-500 dark:text-dark-400">{{ t('imageStudio.subtitle') }}</p>
+      <div class="flex min-w-0 items-center gap-3">
+        <router-link :to="systemHome" class="shrink-0" :title="t('imageStudio.backToSystem')" :aria-label="t('imageStudio.backToSystem')">
+          <img :src="siteLogo || '/logo.svg'" alt="" class="h-8 w-8 object-contain" />
+        </router-link>
+        <div class="min-w-0">
+          <h1 class="truncate text-base font-medium">{{ t('imageStudio.title') }}</h1>
+          <p class="truncate text-xs text-gray-500 dark:text-dark-400">{{ t('imageStudio.subtitle') }}</p>
+        </div>
       </div>
       <div class="flex items-center gap-2">
-        <span v-if="selected" class="max-w-56 truncate rounded-full bg-primary-50 px-3 py-1 text-xs font-medium text-primary-700 dark:bg-primary-900/40 dark:text-primary-200">
-          {{ selected.groupLabel }}
+        <span v-if="selected" class="inline-flex max-w-56 items-center gap-2 overflow-visible rounded-full bg-primary-50 py-1 pl-2.5 pr-3 text-xs font-medium text-primary-700 dark:bg-primary-900/40 dark:text-primary-200">
+          <span class="relative inline-flex h-2 w-2 shrink-0" aria-hidden="true">
+            <span class="model-wave"></span>
+            <span class="model-wave model-wave-delay"></span>
+            <span class="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
+          </span>
+          <span class="truncate">{{ selected.groupLabel }}</span>
         </span>
-        <button type="button" class="btn btn-secondary btn-sm" @click="toggleTheme">{{ isDark ? t('nav.lightMode') : t('nav.darkMode') }}</button>
+        <button type="button" class="rounded-md p-2 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/5" :title="isDark ? t('nav.lightMode') : t('nav.darkMode')" @click="toggleTheme">
+          <Icon :name="isDark ? 'sun' : 'moon'" size="sm" />
+        </button>
       </div>
     </header>
 
@@ -50,7 +62,7 @@
                 <time class="text-xs text-gray-400">{{ formatTime(item.createdAt) }}</time>
               </div>
               <div class="flex flex-col gap-1">
-                <button type="button" class="btn btn-secondary btn-sm" @click="download(item.url, 0, item.blob.type)">{{ t('imageStudio.history.download') }}</button>
+                <button type="button" class="btn btn-secondary btn-sm" @click="download(item.url, item.name, item.mimeType || item.blob.type)">{{ t('imageStudio.history.download') }}</button>
                 <button type="button" class="btn btn-secondary btn-sm" @click="removeHistory(item.id)">{{ t('imageStudio.history.delete') }}</button>
               </div>
             </li>
@@ -144,11 +156,11 @@
 
       <button type="button" class="w-1.5 shrink-0 cursor-col-resize bg-gray-200 hover:bg-primary-400 dark:bg-dark-700" aria-label="resize" @pointerdown="startResize" />
 
-      <section class="relative min-h-0 min-w-0 flex-1 bg-gray-100 dark:bg-dark-950">
+      <section class="relative flex min-h-0 min-w-0 flex-1 flex-col bg-gray-100 dark:bg-dark-950">
         <div v-if="pending" class="absolute inset-0 z-20 flex items-center justify-center bg-white/60 dark:bg-dark-950/60">
           <Icon name="refresh" size="lg" class="animate-spin text-primary-500" />
         </div>
-        <ImageStudioCanvas v-if="canvasUrls.length" :urls="canvasUrls" :alt="t('imageStudio.title')" @download="download" />
+        <ImageStudioCanvas v-if="canvasItems.length" :items="canvasItems" :alt="t('imageStudio.title')" @download="downloadItem" />
         <p v-else class="flex h-full items-center justify-center text-sm text-gray-500">{{ t('imageStudio.resultEmpty') }}</p>
       </section>
     </div>
@@ -189,6 +201,8 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import Icon from '@/components/icons/Icon.vue'
+import { useAppStore, useAuthStore } from '@/stores'
+import { sanitizeUrl } from '@/utils/url'
 import { generateStudioImage, loadImageStudioCatalog } from '@/api/imageStudio'
 import {
   IMAGE_BACKGROUNDS,
@@ -211,10 +225,14 @@ import {
   modelSupportsEdit,
   promptTagCategories
 } from '@/utils/imageStudioUi'
-import { deleteImageStudioHistory, readImageStudioHistory, saveImageStudioHistory, type ImageStudioHistoryEntry } from './imageStudioHistory'
-import ImageStudioCanvas from './ImageStudioCanvas.vue'
+import { deleteImageStudioHistory, readImageDimensions, readImageStudioHistory, saveImageStudioHistory, type ImageStudioHistoryEntry } from './imageStudioHistory'
+import ImageStudioCanvas, { type ImageStudioCanvasItem } from './ImageStudioCanvas.vue'
 
 const { t, locale } = useI18n()
+const appStore = useAppStore()
+const authStore = useAuthStore()
+const siteLogo = computed(() => sanitizeUrl(appStore.cachedPublicSettings?.site_logo || appStore.siteLogo || '', { allowRelative: true, allowDataUrl: true }))
+const systemHome = computed(() => (authStore.isAdmin ? '/admin/dashboard' : '/dashboard'))
 const formats = IMAGE_OUTPUT_FORMATS
 const backgrounds = IMAGE_BACKGROUNDS
 const tagLocale = computed(() => (locale.value.startsWith('zh') ? 'zh' : 'en'))
@@ -235,7 +253,7 @@ const references = ref<{ file: File; url: string }[]>([])
 const pending = ref(false)
 const errorMessage = ref('')
 const historyWarning = ref('')
-const resultUrls = ref<string[]>([])
+const resultItems = ref<ImageStudioCanvasItem[]>([])
 const history = ref<Array<ImageStudioHistoryEntry & { url: string }>>([])
 const historyFailed = ref(false)
 const previewId = ref<number | null>(null)
@@ -254,10 +272,27 @@ const sizes = computed(() => sizesForModel(selected.value?.model ?? ''))
 const qualities = computed(() => qualitiesForModel(selected.value?.model ?? ''))
 const canEdit = computed(() => (selected.value ? modelSupportsEdit(selected.value.model) : false))
 const remainingSlots = computed(() => Math.max(0, MAX_REFERENCE_IMAGES - references.value.length))
-const canvasUrls = computed(() => {
+const canvasItems = computed(() => {
   const preview = history.value.find((item) => item.id === previewId.value)
-  return preview ? [preview.url] : resultUrls.value
+  return preview ? [historyToCanvas(preview)] : resultItems.value
 })
+
+function historyToCanvas(item: ImageStudioHistoryEntry & { url: string }): ImageStudioCanvasItem {
+  return {
+    url: item.url,
+    name: item.name,
+    byteSize: item.byteSize || item.blob.size,
+    width: item.width || 0,
+    height: item.height || 0,
+    mimeType: item.mimeType || item.blob.type || 'image/png',
+    model: item.model,
+    prompt: item.prompt,
+    createdAt: item.createdAt,
+    size: item.size || '',
+    quality: item.quality || '',
+    format: item.format || ''
+  }
+}
 
 watch(selected, (item) => {
   if (!item) return
@@ -324,7 +359,29 @@ async function refreshHistory() {
   revokeHistory()
   try {
     const entries = await readImageStudioHistory()
-    history.value = entries.map((entry) => ({ ...entry, url: URL.createObjectURL(entry.blob) }))
+    history.value = await Promise.all(entries.map(async (entry) => {
+      const mimeType = entry.mimeType || entry.blob.type || 'image/png'
+      let width = entry.width || 0
+      let height = entry.height || 0
+      if (!width || !height) {
+        const dimensions = await readImageDimensions(entry.blob).catch(() => ({ width: 0, height: 0 }))
+        width = dimensions.width
+        height = dimensions.height
+      }
+      const extension = mimeType === 'image/jpeg' ? 'jpg' : mimeType === 'image/webp' ? 'webp' : 'png'
+      return {
+        ...entry,
+        url: URL.createObjectURL(entry.blob),
+        width,
+        height,
+        mimeType,
+        byteSize: entry.byteSize || entry.blob.size,
+        name: entry.name || `image-${entry.id}.${extension}`,
+        size: entry.size || '',
+        quality: entry.quality || '',
+        format: entry.format || ''
+      }
+    }))
     historyFailed.value = false
   } catch {
     history.value = []
@@ -333,6 +390,7 @@ async function refreshHistory() {
 }
 
 onMounted(async () => {
+  if (!appStore.publicSettingsLoaded) void appStore.fetchPublicSettings()
   try {
     groups.value = await loadImageStudioCatalog()
     selectedId.value = groups.value[0]?.models[0]?.id ?? ''
@@ -433,13 +491,17 @@ async function confirmPicked() {
   }
 }
 
-function download(url: string, index: number, type?: string) {
+function download(url: string, name?: string, type?: string) {
   const mime = type ?? /^data:([^;,]+)/.exec(url)?.[1] ?? 'image/png'
   const extension = mime === 'image/jpeg' ? 'jpg' : mime === 'image/webp' ? 'webp' : 'png'
   const anchor = document.createElement('a')
   anchor.href = url
-  anchor.download = `image-${Date.now()}${index ? `-${index}` : ''}.${extension}`
+  anchor.download = name || `image-${Date.now()}.${extension}`
   anchor.click()
+}
+
+function downloadItem(item: ImageStudioCanvasItem) {
+  download(item.url, item.name, item.mimeType)
 }
 
 function startResize(event: PointerEvent) {
@@ -498,13 +560,34 @@ async function generate() {
       outputCompression: format === 'png' || compression.value === '' ? null : Math.min(100, Math.max(0, Math.round(Number(compression.value)))),
       references: references.value.map((item) => item.file)
     })
-    resultUrls.value = urls
+    let saved: Awaited<ReturnType<typeof saveImageStudioHistory>> = []
     try {
-      await saveImageStudioHistory(urls, trimmed, current.model)
+      saved = await saveImageStudioHistory(urls, {
+        prompt: trimmed,
+        model: current.model,
+        size: size.value,
+        quality: quality.value,
+        format
+      })
       await refreshHistory()
     } catch {
       historyWarning.value = t('imageStudio.historySaveFailed')
     }
+    const extension = format === 'jpeg' ? 'jpg' : format
+    resultItems.value = urls.map((url, index) => ({
+      url,
+      name: saved[index]?.name || `image-${index + 1}.${extension}`,
+      byteSize: saved[index]?.byteSize || 0,
+      width: saved[index]?.width || 0,
+      height: saved[index]?.height || 0,
+      mimeType: saved[index]?.mimeType || `image/${format === 'jpeg' ? 'jpeg' : format}`,
+      model: current.model,
+      prompt: trimmed,
+      createdAt: saved[index]?.createdAt || Date.now(),
+      size: size.value,
+      quality: quality.value,
+      format
+    }))
   } catch (error) {
     const message = error instanceof Error ? error.message : ''
     errorMessage.value = message === 'timeout' ? t('imageStudio.timeout') : message === 'empty_result' ? t('imageStudio.emptyResult') : message || t('imageStudio.loadFailed')
@@ -513,3 +596,28 @@ async function generate() {
   }
 }
 </script>
+
+<style scoped>
+.model-wave {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background: rgb(16 185 129);
+  animation: model-wave 1.8s ease-out infinite;
+}
+
+.model-wave-delay {
+  animation-delay: 0.7s;
+}
+
+@keyframes model-wave {
+  0% {
+    transform: scale(1);
+    opacity: 0.55;
+  }
+  100% {
+    transform: scale(2.8);
+    opacity: 0;
+  }
+}
+</style>

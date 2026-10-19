@@ -167,6 +167,16 @@ const routes: RouteRecordRaw[] = [
     }
   },
   {
+    path: '/docs',
+    name: 'Docs',
+    component: () => import('@/views/docs/DocsView.vue'),
+    meta: {
+      requiresAuth: false,
+      title: 'Docs',
+      titleKey: 'docsCenter.title'
+    }
+  },
+  {
     path: '/legal/:documentId',
     name: 'LegalDocument',
     component: () => import('@/views/public/LegalDocumentView.vue'),
@@ -776,6 +786,7 @@ const BACKEND_MODE_CALLBACK_PATHS = [
 const BACKEND_MODE_PENDING_AUTH_PATHS = ['/register', '/email-verify']
 
 function isBackendModePublicRouteAllowed(path: string, hasPendingAuthSession: boolean): boolean {
+  if (path === '/docs') return true
   if (BACKEND_MODE_ALLOWED_PATHS.some((allowedPath) => path === allowedPath || path.startsWith(allowedPath))) {
     return true
   }

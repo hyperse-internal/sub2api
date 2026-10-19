@@ -493,6 +493,9 @@ const ServerIcon = {
 const PluginIcon = {
   render: () => h(Icon, { name: 'cube' })
 }
+const BookIcon = {
+  render: () => h(Icon, { name: 'book' })
+}
 
 const BellIcon = {
   render: () =>
@@ -738,6 +741,7 @@ function buildSelfNavItems(withDashboard: boolean): NavItem[] {
   items.push(
     { path: '/keys', label: t('nav.apiKeys'), icon: KeyIcon },
     { path: '/image-studio', label: t('nav.imageStudio'), icon: BatchImageIcon, openInNewTab: true },
+    { path: '/docs', label: t('nav.docs'), icon: BookIcon, openInNewTab: true },
     { path: '/batch-image', label: t('nav.batchImage'), icon: BatchImageIcon, hideInSimpleMode: true, featureFlag: flagBatchImageAccess },
     { path: '/usage', label: t('nav.usage'), icon: ChartIcon, hideInSimpleMode: true },
     { path: '/available-channels', label: t('nav.availableChannels'), icon: ChannelIcon, hideInSimpleMode: true, featureFlag: flagAvailableChannels },
@@ -860,6 +864,7 @@ const adminNavItems = computed((): NavItem[] => {
     const filtered = visible.filter(item => !item.hideInSimpleMode)
     filtered.push({ path: '/keys', label: t('nav.apiKeys'), icon: KeyIcon })
     filtered.push({ path: '/image-studio', label: t('nav.imageStudio'), icon: BatchImageIcon, openInNewTab: true })
+    filtered.push({ path: '/docs', label: t('nav.docs'), icon: BookIcon, openInNewTab: true })
     filtered.push({ path: '/admin/settings', label: t('nav.settings'), icon: CogIcon })
     for (const cm of customMenuItemsForAdmin.value) {
       filtered.push({ path: `/custom/${cm.id}`, label: cm.label, icon: null, iconSvg: cm.icon_svg })

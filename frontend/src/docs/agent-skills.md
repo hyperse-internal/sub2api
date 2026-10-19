@@ -1,0 +1,228 @@
+---
+id: agent-skills
+title: Agent 技能安装
+eyebrow: 中转站 · 进阶
+description: 在 Codex 中安装 AlphaIO 图片生成 Agent 技能。
+navLabel: Agent 技能安装
+navNote: 安装与配置
+---
+
+装好 Agent 技能后，在 Codex 里直接用对话画图，不用记命令。
+
+| 技能 | 装好后可以说 |
+| --- | --- |
+| **图片生成与编辑** | 「帮我画一只戴帽子的水獭」「把这张图的背景换成雪山」 |
+
+安装流程：**下载压缩包 → 找到技能目录 → 解压放进去 → 配置 API Key → 重启客户端**
+
+最容易搞错的是技能目录，见下方「找到技能目录」。
+
+接入前请先完成 [注册账号](?doc=register)，并在控制台 [创建 API Key](?doc=purchase)。用法说明见 [图片生成](?doc=image-generation)。
+
+## 最省事：让 AI 自己装
+
+不想手动下载解压，可以交给 Codex 来装。启动后把下面这段提示词**完整复制**粘贴进去：
+
+```
+帮我安装 AlphaIO 的图片生成 Agent 技能，教程https://ai.alphaio.vip/zh/docs/agent-skills。
+
+技能包下载地址：
+- https://file.shunquan.wang/skills/alphaio-image.zip
+
+请你：
+1. 确认我用的是 Codex。技能目录优先使用 ~/.agents/skills/；若已存在 ~/.codex/skills/ 也可装到那里。目录不存在就创建。
+2. 下载上面的压缩包并解压到技能目录。解压后确认结构是 <技能目录>/alphaio-image/SKILL.md，且 scripts/ 下有 image.mjs、config.mjs，不要多套一层文件夹。
+3. 确保存在 ~/.codex/.env，并写入（或补全）以下两行（密钥用占位符，不要编造）：
+   base_url=https://ai.alphaio.vip/v1
+   api_key=sk-在这里填你的密钥
+   若文件里已有 api_key / base_url，就跳过并告诉我会复用现有配置。
+4. 装完列出技能目录确认文件到位，然后告诉我去哪里替换真实密钥、以及需要重启 Codex 才生效。
+
+注意：不要编造 API Key，一律用占位符。
+```
+
+AI 会按提示词执行；API Key 先用占位符，装完按指引换成你在控制台复制的真实密钥，然后**重启 Codex**。
+
+想自己动手，或 AI 没装成功，按下面的步骤手动安装。
+
+## 下载技能包
+
+下载「图片生成与编辑」技能：
+
+[图片生成与编辑技能包](https://file.shunquan.wang/skills/alphaio-image.zip)
+
+保存到本机（例如「下载」文件夹）。
+
+## 找到技能目录
+
+技能要放进 Codex 可发现的技能目录（任选其一；脚本也会按顺序自动查找）：
+
+| 路径 | 说明 |
+| --- | --- |
+| `~/.agents/skills/` | Codex 常用技能目录（推荐） |
+| `~/.codex/skills/` | 同样可用 |
+
+这里的 `~` 代表用户主目录，以点开头的文件夹默认隐藏。
+
+**Mac：**
+
+```
+1. 打开「访达（Finder）」
+2. 按下 Command + Shift + G，会弹出一个跳转输入框
+3. 输入技能目录路径后回车，例如：~/.agents/skills
+4. 如果提示文件夹不存在，就在用户主目录下手动新建
+   （先建 .agents，再在里面建 skills）
+
+小贴士：按 Command + Shift + . （点号）可以切换显示隐藏文件
+```
+
+**Windows：**
+
+```
+1. 打开「文件资源管理器」
+2. 点击顶部地址栏，输入后回车，例如：%USERPROFILE%\.agents\skills
+   （%USERPROFILE% 就是你的用户文件夹，一般是 C:\Users\你的用户名）
+3. 如果提示找不到，就在用户文件夹下手动新建
+   （先建 .agents，再在里面建 skills）
+
+小贴士：在「查看 → 显示 → 隐藏的项目」里可以显示隐藏文件夹
+```
+
+Windows 直接右键新建文件夹时，输入 `.agents` 可能会提示「必须键入文件名」。解决办法：输入 `.agents.`（**末尾多加一个点**），回车后系统会自动去掉末尾的点。
+
+## 解压技能包
+
+把下载好的压缩包解压，**把解压出来的文件夹整个拖进技能目录**。
+
+- **Mac**：双击压缩包，解压出 `alphaio-image` 文件夹，把它拖进技能目录
+- **Windows**：右键压缩包 → 「全部解压缩」，把解压出的文件夹拖进技能目录
+
+完成后目录结构应该是这样，注意 `SKILL.md` 要在技能文件夹的第一层：
+
+```
+~/.agents/skills/
+└── alphaio-image/
+    ├── SKILL.md
+    └── scripts/
+        ├── image.mjs
+        └── config.mjs
+```
+
+最常见的错误：多套了一层文件夹。如果解压出来是 `skills/alphaio-image/alphaio-image/SKILL.md`，把里层的 `alphaio-image` **移到上一层**，再删掉空的外层文件夹。
+
+命令行安装：
+
+```bash
+mkdir -p ~/.agents/skills
+curl -fsSL -o /tmp/alphaio-image.zip https://file.shunquan.wang/skills/alphaio-image.zip
+unzip -o /tmp/alphaio-image.zip -d ~/.agents/skills/
+```
+
+```powershell
+New-Item -ItemType Directory -Force -Path "$HOME\.agents\skills" | Out-Null
+Invoke-WebRequest -Uri "https://file.shunquan.wang/skills/alphaio-image.zip" -OutFile "$env:TEMP\alphaio-image.zip"
+Expand-Archive -Path "$env:TEMP\alphaio-image.zip" -DestinationPath "$HOME\.agents\skills\" -Force
+```
+
+`-d` / `-DestinationPath` 指定的是技能目录；压缩包里已带技能文件夹这一层，一般不会多套。
+
+## 配置 API Key
+
+脚本按以下优先级读取密钥（任选一种即可）：
+
+1. 环境变量 `CODEXZH_API_KEY`
+2. `~/.codexzh/config.json` 的 `apiKey`
+3. `~/.codex/.env` 里的 `api_key` / `base_url`
+
+推荐在 `~/.codex/.env`（Windows：`%USERPROFILE%\.codex\.env`）中配置。**该文件必须存在**，且包含：
+
+```
+base_url=https://ai.alphaio.vip/v1
+api_key=sk-你的密钥
+```
+
+若文件还不存在：
+
+```bash
+mkdir -p ~/.codex
+touch ~/.codex/.env
+```
+
+再用编辑器写入上面两行。`api_key` 在 [AlphaIO 控制台](https://ai.alphaio.vip) 创建并复制。
+
+也可用配置文件（可同时指定接口地址）：
+
+```json
+{
+  "apiKey": "sk-你的密钥",
+  "apiBaseUrl": "https://ai.alphaio.vip/v1"
+}
+```
+
+保存为 `~/.codexzh/config.json`，并建议：
+
+```bash
+chmod 600 ~/.codexzh/config.json
+```
+
+保管好 API Key：不要截图外传，也不要贴到公开群聊。
+
+检查 `.env` 是否已配置：
+
+```bash
+grep -E '^\s*(base_url|api_key)\s*=' ~/.codex/.env 2>/dev/null
+```
+
+应能看到两行非空结果。
+
+## 重启并试用
+
+**技能在客户端启动时加载，放好文件后必须重启 Codex 才能生效。**
+
+重启后可以直接说：
+
+```
+帮我画一只戴贝雷帽、坐在木桌上的小水獭，柔和光线
+```
+
+```
+把这张图的背景换成下雪的雪山
+```
+
+（图生图时附上本地图片路径。）
+
+支持文生图、图生图和局部重绘。图片默认存到当前目录，也可以说「存到桌面」。默认模型是 `gpt-image-2`；想换模型可在描述里写明，例如「用 gpt-image-2.5 画一只小水獭」。
+
+更多用法见 [图片生成](?doc=image-generation)。
+
+## 生图前请先放开权限
+
+Codex 沙盒默认偏「只读」、不一定允许命令联网，直接生图可能失败。
+
+生图前在聊天界面把权限切成**完全访问**，或在设置 →「配置」→「沙盒设置」里改为完全访问。
+
+## 关于生图费用
+
+生成图片按次计费，从账户额度中扣除，**具体金额以控制台用量明细为准**。
+
+Agent 生成后可能会自检并重试，一个需求可能对应多条调用；也可能图片已生成成功，但客户端超时未展示。若介意这类情况，可改用控制台 / API 网页端单次生图。
+
+## 常见问题
+
+### 客户端里看不到技能
+
+1. 确认解压位置是 `~/.agents/skills/` 或 `~/.codex/skills/`
+2. 确认没有多套一层文件夹，`SKILL.md` 应直接在 `alphaio-image/` 下面，且存在 `scripts/image.mjs`
+3. 重启 Codex——解压后不重启看不到
+
+### 提示未找到 CodexZH API Key
+
+确认已配置 `CODEXZH_API_KEY`、`~/.codexzh/config.json`，或 `~/.codex/.env` 中的 `api_key`；改完后重开终端并重启 Codex。
+
+### 提示无效的令牌
+
+Key 填错或已轮换。到控制台重新复制，注意前后不要多空格。
+
+### 怎么更新技能
+
+重新下载 [alphaio-image.zip](https://file.shunquan.wang/skills/alphaio-image.zip)，解压覆盖原目录，然后重启 Codex。

@@ -456,5 +456,14 @@ export default {
     adminApiKeyForbidden: '管理 API Key 无法执行此操作，请使用已通过二次验证的管理员会话。'
   },
 
+  docsCenter: {
+    title: '教程',
+    nav: '文档导航',
+    toc: '目录',
+    tocMobile: '本文目录',
+    emptyToc: '本文暂无可用目录',
+    console: '控制台'
+  },
+
   // Dashboard
 }

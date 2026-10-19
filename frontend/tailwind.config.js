@@ -48,6 +48,9 @@ export default {
           950: '#020617'
         }
       },
+      maxWidth: {
+        '8xl': '96rem'
+      },
       fontFamily: {
         sans: [
           'system-ui',

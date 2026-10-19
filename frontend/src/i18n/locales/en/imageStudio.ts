@@ -3,6 +3,7 @@ export default {
     title: 'Image generation',
     description: 'Generate images with the models available to your API keys.',
     subtitle: 'Models and keys come from the account you are logged in with.',
+    backToSystem: 'Back to the console',
     prompt: 'Prompt',
     promptPlaceholder: 'Describe the image you want',
     promptHelper: {
@@ -59,7 +60,23 @@ export default {
       delete: 'Delete',
       add: 'Add selected'
     },
-    canvas: { flipX: 'Flip H', flipY: 'Flip V', reset: 'Reset' },
+    canvas: {
+      flipX: 'Flip H',
+      flipY: 'Flip V',
+      reset: 'Reset',
+      infoTitle: 'Image info',
+      info: {
+        name: 'Name',
+        byteSize: 'Size',
+        resolution: 'Resolution',
+        format: 'Format',
+        model: 'Model',
+        size: 'Requested size',
+        quality: 'Quality',
+        createdAt: 'Created',
+        prompt: 'Prompt'
+      }
+    },
     errors: {
       invalid_prompt: 'Enter a prompt.',
       prompt_too_long: 'The prompt is too long.',

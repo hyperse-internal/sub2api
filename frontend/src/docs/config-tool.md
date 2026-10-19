@@ -1,0 +1,219 @@
+---
+id: config-tool
+title: 配置工具
+eyebrow: 中转站 · 工具接入
+description: 使用 CC Switch 接入 Claude Code、Codex、Cursor、DeepSeek 等工具。
+navLabel: 配置工具
+navNote: CC Switch 与客户端
+---
+
+完成 [注册账号](?doc=register) 并拿到 API Key 后，按下方步骤接入常用 AI 工具。
+
+## CC Switch
+
+### 简介
+
+它是一个小工具，帮你**一键切换** Claude Code、Codex 等 AI 软件的后端地址和 Key。
+
+下载地址：[Releases · farion1231/cc-switch](https://github.com/farion1231/cc-switch/releases)（选择你的操作系统对应版本）
+
+### 连接模式
+
+每个应用（如 Codex、Claude Code）的供应商页顶部有三个标签：
+
+| 模式 | 作用 |
+| --- | --- |
+| **直连** | 客户端直接连到某个供应商，不经过本机转发。 |
+| **路由** | 请求先经过本机 CC Switch，再转发到你选的供应商。接入 AlphaIO 时推荐使用。 |
+| **聚合** | 按规则把不同模型分发给多个供应商（进阶用法，本文不展开）。 |
+
+侧栏应用名旁出现绿色「路由」标签，表示该应用当前走的是路由模式。
+
+### 配置步骤（以 Codex 为例）
+
+常用字段如下：
+
+| 字段 | 填什么 |
+| --- | --- |
+| 供应商名称 | 随便填，比如 `DeepSeek` 或 `AlphaIO` |
+| API Key | 前一步创建的完整 AlphaIO API Key |
+| API 请求地址 | AlphaIO 控制台提供的地址。示例如 `https://ai.alphaio.vip`；若客户端要求带 `/v1` 等路径，按站点说明补全。 |
+| 模型列表 | 当前分组可用的模型 ID；可「获取模型列表」或「手动添加」 |
+
+> Claude Code、Codex、Cursor 和 DeepSeek 可能使用不同的 API 协议。若 CC Switch 或客户端要求选择 Anthropic Messages、OpenAI Responses 或 OpenAI 兼容接口，请按 AlphaIO 当前说明选择；仅填写根域名不一定能完成请求。
+
+**1. 打开供应商页**
+
+打开 CC Switch，在左侧选择 **Codex**。右上角点击 **+ 添加供应商**。
+
+![Codex 供应商页](/docs/assets/cc-1.png)
+
+**2. 选择添加方式**
+
+可搜索预设厂商，或点顶部的 **自定义配置** 手动填写请求地址和 API Key。接入 AlphaIO 时，也可先选一个相近模板（如 DeepSeek），再在下一步把请求地址改成 AlphaIO。
+
+![添加供应商](/docs/assets/cc-2.png)
+
+**3. 填写 Key、地址与模型**
+
+在编辑页填入：
+
+- **API Key**：AlphaIO 完整 Key
+- **API 请求地址**：例如 `https://ai.alphaio.vip`
+- **模型列表**：菜单显示名与实际请求模型 ID（截图中的 `deepseek-v4.1-flash` 仅作示例，以你当前分组可用模型为准）
+
+确认底部 `auth.json` 中的 Key 映射正确后，点击 **保存**。模型列表改动后需要重启 Codex 才会生效。
+
+![填写供应商与模型](/docs/assets/cc-3.png)
+
+**4. 切换到「路由」**
+
+回到供应商列表后，点击顶部的 **路由** 标签。仅添加供应商还不够，必须启用路由，请求才会经 CC Switch 转发到 AlphaIO。
+
+![切换到路由标签](/docs/assets/cc-4.png)
+
+**5. 开始路由**
+
+若当前仍是直连，页面会提示「你在查看「路由」，Codex 目前是直连。」点击右侧绿色的 **开始路由**。
+
+![开始路由](/docs/assets/cc-5.png)
+
+**6. 选择转发目标**
+
+在弹窗中说明：请求会先经过本机 CC Switch，再转到所选供应商。在 **路由到** 下拉里选中刚才配置好的供应商（如 DeepSeek / AlphaIO），再点 **开始路由**。
+
+![选择路由目标供应商](/docs/assets/cc-6.png)
+
+启用成功后，侧栏 Codex 旁会出现绿色「路由」标签；之后启动或重启 Codex，在模型列表中选一个已配置且分组允许的模型即可验证。
+
+### 排障
+
+切换后如果工具没有生效：
+
+1. 确认对应供应商的 API Key、请求地址和模型 ID 正确
+2. 确认该应用已切到 **路由**，且「路由到」指向你配置的 AlphaIO 供应商
+3. 完全退出并重启目标工具（不同版本对已打开窗口的刷新方式可能不同）
+
+Claude Code、Claude Desktop 等应用的添加与启用流程相同：左侧点对应应用 → 添加供应商 → 切到 **路由** → **开始路由** 并选中目标供应商。
+
+## Claude Code
+
+### 环境准备
+
+下面的官方安装脚本不要求预先安装 Node.js 或 Git。只有在使用 npm 安装方式或需要进行 Git 版本管理时，才按需安装对应工具。安装后若终端找不到命令，请重启终端并检查 PATH。
+
+### 安装
+
+**macOS, Linux, WSL:**
+
+```bash
+curl -fsSL https://claude.ai/install.sh | bash
+```
+
+**Windows PowerShell:**
+
+```powershell
+irm https://claude.ai/install.ps1 | iex
+```
+
+**Windows CMD:**
+
+```bat
+curl -fsSL https://claude.ai/install.cmd -o install.cmd && install.cmd && del install.cmd
+```
+
+安装完成后运行以下命令，确认 Claude Code 可用：
+
+```bash
+claude --version
+```
+
+能显示版本号即可。首次使用时，按提示完成登录或鉴权。
+
+### 接入中转
+
+回到上文 **CC Switch**，左侧选择 **Claude Code**，按同样步骤添加供应商：填入 API Key、AlphaIO 请求地址，并配置模型列表后保存。再切到 **路由**，点击 **开始路由**，把流量转到该供应商。
+
+### 启动
+
+确认侧栏 Claude Code 旁已出现绿色「路由」标签后，打开终端输入 `claude`。如果提示鉴权或模型不可用，先检查 API Key、分组和模型列表。
+
+## Codex
+
+### 安装
+
+- 官方入口：[chatgpt.com/codex](https://chatgpt.com/codex)。根据页面提示使用桌面版或 CLI。
+
+### 配置
+
+完整步骤见上文 **CC Switch**。按当前客户端要求选择协议和完整 API 地址，保存后务必启用 **路由** 并选中你的 AlphaIO 供应商。
+
+### 使用
+
+启动或重启 Codex，在模型列表中选择一个当前分组允许的模型，发送一条测试请求确认连接。若失败，检查 API 地址、协议、Key、分组，以及 CC Switch 是否已处于路由模式。
+
+部分 Codex 版本可在右下角切换模型和思考强度，具体选项以当前版本为准。
+
+## Cursor
+
+### 添加模型
+
+先在 AlphaIO 控制台确认目标模型可用，再打开 Cursor 设置的 **Models** 页面，点击 **Add Custom Model** 添加模型 ID。截图中的 `deepseek-v4.1-flash` 仅作示例，实际以当前模型列表为准。
+
+![Cursor Models 页面添加自定义模型](/docs/assets/cursor-models.png)
+
+### 填写密钥
+
+进入 **API Keys** 设置，启用 **OpenAI API Key**，填入完整的 AlphaIO API Key；同时启用 **Override OpenAI Base URL**，填写站点当前提供的 OpenAI 兼容地址。若当前客户端要求 `/v1` 等完整路径，请按站点说明补全。
+
+![Cursor API Keys 设置](/docs/assets/cursor-api-keys.png)
+
+### 验证
+
+回到对话窗口，在模型下拉菜单中选择刚才添加且已启用的模型，发送一条测试消息确认可用。
+
+![Cursor 对话窗口选择模型](/docs/assets/cursor-chat-model.png)
+
+## DeepSeek
+
+### Harness
+
+下面示例展示入口和字段位置。供应商地址、API 协议、Key 分组和模型 ID 都可能随服务端或客户端版本变化，请先在 AlphaIO 控制台确认当前可用值，不要直接照抄截图中的旧供应商信息。
+
+点击 DeepSeek Harness 左下角**更多**，然后点击**设置**。
+
+![DeepSeek Harness 设置入口](/docs/assets/dsh-entry.png)
+
+点击「模型」，再点击「添加模型供应商」。
+
+![添加模型供应商](/docs/assets/dsh-provider.png)
+
+在**自定义模型 API**中填写当前 API 地址、客户端要求的协议、完整 API Key 和可用模型 ID；如果使用 Anthropic Messages 或 OpenAI 兼容协议，请与服务端提供的接口类型保持一致。
+
+![填写自定义模型 API](/docs/assets/dsh-config.png)
+
+然后点击创建供应商即可。
+
+之后在对话窗口右下角，点击模型名，然后选择刚才创建的模型。
+
+![选择模型](/docs/assets/dsh-select-model.png)
+
+### ZCode
+
+点击 ZCode 左下角的**设置**按钮。
+
+![ZCode 设置入口](/docs/assets/zcode-settings.png)
+
+按图示依次选择并点击。
+
+![ZCode 添加供应商入口](/docs/assets/zcode-add-provider.png)
+
+填写当前 API 地址、协议、API Key 和模型 ID。完成后保存供应商，并在对话界面选择已启用的模型。
+
+![填写供应商信息](/docs/assets/zcode-add-model-1.png)
+
+![补充模型配置](/docs/assets/zcode-add-model-2.png)
+
+然后在对话界面右下角选择模型，发送一条测试消息确认连接。
+
+![选择已启用模型](/docs/assets/zcode-select-model.png)

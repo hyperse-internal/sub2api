@@ -9,28 +9,20 @@ const headerSource = readFileSync(resolve(dir, '../AppHeader.vue'), 'utf8')
 const homeViewSource = readFileSync(resolve(dir, '../../../views/HomeView.vue'), 'utf8')
 const keyUsageViewSource = readFileSync(resolve(dir, '../../../views/KeyUsageView.vue'), 'utf8')
 
-describe('doc_url sanitization', () => {
-  it('AppHeader imports sanitizeUrl', () => {
-    expect(headerSource).toContain("import { sanitizeUrl } from '@/utils/url'")
+describe('docs entry', () => {
+  it('AppHeader opens the in-app docs center', () => {
+    expect(headerSource).toContain('to="/docs"')
   })
 
-  it('AppHeader applies sanitizeUrl to docUrl', () => {
-    expect(headerSource).toContain('sanitizeUrl(appStore.docUrl)')
-  })
-
-  it('HomeView imports sanitizeUrl', () => {
+  it('HomeView sanitizes the site logo and links to the in-app docs', () => {
     expect(homeViewSource).toContain("import { sanitizeUrl } from '@/utils/url'")
+    expect(homeViewSource).toContain('sanitizeUrl(appStore.cachedPublicSettings?.site_logo || appStore.siteLogo')
+    expect(homeViewSource).toContain('to="/docs"')
   })
 
-  it('HomeView applies sanitizeUrl to docUrl', () => {
-    expect(homeViewSource).toContain('sanitizeUrl(appStore.cachedPublicSettings?.doc_url || appStore.docUrl')
-  })
-
-  it('KeyUsageView imports sanitizeUrl', () => {
+  it('KeyUsageView sanitizes the site logo and links to the in-app docs', () => {
     expect(keyUsageViewSource).toContain("import { sanitizeUrl } from '@/utils/url'")
-  })
-
-  it('KeyUsageView applies sanitizeUrl to docUrl', () => {
-    expect(keyUsageViewSource).toContain('sanitizeUrl(appStore.cachedPublicSettings?.doc_url || appStore.docUrl')
+    expect(keyUsageViewSource).toContain('sanitizeUrl(appStore.cachedPublicSettings?.site_logo || appStore.siteLogo')
+    expect(keyUsageViewSource).toContain('to="/docs"')
   })
 })
