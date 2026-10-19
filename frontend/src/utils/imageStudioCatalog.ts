@@ -95,7 +95,7 @@ export function buildImageStudioCatalog(
       const dedupe = `${family}|${rateLabel}|${model}`
       if (seenModel.has(dedupe)) continue
       seenModel.add(dedupe)
-      const groupLabel = `${family}-${rateLabel}x`
+      const groupLabel = rateLabel === '1' ? family : `${family}-${rateLabel}x`
       const groupKey = `${family}|${rateLabel}`
       const group = byGroup.get(groupKey) ?? {
         label: groupLabel,

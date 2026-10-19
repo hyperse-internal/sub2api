@@ -83,9 +83,10 @@ describe('image studio catalog', () => {
       { key: duplicate, models: ['gpt-image-2'] }
     ])
 
-    expect(groups.map((group) => group.label)).toEqual(['gpt-image-2-0.4x', 'gpt-image-2-1x'])
+    expect(groups.map((group) => group.label)).toEqual(['gpt-image-2', 'gpt-image-2-0.4x'])
     expect(groups[0].models).toHaveLength(1)
-    expect(groups[0].models[0].keyId).toBe(1)
+    expect(groups[0].models[0].keyId).toBe(2)
+    expect(groups[1].models[0].keyId).toBe(1)
   })
 
   it('uses the independent image rate and ignores keys that cannot generate images', () => {
