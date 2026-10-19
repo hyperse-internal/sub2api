@@ -69,7 +69,9 @@
                   :to="child.path"
                   class="sidebar-link mb-0.5 py-1.5 text-sm"
                   :class="{ 'sidebar-link-active': route.path === child.path }"
-                  @click="handleMenuItemClick(child.path)"
+                  :target="linkTarget(child)"
+                  :rel="linkRel(child)"
+                  @click="handleMenuItemClick(child.path, child.openInNewTab)"
                 >
                   <component :is="child.icon" class="h-4 w-4 flex-shrink-0" />
                   <span>{{ child.label }}</span>
@@ -92,7 +94,9 @@
                       ? 'sidebar-wallet'
                       : undefined
               "
-              @click="handleMenuItemClick(item.path)"
+              :target="linkTarget(item)"
+              :rel="linkRel(item)"
+              @click="handleMenuItemClick(item.path, item.openInNewTab)"
             >
               <span v-if="item.iconSvg" class="h-5 w-5 flex-shrink-0 sidebar-svg-icon" v-html="sanitizeSvg(item.iconSvg)"></span>
               <component v-else :is="item.icon" class="h-5 w-5 flex-shrink-0" />
@@ -117,7 +121,9 @@
             :class="{ 'sidebar-link-active': isActive(item.path), 'sidebar-link-collapsed': sidebarCollapsed }"
             :title="sidebarCollapsed ? item.label : undefined"
             :data-tour="item.path === '/keys' ? 'sidebar-my-keys' : undefined"
-            @click="handleMenuItemClick(item.path)"
+            :target="linkTarget(item)"
+            :rel="linkRel(item)"
+            @click="handleMenuItemClick(item.path, item.openInNewTab)"
           >
             <span v-if="item.iconSvg" class="h-5 w-5 flex-shrink-0 sidebar-svg-icon" v-html="sanitizeSvg(item.iconSvg)"></span>
             <component v-else :is="item.icon" class="h-5 w-5 flex-shrink-0" />
@@ -137,7 +143,9 @@
             :class="{ 'sidebar-link-active': isActive(item.path), 'sidebar-link-collapsed': sidebarCollapsed }"
             :title="sidebarCollapsed ? item.label : undefined"
             :data-tour="item.path === '/keys' ? 'sidebar-my-keys' : undefined"
-            @click="handleMenuItemClick(item.path)"
+            :target="linkTarget(item)"
+            :rel="linkRel(item)"
+            @click="handleMenuItemClick(item.path, item.openInNewTab)"
           >
             <span v-if="item.iconSvg" class="h-5 w-5 flex-shrink-0 sidebar-svg-icon" v-html="sanitizeSvg(item.iconSvg)"></span>
             <component v-else :is="item.icon" class="h-5 w-5 flex-shrink-0" />
@@ -219,6 +227,11 @@ interface NavItem {
    * 开关切换时菜单自动更新。
    */
   featureFlag?: () => boolean | undefined
+  /**
+   * 为 true 时在新标签页打开，当前页路由保持不变。
+   * 缺省时在系统内切换路由。
+   */
+  openInNewTab?: boolean
 }
 
 // applyFeatureFlags 递归过滤掉 featureFlag() === false 的节点（含子节点）。
@@ -724,6 +737,7 @@ function buildSelfNavItems(withDashboard: boolean): NavItem[] {
   }
   items.push(
     { path: '/keys', label: t('nav.apiKeys'), icon: KeyIcon },
+    { path: '/image-studio', label: t('nav.imageStudio'), icon: BatchImageIcon, openInNewTab: true },
     { path: '/batch-image', label: t('nav.batchImage'), icon: BatchImageIcon, hideInSimpleMode: true, featureFlag: flagBatchImageAccess },
     { path: '/usage', label: t('nav.usage'), icon: ChartIcon, hideInSimpleMode: true },
     { path: '/available-channels', label: t('nav.availableChannels'), icon: ChannelIcon, hideInSimpleMode: true, featureFlag: flagAvailableChannels },
@@ -845,6 +859,7 @@ const adminNavItems = computed((): NavItem[] => {
   if (authStore.isSimpleMode) {
     const filtered = visible.filter(item => !item.hideInSimpleMode)
     filtered.push({ path: '/keys', label: t('nav.apiKeys'), icon: KeyIcon })
+    filtered.push({ path: '/image-studio', label: t('nav.imageStudio'), icon: BatchImageIcon, openInNewTab: true })
     filtered.push({ path: '/admin/settings', label: t('nav.settings'), icon: CogIcon })
     for (const cm of customMenuItemsForAdmin.value) {
       filtered.push({ path: `/custom/${cm.id}`, label: cm.label, icon: null, iconSvg: cm.icon_svg })
@@ -873,7 +888,19 @@ function closeMobile() {
   appStore.setMobileOpen(false)
 }
 
-function handleMenuItemClick(itemPath: string) {
+function linkTarget(item: NavItem) {
+  return item.openInNewTab ? '_blank' : undefined
+}
+
+function linkRel(item: NavItem) {
+  return item.openInNewTab ? 'noopener noreferrer' : undefined
+}
+
+function handleMenuItemClick(itemPath: string, openInNewTab = false) {
+  if (openInNewTab) {
+    if (mobileOpen.value) appStore.setMobileOpen(false)
+    return
+  }
   if (mobileOpen.value) {
     setTimeout(() => {
       appStore.setMobileOpen(false)

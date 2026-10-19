@@ -266,7 +266,7 @@ var ErrModelPricingUnavailable = errors.New("pricing not found")
 
 // ---- DeepSeek 官方低谷价（$/token）----
 // 2026-09-10 官方公告：DeepSeek-V4.1-Flash（新名 deepseek-flash）大幅降价，
-// Flash 低谷价降为 $0.15/$0.60/$0.003 per MTok（输入缓存未命中/输出/缓存命中）；
+// Flash 低谷价为 $2/$8/$0.04 per MTok（输入缓存未命中/输出/缓存命中）；
 // deepseek-v4-pro 名义价格暂不变，但自北京时间 2026-09-14 12:00（04:00 UTC）起
 // 其请求被上游路由到 V4.1-Flash 并按 Flash 价计费（见 deepseekProBilledAsFlash）。
 // Source: https://api-docs.deepseek.com/news/news260910
@@ -276,9 +276,9 @@ var ErrModelPricingUnavailable = errors.New("pricing not found")
 // 高峰价 = 2× 低谷价；高峰时段 01:00–04:00 与 06:00–10:00 UTC（仅工作日），
 // 北京时间周六/周日全天低谷。时段判定见 deepseekPeakMultiplierAt。
 const (
-	deepseekFlashOffPeakInputPrice  = 1.5e-7  // $0.15 per MTok (cache miss)
-	deepseekFlashOffPeakOutputPrice = 6.0e-7  // $0.60 per MTok
-	deepseekFlashOffPeakCacheRead   = 3e-9    // $0.003 per MTok (cache hit)
+	deepseekFlashOffPeakInputPrice  = 2e-6 // $2 per MTok (cache miss)
+	deepseekFlashOffPeakOutputPrice = 8e-6 // $8 per MTok
+	deepseekFlashOffPeakCacheRead   = 4e-8 // $0.04 per MTok (cache hit)
 	deepseekProOffPeakInputPrice    = 6.6e-7  // $0.66 per MTok (cache miss)
 	deepseekProOffPeakOutputPrice   = 1.98e-6 // $1.98 per MTok
 	deepseekProOffPeakCacheRead     = 2.2e-8  // $0.022 per MTok (cache hit)
@@ -722,9 +722,9 @@ func (s *BillingService) initFallbackPricing() {
 		SupportsCacheBreakdown: false,
 	}
 	s.fallbackPrices["deepseek-v4-flash"] = &ModelPricing{
-		InputPricePerToken:     deepseekFlashOffPeakInputPrice,  // $0.15 per MTok (cache miss, off-peak)
-		OutputPricePerToken:    deepseekFlashOffPeakOutputPrice, // $0.60 per MTok
-		CacheReadPricePerToken: deepseekFlashOffPeakCacheRead,   // $0.003 per MTok (cache hit)
+		InputPricePerToken:     deepseekFlashOffPeakInputPrice,  // $2 per MTok (cache miss, off-peak)
+		OutputPricePerToken:    deepseekFlashOffPeakOutputPrice, // $8 per MTok
+		CacheReadPricePerToken: deepseekFlashOffPeakCacheRead,   // $0.04 per MTok (cache hit)
 		SupportsCacheBreakdown: false,
 	}
 	s.fallbackPrices["deepseek-v4-flash-vision-exp"] = &ModelPricing{

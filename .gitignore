@@ -127,7 +127,6 @@ scripts
 .code-review-state
 #openspec/
 code-reviews/
-AGENTS.md
 backend/cmd/server/server
 deploy/docker-compose.override.yml
 .gocache/
@@ -159,5 +158,7 @@ issues/
 
 # Vitest / Vite cache at repo root
 .vite/
+# Cursor stop-hook 记录的本轮改动文件，不入库
+.cursor/hooks/state/
 # 本地闭源插件开发目录及构建产物不进入 Sub2API 仓库
 /plugins/

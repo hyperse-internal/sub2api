@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "hooks": {
+    "afterFileEdit": [
+      {
+        "command": ".cursor/hooks/format-on-stop.sh record"
+      }
+    ],
+    "stop": [
+      {
+        "command": ".cursor/hooks/format-on-stop.sh run",
+        "timeout": 180,
+        "loop_limit": 3
+      }
+    ]
+  }
+}
