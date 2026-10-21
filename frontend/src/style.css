@@ -3,6 +3,10 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --app-header-height: 4rem;
+  }
+
   * {
     @apply border-gray-200 dark:border-dark-700;
   }
@@ -69,6 +73,11 @@
 }
 
 @layer components {
+  .app-header-bar {
+    height: var(--app-header-height);
+    flex-shrink: 0;
+  }
+
   /* ============ 按钮样式 ============ */
   .btn {
     @apply inline-flex items-center justify-center gap-2;

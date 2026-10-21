@@ -147,3 +147,6 @@ issues/
 .cursor/hooks/state/
 # 本地闭源插件开发目录及构建产物不进入 Sub2API 仓库
 /plugins/
+
+# 本地分析/预览产物（计费报告、首页 UI 截图等）
+/outputs/

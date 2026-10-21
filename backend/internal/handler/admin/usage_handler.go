@@ -388,6 +388,74 @@ func (h *UsageHandler) Stats(c *gin.Context) {
 	response.Success(c, stats)
 }
 
+// ConsumptionReport returns per-user spend summary + daily breakdown (max 7 days).
+// GET /api/v1/admin/usage/consumption-report?user_id=&start_date=&end_date=&timezone=
+func (h *UsageHandler) ConsumptionReport(c *gin.Context) {
+	userIDStr := strings.TrimSpace(c.Query("user_id"))
+	if userIDStr == "" {
+		response.BadRequest(c, "user_id is required")
+		return
+	}
+	userID, err := strconv.ParseInt(userIDStr, 10, 64)
+	if err != nil || userID <= 0 {
+		response.BadRequest(c, "Invalid user_id")
+		return
+	}
+
+	startDateStr := strings.TrimSpace(c.Query("start_date"))
+	endDateStr := strings.TrimSpace(c.Query("end_date"))
+	if startDateStr == "" || endDateStr == "" {
+		response.BadRequest(c, "start_date and end_date are required (YYYY-MM-DD)")
+		return
+	}
+
+	userTZ := c.Query("timezone")
+	startTime, err := timezone.ParseInUserLocation("2006-01-02", startDateStr, userTZ)
+	if err != nil {
+		response.BadRequest(c, "Invalid start_date format, use YYYY-MM-DD")
+		return
+	}
+	endDay, err := timezone.ParseInUserLocation("2006-01-02", endDateStr, userTZ)
+	if err != nil {
+		response.BadRequest(c, "Invalid end_date format, use YYYY-MM-DD")
+		return
+	}
+	if endDay.Before(startTime) {
+		response.BadRequest(c, "end_date must be on or after start_date")
+		return
+	}
+
+	// Inclusive calendar-day span; max 7 days.
+	days := int(endDay.Sub(startTime).Hours()/24) + 1
+	if days > 7 {
+		response.BadRequest(c, "date range must be at most 7 days")
+		return
+	}
+
+	endTime := endDay.AddDate(0, 0, 1) // exclusive upper bound (DST-safe)
+	tzName := userTZ
+	if tzName == "" {
+		tzName = timezone.Name()
+	}
+	modelFilter := strings.TrimSpace(c.Query("model"))
+
+	report, err := h.usageService.GetConsumptionReport(
+		c.Request.Context(),
+		userID,
+		startTime,
+		endTime,
+		startDateStr,
+		endDateStr,
+		tzName,
+		modelFilter,
+	)
+	if err != nil {
+		response.ErrorFrom(c, err)
+		return
+	}
+	response.Success(c, report)
+}
+
 // SearchUsers handles searching users by email keyword
 // GET /api/v1/admin/usage/search-users
 func (h *UsageHandler) SearchUsers(c *gin.Context) {

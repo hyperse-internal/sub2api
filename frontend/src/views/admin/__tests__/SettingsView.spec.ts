@@ -749,6 +749,30 @@ describe("admin SettingsView payment visible method controls", () => {
     wrapper.unmount();
   });
 
+  it.each([false, true])("loads and saves the built-in home toggle from %s without losing custom content", async (enabled) => {
+    const homeContent = '<section id="custom-home">Custom home</section>';
+    getSettings.mockResolvedValue({
+      ...baseSettingsResponse,
+      builtin_home_enabled: enabled,
+      home_content: homeContent,
+    });
+    const wrapper = mountView();
+    await flushPromises();
+
+    const toggle = wrapper.get('[data-test="builtin-home-toggle"]');
+    expect((toggle.element as HTMLInputElement).checked).toBe(enabled);
+    await toggle.setValue(!enabled);
+    await wrapper.find("form").trigger("submit.prevent");
+    await flushPromises();
+
+    expect(updateSettings).toHaveBeenCalledWith(expect.objectContaining({
+      builtin_home_enabled: !enabled,
+      home_content: homeContent,
+    }));
+    expect(fetchPublicSettings).toHaveBeenCalledWith(true);
+    wrapper.unmount();
+  });
+
   it("submits the compact home page toggle", async () => {
     const wrapper = mountView();
     await flushPromises();

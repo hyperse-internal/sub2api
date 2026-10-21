@@ -676,6 +676,8 @@ export default {
         logoTypeError: '请选择图片文件',
         logoReadError: '读取图片文件失败',
         homeContent: '首页内容',
+        builtinHome: '使用内置首页',
+        builtinHomeHint: '开启后优先展示内置首页，自定义 HTML 或 URL 内容仍会保留；关闭后恢复原有首页展示逻辑。',
         homeContentPlaceholder:
           '在此输入首页内容，支持 Markdown & HTML 代码。如果输入的是一个链接，则会使用该链接作为 iframe 的 src 属性。',
         homeContentHint:

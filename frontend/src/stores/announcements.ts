@@ -12,9 +12,12 @@ export const useAnnouncementStore = defineStore('announcements', () => {
   const lastFetchTime = ref(0)
   const popupQueue = ref<UserAnnouncement[]>([])
   const currentPopup = ref<UserAnnouncement | null>(null)
+  const noticeBarQueue = ref<UserAnnouncement[]>([])
+  const currentNoticeBar = ref<UserAnnouncement | null>(null)
 
   // Session-scoped dedup set — not reactive, used as plain lookup only
   let shownPopupIds = new Set<number>()
+  let shownNoticeBarIds = new Set<number>()
   let fetchGeneration = 0
 
   // Getters
@@ -39,6 +42,7 @@ export const useAnnouncementStore = defineStore('announcements', () => {
       if (generation !== fetchGeneration) return
       announcements.value = all.slice(0, 20)
       enqueueNewPopups()
+      enqueueNewNoticeBars()
     } catch (err: any) {
       if (generation !== fetchGeneration) return
       // Revert throttle timestamp on failure so retry is allowed
@@ -75,6 +79,32 @@ export const useAnnouncementStore = defineStore('announcements', () => {
     shownPopupIds.add(currentPopup.value.id)
   }
 
+  function enqueueNewNoticeBars() {
+    const next = announcements.value.filter(
+      (a) => a.notify_mode === 'notice_bar' && !a.read_at && !shownNoticeBarIds.has(a.id)
+    )
+    if (next.length === 0) return
+
+    for (const item of next) {
+      if (!noticeBarQueue.value.some((q) => q.id === item.id)) {
+        noticeBarQueue.value.push(item)
+      }
+    }
+
+    if (!currentNoticeBar.value) {
+      showNextNoticeBar()
+    }
+  }
+
+  function showNextNoticeBar() {
+    if (noticeBarQueue.value.length === 0) {
+      currentNoticeBar.value = null
+      return
+    }
+    currentNoticeBar.value = noticeBarQueue.value.shift()!
+    shownNoticeBarIds.add(currentNoticeBar.value.id)
+  }
+
   async function dismissPopup() {
     if (!currentPopup.value) return
     const id = currentPopup.value.id
@@ -89,6 +119,19 @@ export const useAnnouncementStore = defineStore('announcements', () => {
     }
   }
 
+  async function dismissNoticeBar() {
+    if (!currentNoticeBar.value) return
+    await markAsRead(currentNoticeBar.value.id)
+  }
+
+  function clearNoticeBarIfRead(id: number) {
+    if (currentNoticeBar.value?.id === id) {
+      currentNoticeBar.value = null
+      showNextNoticeBar()
+    }
+    noticeBarQueue.value = noticeBarQueue.value.filter((item) => item.id !== id)
+  }
+
   async function markAsRead(id: number) {
     try {
       await announcementsAPI.markRead(id)
@@ -96,6 +139,7 @@ export const useAnnouncementStore = defineStore('announcements', () => {
       if (ann) {
         ann.read_at = new Date().toISOString()
       }
+      clearNoticeBarIfRead(id)
       return true
     } catch (err: any) {
       console.error('Failed to mark announcement as read:', err)
@@ -115,6 +159,8 @@ export const useAnnouncementStore = defineStore('announcements', () => {
       }))
       const failure = results.find((result) => result.status === 'rejected')
       if (failure) throw failure.reason
+      noticeBarQueue.value = []
+      currentNoticeBar.value = null
     } catch (err: any) {
       console.error('Failed to mark all as read:', err)
       throw err
@@ -128,8 +174,11 @@ export const useAnnouncementStore = defineStore('announcements', () => {
     announcements.value = []
     lastFetchTime.value = 0
     shownPopupIds = new Set()
+    shownNoticeBarIds = new Set()
     popupQueue.value = []
+    noticeBarQueue.value = []
     currentPopup.value = null
+    currentNoticeBar.value = null
     loading.value = false
   }
 
@@ -138,11 +187,13 @@ export const useAnnouncementStore = defineStore('announcements', () => {
     announcements,
     loading,
     currentPopup,
+    currentNoticeBar,
     // Getters
     unreadCount,
     // Actions
     fetchAnnouncements,
     dismissPopup,
+    dismissNoticeBar,
     markAsRead,
     markAllAsRead,
     reset,

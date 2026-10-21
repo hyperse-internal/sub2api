@@ -259,6 +259,30 @@ func (s *defaultSubGroupReaderStub) GetByID(ctx context.Context, id int64) (*Gro
 	return nil, ErrGroupNotFound
 }
 
+func TestSettingService_BuiltinHomeSettingsRoundTrip(t *testing.T) {
+	repo := &settingUpdateRepoStub{}
+	svc := NewSettingService(repo, &config.Config{})
+	invalidations := 0
+	svc.SetOnUpdateCallback(func() { invalidations++ })
+
+	for _, enabled := range []bool{true, false} {
+		err := svc.UpdateSettings(context.Background(), &SystemSettings{
+			BuiltinHomeEnabled: enabled,
+			HomeContent:        "<h1>Custom home</h1>",
+		})
+		require.NoError(t, err)
+		require.Equal(t, strconv.FormatBool(enabled), repo.updates[SettingKeyBuiltinHomeEnabled])
+		require.Equal(t, "<h1>Custom home</h1>", repo.updates[SettingKeyHomeContent])
+
+		settings, err := NewSettingService(&settingGetAllRepoStub{values: repo.updates}, &config.Config{}).
+			GetAllSettings(context.Background())
+		require.NoError(t, err)
+		require.Equal(t, enabled, settings.BuiltinHomeEnabled)
+		require.Equal(t, "<h1>Custom home</h1>", settings.HomeContent)
+	}
+	require.Equal(t, 2, invalidations)
+}
+
 func TestSettingService_UpdateSettings_PersistsCompactHomeEnabled(t *testing.T) {
 	repo := &settingUpdateRepoStub{}
 	svc := NewSettingService(repo, &config.Config{})

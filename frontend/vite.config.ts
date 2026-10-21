@@ -13,20 +13,7 @@ function escapeHtml(value: string): string {
   })[character] || character)
 }
 
-function isSafeImageUrl(value: string): boolean {
-  const trimmed = value.trim()
-  if ((trimmed.startsWith('/') && !trimmed.startsWith('//')) || /^data:image\//i.test(trimmed)) {
-    return true
-  }
-  try {
-    const parsed = new URL(trimmed)
-    return parsed.protocol === 'http:' || parsed.protocol === 'https:'
-  } catch {
-    return false
-  }
-}
-
-function injectBranding(html: string, config: { site_name?: string; site_logo?: string }): string {
+function injectBranding(html: string, config: { site_name?: string }): string {
   let brandedHtml = html
   const siteName = config.site_name?.trim()
   if (siteName) {
@@ -36,13 +23,6 @@ function injectBranding(html: string, config: { site_name?: string; site_logo?: 
     )
   }
 
-  const siteLogo = config.site_logo?.trim()
-  if (siteLogo && isSafeImageUrl(siteLogo)) {
-    brandedHtml = brandedHtml.replace(
-      /<link\s+rel=["']icon["'][^>]*>/i,
-      `<link rel="icon" href="${escapeHtml(siteLogo)}" />`,
-    )
-  }
   return brandedHtml
 }
 
@@ -80,7 +60,9 @@ function injectPublicSettings(backendUrl: string): Plugin {
 export default defineConfig(({ mode }) => {
   // 加载环境变量
   const env = loadEnv(mode, process.cwd(), '')
-  const backendUrl = env.VITE_DEV_PROXY_TARGET || 'http://localhost:8080'
+  // Prefer IPv6 loopback: on this machine nginx already binds IPv4 *:8080,
+  // while `go run` ends up listening on [::]:8080. `localhost` can flip either way.
+  const backendUrl = env.VITE_DEV_PROXY_TARGET || 'http://[::1]:8080'
   const devPort = Number(env.VITE_DEV_PORT || 3000)
 
   return {

@@ -82,10 +82,12 @@
                 'badge',
                 row.notify_mode === 'popup'
                   ? 'badge-warning'
-                  : 'badge-gray'
+                  : row.notify_mode === 'notice_bar'
+                    ? 'badge-primary'
+                    : 'badge-gray'
               ]"
             >
-              {{ row.notify_mode === 'popup' ? t('admin.announcements.notifyModeLabels.popup') : t('admin.announcements.notifyModeLabels.silent') }}
+              {{ notifyModeLabel(row.notify_mode) }}
             </span>
           </template>
 
@@ -249,6 +251,13 @@
     />
 
     <AnnouncementPopup
+      v-if="previewAnnouncement && previewAnnouncement.notify_mode !== 'notice_bar'"
+      :announcement="previewAnnouncement"
+      preview
+      @close="previewAnnouncement = null"
+    />
+    <AnnouncementNoticeBar
+      v-if="previewAnnouncement?.notify_mode === 'notice_bar'"
       :announcement="previewAnnouncement"
       preview
       @close="previewAnnouncement = null"
@@ -262,6 +271,7 @@ import { useI18n } from 'vue-i18n'
 import { useAppStore } from '@/stores/app'
 import { getPersistedPageSize } from '@/composables/usePersistedPageSize'
 import { adminAPI } from '@/api/admin'
+import { extractApiErrorMessage } from '@/utils/apiError'
 import { formatDateTime, formatDateTimeLocalInput, parseDateTimeLocalInput } from '@/utils/format'
 import type { AdminGroup, Announcement, AnnouncementTargeting } from '@/types'
 import type { Column } from '@/components/common/types'
@@ -279,6 +289,7 @@ import Icon from '@/components/icons/Icon.vue'
 import AnnouncementTargetingEditor from '@/components/admin/announcements/AnnouncementTargetingEditor.vue'
 import AnnouncementReadStatusDialog from '@/components/admin/announcements/AnnouncementReadStatusDialog.vue'
 import AnnouncementPopup from '@/components/common/AnnouncementPopup.vue'
+import AnnouncementNoticeBar from '@/components/common/AnnouncementNoticeBar.vue'
 
 const { t } = useI18n()
 const appStore = useAppStore()
@@ -318,8 +329,15 @@ const statusOptions = computed(() => [
 
 const notifyModeOptions = computed(() => [
   { value: 'silent', label: t('admin.announcements.notifyModeLabels.silent') },
-  { value: 'popup', label: t('admin.announcements.notifyModeLabels.popup') }
+  { value: 'popup', label: t('admin.announcements.notifyModeLabels.popup') },
+  { value: 'notice_bar', label: t('admin.announcements.notifyModeLabels.noticeBar') }
 ])
+
+function notifyModeLabel(mode: string) {
+  if (mode === 'popup') return t('admin.announcements.notifyModeLabels.popup')
+  if (mode === 'notice_bar') return t('admin.announcements.notifyModeLabels.noticeBar')
+  return t('admin.announcements.notifyModeLabels.silent')
+}
 
 const columns = computed<Column[]>(() => [
   { key: 'title', label: t('admin.announcements.columns.title'), sortable: true },
@@ -379,7 +397,7 @@ async function loadAnnouncements() {
       return
     }
     console.error('Error loading announcements:', error)
-    appStore.showError(error.response?.data?.detail || t('admin.announcements.failedToLoad'))
+    appStore.showError(extractApiErrorMessage(error, t('admin.announcements.failedToLoad')))
   } finally {
     if (currentController === requestController) {
       loading.value = false
@@ -569,7 +587,12 @@ async function handleSave() {
     await loadAnnouncements()
   } catch (error: any) {
     console.error('Failed to save announcement:', error)
-    appStore.showError(error.response?.data?.detail || (editingAnnouncement.value ? t('admin.announcements.failedToUpdate') : t('admin.announcements.failedToCreate')))
+    appStore.showError(
+      extractApiErrorMessage(
+        error,
+        editingAnnouncement.value ? t('admin.announcements.failedToUpdate') : t('admin.announcements.failedToCreate')
+      )
+    )
   } finally {
     saving.value = false
   }
@@ -595,7 +618,7 @@ async function confirmDelete() {
     await loadAnnouncements()
   } catch (error: any) {
     console.error('Failed to delete announcement:', error)
-    appStore.showError(error.response?.data?.detail || t('admin.announcements.failedToDelete'))
+    appStore.showError(extractApiErrorMessage(error, t('admin.announcements.failedToDelete')))
   }
 }
 

@@ -77,6 +77,36 @@ describe('HomeView compact mode', () => {
     vi.spyOn(window, 'matchMedia').mockReturnValue({ matches: false } as MediaQueryList)
   })
 
+  it.each(['', '<section id="custom-home">Custom home</section>', 'https://example.com/home'])(
+    'renders the built-in home ahead of existing content: %s',
+    (content) => {
+      const wrapper = mountHome({
+        builtin_home_enabled: true,
+        compact_home_enabled: true,
+        home_content: content,
+      })
+
+      expect(wrapper.get('[data-test="builtin-home"] h1').text()).toContain('home.builtin.title')
+      expect(wrapper.find('#custom-home').exists()).toBe(false)
+      expect(wrapper.find('iframe').exists()).toBe(false)
+      expect(wrapper.find('[data-testid="compact-home"]').exists()).toBe(false)
+      expect(appStore.cachedPublicSettings.home_content).toBe(content)
+    },
+  )
+
+  it('restores custom content after disabling the built-in home', () => {
+    const wrapper = mountHome({
+      builtin_home_enabled: true,
+      home_content: '<section id="custom-home">Custom home</section>',
+    })
+    expect(wrapper.find('[data-test="builtin-home"]').exists()).toBe(true)
+    wrapper.unmount()
+
+    const restored = mountHome({ ...appStore.cachedPublicSettings, builtin_home_enabled: false })
+    expect(restored.find('[data-test="builtin-home"]').exists()).toBe(false)
+    expect(restored.get('#custom-home').text()).toBe('Custom home')
+  })
+
   it('renders custom HTML ahead of compact mode', () => {
     const wrapper = mountHome({
       compact_home_enabled: true,

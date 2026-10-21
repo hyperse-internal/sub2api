@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	dbent "github.com/Wei-Shaw/sub2api/ent"
@@ -460,4 +461,98 @@ func (s *UsageService) GetStatsWithFilters(ctx context.Context, filters usagesta
 		return nil, fmt.Errorf("get usage stats with filters: %w", err)
 	}
 	return stats, nil
+}
+
+// GetConsumptionReport builds an admin per-user spend report for [startTime, endTime).
+// Daily rows are grain: user + model + date (only non-empty buckets). modelFilter is optional.
+func (s *UsageService) GetConsumptionReport(
+	ctx context.Context,
+	userID int64,
+	startTime, endTime time.Time,
+	startDate, endDate, tzName, modelFilter string,
+) (*usagestats.ConsumptionReport, error) {
+	user, err := s.userRepo.GetByIDIncludeDeleted(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	modelFilter = strings.TrimSpace(modelFilter)
+	filters := usagestats.UsageLogFilters{
+		UserID:            userID,
+		Model:             modelFilter,
+		ModelFilterSource: usagestats.ModelSourceRequested,
+		StartTime:         &startTime,
+		EndTime:           &endTime,
+	}
+
+	stats, err := s.GetStatsWithFilters(ctx, filters)
+	if err != nil {
+		return nil, err
+	}
+
+	daily, err := s.getUserConsumptionDailyByModel(ctx, userID, startTime, endTime, tzName, modelFilter)
+	if err != nil {
+		return nil, err
+	}
+	if daily == nil {
+		daily = []usagestats.ConsumptionDailyRow{}
+	}
+
+	models, err := s.GetModelStatsWithFiltersBySource(ctx, startTime, endTime, filters, usagestats.ModelSourceRequested)
+	if err != nil {
+		return nil, err
+	}
+	if models == nil {
+		models = []usagestats.ModelStat{}
+	}
+
+	avgRate := 0.0
+	if stats.TotalCost > 0 {
+		avgRate = stats.TotalActualCost / stats.TotalCost
+	}
+
+	return &usagestats.ConsumptionReport{
+		User: usagestats.ConsumptionReportUser{
+			ID:      user.ID,
+			Email:   user.Email,
+			Deleted: user.DeletedAt != nil,
+		},
+		StartDate: startDate,
+		EndDate:   endDate,
+		Timezone:  tzName,
+		Model:     modelFilter,
+		Summary: usagestats.ConsumptionReportSummary{
+			TotalRequests:            stats.TotalRequests,
+			TotalInputTokens:         stats.TotalInputTokens,
+			TotalOutputTokens:        stats.TotalOutputTokens,
+			TotalCacheCreationTokens: stats.TotalCacheCreationTokens,
+			TotalCacheReadTokens:     stats.TotalCacheReadTokens,
+			TotalTokens:              stats.TotalTokens,
+			TotalCost:                stats.TotalCost,
+			TotalActualCost:          stats.TotalActualCost,
+			AverageDurationMs:        stats.AverageDurationMs,
+			AvgRateMultiplier:        avgRate,
+		},
+		Daily:  daily,
+		Models: models,
+	}, nil
+}
+
+func (s *UsageService) getUserConsumptionDailyByModel(
+	ctx context.Context,
+	userID int64,
+	startTime, endTime time.Time,
+	tzName, modelFilter string,
+) ([]usagestats.ConsumptionDailyRow, error) {
+	type consumptionDailyByModelRepo interface {
+		GetUserConsumptionDailyByModel(ctx context.Context, userID int64, startTime, endTime time.Time, tzName, modelFilter string) ([]usagestats.ConsumptionDailyRow, error)
+	}
+	if repo, ok := s.usageRepo.(consumptionDailyByModelRepo); ok {
+		rows, err := repo.GetUserConsumptionDailyByModel(ctx, userID, startTime, endTime, tzName, modelFilter)
+		if err != nil {
+			return nil, fmt.Errorf("get user consumption daily by model: %w", err)
+		}
+		return rows, nil
+	}
+	return nil, fmt.Errorf("consumption daily-by-model query is not available")
 }

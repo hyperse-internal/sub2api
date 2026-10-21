@@ -183,6 +183,77 @@ func (r *usageLogRepository) GetModelStatsAggregated(ctx context.Context, modelN
 	return &stats, nil
 }
 
+// GetUserConsumptionDailyByModel returns per-(date, model) token/cost totals for one user in tzName.
+// Model identity matches requested-model stats: COALESCE(NULLIF(TRIM(requested_model), ”), model).
+// When modelFilter is non-empty, only that model is included.
+func (r *usageLogRepository) GetUserConsumptionDailyByModel(
+	ctx context.Context,
+	userID int64,
+	startTime, endTime time.Time,
+	tzName, modelFilter string,
+) (results []usagestats.ConsumptionDailyRow, err error) {
+	if strings.TrimSpace(tzName) == "" {
+		tzName = resolveUsageStatsTimezone()
+	}
+	modelExpr := "COALESCE(NULLIF(TRIM(requested_model), ''), model)"
+	query := fmt.Sprintf(`
+		SELECT
+			TO_CHAR(created_at AT TIME ZONE $4, 'YYYY-MM-DD') as date,
+			COALESCE(%s, '') as model,
+			COUNT(*) as requests,
+			COALESCE(SUM(input_tokens), 0) as input_tokens,
+			COALESCE(SUM(output_tokens), 0) as output_tokens,
+			COALESCE(SUM(cache_creation_tokens), 0) as cache_creation_tokens,
+			COALESCE(SUM(cache_read_tokens), 0) as cache_read_tokens,
+			COALESCE(SUM(input_tokens + output_tokens + cache_creation_tokens + cache_read_tokens), 0) as total_tokens,
+			COALESCE(SUM(total_cost), 0) as cost,
+			COALESCE(SUM(actual_cost), 0) as actual_cost
+		FROM usage_logs
+		WHERE user_id = $1 AND created_at >= $2 AND created_at < $3
+	`, modelExpr)
+	args := []any{userID, startTime, endTime, tzName}
+	if model := strings.TrimSpace(modelFilter); model != "" {
+		query += fmt.Sprintf(" AND %s = $%d", modelExpr, len(args)+1)
+		args = append(args, model)
+	}
+	query += " GROUP BY 1, 2 ORDER BY 1 ASC, 2 ASC"
+
+	rows, err := r.sql.QueryContext(ctx, query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		if closeErr := rows.Close(); closeErr != nil && err == nil {
+			err = closeErr
+			results = nil
+		}
+	}()
+
+	results = make([]usagestats.ConsumptionDailyRow, 0)
+	for rows.Next() {
+		var row usagestats.ConsumptionDailyRow
+		if err = rows.Scan(
+			&row.Date,
+			&row.Model,
+			&row.Requests,
+			&row.InputTokens,
+			&row.OutputTokens,
+			&row.CacheCreationTokens,
+			&row.CacheReadTokens,
+			&row.TotalTokens,
+			&row.Cost,
+			&row.ActualCost,
+		); err != nil {
+			return nil, err
+		}
+		results = append(results, row)
+	}
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+	return results, nil
+}
+
 // GetDailyStatsAggregated 使用 SQL 聚合统计用户的每日使用数据
 // 性能优化：使用 GROUP BY 在数据库层按日期分组聚合，避免应用层循环分组统计
 func (r *usageLogRepository) GetDailyStatsAggregated(ctx context.Context, userID int64, startTime, endTime time.Time) (result []map[string]any, err error) {

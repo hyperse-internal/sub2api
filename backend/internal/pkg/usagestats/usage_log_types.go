@@ -386,3 +386,50 @@ type AccountUsageStatsResponse struct {
 	Endpoints         []EndpointStat        `json:"endpoints"`
 	UpstreamEndpoints []EndpointStat        `json:"upstream_endpoints"`
 }
+
+// ConsumptionReportUser is a minimal user identity for the admin spend report.
+type ConsumptionReportUser struct {
+	ID      int64  `json:"id"`
+	Email   string `json:"email"`
+	Deleted bool   `json:"deleted"`
+}
+
+// ConsumptionReportSummary aggregates usage over the queried window.
+type ConsumptionReportSummary struct {
+	TotalRequests            int64   `json:"total_requests"`
+	TotalInputTokens         int64   `json:"total_input_tokens"`
+	TotalOutputTokens        int64   `json:"total_output_tokens"`
+	TotalCacheCreationTokens int64   `json:"total_cache_creation_tokens"`
+	TotalCacheReadTokens     int64   `json:"total_cache_read_tokens"`
+	TotalTokens              int64   `json:"total_tokens"`
+	TotalCost                float64 `json:"total_cost"`        // 标准价（倍率前）
+	TotalActualCost          float64 `json:"total_actual_cost"` // 实扣
+	AverageDurationMs        float64 `json:"average_duration_ms"`
+	AvgRateMultiplier        float64 `json:"avg_rate_multiplier"` // actual/cost when cost > 0
+}
+
+// ConsumptionDailyRow is one (date, model) bucket for a user in the consumption report.
+type ConsumptionDailyRow struct {
+	Date                string  `json:"date"`
+	Model               string  `json:"model"`
+	Requests            int64   `json:"requests"`
+	InputTokens         int64   `json:"input_tokens"`
+	OutputTokens        int64   `json:"output_tokens"`
+	CacheCreationTokens int64   `json:"cache_creation_tokens"`
+	CacheReadTokens     int64   `json:"cache_read_tokens"`
+	TotalTokens         int64   `json:"total_tokens"`
+	Cost                float64 `json:"cost"`        // 标准价（倍率前）
+	ActualCost          float64 `json:"actual_cost"` // 实扣
+}
+
+// ConsumptionReport is the admin per-user spend report (summary + date×model rows + model rollup).
+type ConsumptionReport struct {
+	User      ConsumptionReportUser    `json:"user"`
+	StartDate string                   `json:"start_date"`
+	EndDate   string                   `json:"end_date"`
+	Timezone  string                   `json:"timezone"`
+	Model     string                   `json:"model,omitempty"` // optional filter echoed back
+	Summary   ConsumptionReportSummary `json:"summary"`
+	Daily     []ConsumptionDailyRow    `json:"daily"`  // grain: user + model + date
+	Models    []ModelStat              `json:"models"` // period rollup by model
+}

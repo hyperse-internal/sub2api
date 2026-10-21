@@ -31,9 +31,10 @@
         <!-- Custom Logo or Default Logo -->
         <template v-if="settingsLoaded">
           <div
-            class="mb-4 inline-flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl shadow-lg shadow-primary-500/30"
+            class="mb-4 inline-flex h-16 items-center justify-center"
+            :class="siteLogo ? 'w-16 overflow-hidden rounded-2xl shadow-lg shadow-primary-500/30' : 'max-w-full'"
           >
-            <img :src="siteLogo || '/logo.svg'" alt="Logo" class="h-full w-full object-contain" />
+            <SiteLogo :src="siteLogo" :title="siteName" class="h-full max-w-full" :class="siteLogo ? 'w-full' : 'w-auto'" />
           </div>
           <h1 class="text-gradient mb-2 text-3xl font-bold">
             {{ siteName }}
@@ -63,6 +64,7 @@
 </template>
 
 <script setup lang="ts">
+import SiteLogo from '@/components/common/SiteLogo.vue'
 import { computed, onMounted } from 'vue'
 import { useAppStore } from '@/stores'
 import { sanitizeUrl } from '@/utils/url'

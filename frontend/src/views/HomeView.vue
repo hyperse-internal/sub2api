@@ -1,6 +1,8 @@
 <template>
+  <BuiltinHomeView v-if="builtinHomeEnabled" />
+
   <!-- Custom Home Content: Full Page Mode -->
-  <div v-if="hasHomeContent" class="min-h-screen">
+  <div v-else-if="hasHomeContent" class="min-h-screen">
     <!-- iframe mode -->
     <iframe
       v-if="isHomeContentUrl"
@@ -21,12 +23,13 @@
     <header class="border-b border-gray-200 px-4 py-4 sm:px-6 dark:border-dark-800">
       <nav class="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3 sm:gap-4">
         <div class="flex min-w-0 flex-1 items-center gap-3">
-          <img
-            :src="siteLogo || '/logo.svg'"
-            alt="Logo"
-            class="h-9 w-9 shrink-0 rounded-lg object-contain"
+          <SiteLogo
+            :src="siteLogo"
+            :title="siteName"
+            class="h-9"
+            :class="siteLogo ? 'w-9 rounded-lg' : 'w-auto'"
           />
-          <span class="min-w-0 truncate text-base font-semibold">{{ siteName }}</span>
+          <span v-if="siteLogo" class="min-w-0 truncate text-base font-semibold">{{ siteName }}</span>
         </div>
         <div class="flex max-w-full shrink-0 flex-wrap items-center justify-end gap-2">
           <LocaleSwitcher />
@@ -66,10 +69,11 @@
 
     <main class="flex min-w-0 flex-1 items-center justify-center px-4 py-16 sm:px-6">
       <div class="min-w-0 max-w-2xl text-center">
-        <img
-          :src="siteLogo || '/logo.svg'"
-          alt="Logo"
-          class="mx-auto mb-6 h-20 w-20 rounded-2xl object-contain"
+        <SiteLogo
+          :src="siteLogo"
+          :title="siteName"
+          class="mx-auto mb-6 h-20 max-w-full"
+          :class="siteLogo ? 'w-20 rounded-2xl' : 'w-auto'"
         />
         <h1 class="[overflow-wrap:anywhere] text-3xl font-bold md:text-4xl">{{ siteName }}</h1>
         <p class="mt-4 whitespace-pre-wrap [overflow-wrap:anywhere] text-base text-gray-600 dark:text-dark-300">{{ siteSubtitle }}</p>
@@ -116,8 +120,8 @@
       <nav class="mx-auto flex max-w-6xl items-center justify-between">
         <!-- Logo -->
         <div class="flex items-center">
-          <div class="h-10 w-10 overflow-hidden rounded-xl shadow-md">
-            <img :src="siteLogo || '/logo.svg'" alt="Logo" class="h-full w-full object-contain" />
+          <div :class="siteLogo ? 'h-10 w-10 overflow-hidden rounded-xl shadow-md' : 'h-10'">
+            <SiteLogo :src="siteLogo" :title="siteName" class="h-full" :class="siteLogo ? 'w-full' : 'w-auto'" />
           </div>
         </div>
 
@@ -485,11 +489,13 @@
 </template>
 
 <script setup lang="ts">
+import SiteLogo from '@/components/common/SiteLogo.vue'
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore, useAppStore } from '@/stores'
 import LocaleSwitcher from '@/components/common/LocaleSwitcher.vue'
 import Icon from '@/components/icons/Icon.vue'
+import BuiltinHomeView from './BuiltinHomeView.vue'
 import { sanitizeUrl } from '@/utils/url'
 import { FeatureFlags, isFeatureFlagEnabled } from '@/utils/featureFlags'
 
@@ -504,6 +510,7 @@ const siteLogo = computed(() => sanitizeUrl(appStore.cachedPublicSettings?.site_
 const siteSubtitle = computed(() => appStore.cachedPublicSettings?.site_subtitle || 'AI API Gateway Platform')
 const homeContent = computed(() => appStore.cachedPublicSettings?.home_content || '')
 const hasHomeContent = computed(() => homeContent.value.trim().length > 0)
+const builtinHomeEnabled = computed(() => isFeatureFlagEnabled(FeatureFlags.builtinHome))
 const compactHomeEnabled = computed(() => appStore.cachedPublicSettings?.compact_home_enabled === true)
 const modelPlazaEnabled = computed(() => isFeatureFlagEnabled(FeatureFlags.modelPlaza))
 

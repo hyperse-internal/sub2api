@@ -241,6 +241,7 @@ export interface PublicSettings {
   contact_info: string
   doc_url: string
   home_content: string
+  builtin_home_enabled: boolean
   compact_home_enabled: boolean
   hide_ccs_import_button: boolean
   payment_enabled: boolean
@@ -337,7 +338,7 @@ export interface UpdateSubscriptionRequest {
 // ==================== Announcement Types ====================
 
 export type AnnouncementStatus = 'draft' | 'active' | 'archived'
-export type AnnouncementNotifyMode = 'silent' | 'popup'
+export type AnnouncementNotifyMode = 'silent' | 'popup' | 'notice_bar'
 
 export type AnnouncementConditionType = 'subscription' | 'balance'
 

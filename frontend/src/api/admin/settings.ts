@@ -489,6 +489,7 @@ export interface SystemSettings {
   contact_info: string;
   doc_url: string;
   home_content: string;
+  builtin_home_enabled: boolean;
   compact_home_enabled: boolean;
   hide_ccs_import_button: boolean;
   table_default_page_size: number;
@@ -842,6 +843,7 @@ export interface UpdateSettingsRequest {
   contact_info?: string;
   doc_url?: string;
   home_content?: string;
+  builtin_home_enabled?: boolean;
   compact_home_enabled?: boolean;
   hide_ccs_import_button?: boolean;
   table_default_page_size?: number;

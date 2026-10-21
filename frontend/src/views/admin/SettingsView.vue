@@ -6702,6 +6702,18 @@
               </div>
 
               <!-- Home Content -->
+              <div class="flex items-center justify-between border-t border-gray-100 pt-4 dark:border-dark-700">
+                <div>
+                  <label class="font-medium text-gray-900 dark:text-white">{{
+                    t("admin.settings.site.builtinHome")
+                  }}</label>
+                  <p class="text-sm text-gray-500 dark:text-gray-400">
+                    {{ t("admin.settings.site.builtinHomeHint") }}
+                  </p>
+                </div>
+                <Toggle v-model="form.builtin_home_enabled" data-test="builtin-home-toggle" />
+              </div>
+
               <div>
                 <label
                   class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
@@ -9826,6 +9838,7 @@ const form = reactive<SettingsForm>({
   contact_info: "",
   doc_url: "",
   home_content: "",
+  builtin_home_enabled: false,
   compact_home_enabled: false,
   backend_mode_enabled: false,
   hide_ccs_import_button: false,
@@ -11534,6 +11547,7 @@ async function saveSettings() {
       contact_info: form.contact_info,
       doc_url: form.doc_url,
       home_content: form.home_content,
+      builtin_home_enabled: form.builtin_home_enabled,
       compact_home_enabled: form.compact_home_enabled,
       backend_mode_enabled: form.backend_mode_enabled,
       hide_ccs_import_button: form.hide_ccs_import_button,

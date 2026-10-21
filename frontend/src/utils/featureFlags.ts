@@ -94,6 +94,11 @@ function defineFlag<K extends keyof PublicSettings>(
  * public-settings-driven switch; see the "Adding a new flag" checklist above.
  */
 export const FeatureFlags = {
+  builtinHome: defineFlag({
+    key: 'builtin_home_enabled',
+    mode: 'opt-in',
+    label: 'Built-in Home',
+  }),
   channelMonitor: defineFlag({
     key: 'channel_monitor_enabled',
     mode: 'opt-out',

@@ -338,6 +338,9 @@ func diffSettings(before *service.SystemSettings, after *service.SystemSettings,
 	if before.HomeContent != after.HomeContent {
 		changed = append(changed, "home_content")
 	}
+	if before.BuiltinHomeEnabled != after.BuiltinHomeEnabled {
+		changed = append(changed, "builtin_home_enabled")
+	}
 	if before.CompactHomeEnabled != after.CompactHomeEnabled {
 		changed = append(changed, "compact_home_enabled")
 	}

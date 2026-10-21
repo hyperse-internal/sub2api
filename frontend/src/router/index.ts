@@ -658,6 +658,18 @@ const routes: RouteRecordRaw[] = [
     }
   },
   {
+    path: '/admin/consumption-report',
+    name: 'AdminConsumptionReport',
+    component: () => import('@/features/consumption-report/ConsumptionReportView.vue'),
+    meta: {
+      requiresAuth: true,
+      requiresAdmin: true,
+      title: 'Consumption Report',
+      titleKey: 'admin.consumptionReport.title',
+      descriptionKey: 'admin.consumptionReport.description'
+    }
+  },
+  {
     path: '/admin/affiliates',
     redirect: '/admin/affiliates/invites'
   },

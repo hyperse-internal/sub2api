@@ -1,10 +1,10 @@
 <template>
   <div class="flex h-screen min-h-0 flex-col bg-gray-50 text-gray-900 dark:bg-dark-950 dark:text-gray-100">
     <header class="shrink-0 border-b border-gray-200 dark:border-white/10">
-      <div class="mx-auto flex h-16 w-full max-w-[1288px] items-center gap-3 px-4 sm:px-6">
+      <div class="app-header-bar mx-auto flex w-full max-w-[1288px] items-center gap-3 px-4 sm:px-6">
         <router-link to="/home" class="flex min-w-0 shrink-0 items-center gap-2.5">
-          <img :src="siteLogo || '/logo.svg'" alt="" class="h-8 w-8 object-contain" />
-          <span class="truncate text-sm font-medium">{{ siteName }}</span>
+          <SiteLogo :src="siteLogo" :title="siteName" class="h-8" :class="siteLogo ? 'w-8' : 'w-auto'" />
+          <span v-if="siteLogo" class="truncate text-sm font-medium">{{ siteName }}</span>
         </router-link>
         <nav class="hidden min-w-0 flex-1 items-center justify-end gap-1 lg:flex" :aria-label="t('docsCenter.nav')">
           <button
@@ -74,6 +74,7 @@
 </template>
 
 <script setup lang="ts">
+import SiteLogo from '@/components/common/SiteLogo.vue'
 import { computed, defineComponent, h, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'

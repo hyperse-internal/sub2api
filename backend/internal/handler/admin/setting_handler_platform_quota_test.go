@@ -81,6 +81,17 @@ func TestSettingsAuditRequestDoesNotInheritStoredTencentSecrets(t *testing.T) {
 	require.Empty(t, auditReq.TencentCaptchaCloudSecretKey)
 }
 
+func TestDiffSettings_DetectsBuiltinHomeChange(t *testing.T) {
+	changed := diffSettings(
+		&service.SystemSettings{},
+		&service.SystemSettings{BuiltinHomeEnabled: true},
+		nil,
+		nil,
+		UpdateSettingsRequest{},
+	)
+	require.Contains(t, changed, service.SettingKeyBuiltinHomeEnabled)
+}
+
 func TestDiffSettings_DetectsCompactHomeChange(t *testing.T) {
 	changed := diffSettings(
 		&service.SystemSettings{},

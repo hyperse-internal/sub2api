@@ -3,7 +3,7 @@
     <header class="flex items-center justify-between gap-4 border-b border-gray-200 bg-white px-4 py-3 dark:border-dark-700 dark:bg-dark-900">
       <div class="flex min-w-0 items-center gap-3">
         <router-link :to="systemHome" class="shrink-0" :title="t('imageStudio.backToSystem')" :aria-label="t('imageStudio.backToSystem')">
-          <img :src="siteLogo || '/logo.svg'" alt="" class="h-8 w-8 object-contain" />
+          <SiteLogo :src="siteLogo" :title="appStore.siteName" class="h-8" :class="siteLogo ? 'w-8' : 'w-auto'" />
         </router-link>
         <div class="min-w-0">
           <h1 class="truncate text-base font-medium">{{ t('imageStudio.title') }}</h1>
@@ -198,6 +198,7 @@
 </template>
 
 <script setup lang="ts">
+import SiteLogo from '@/components/common/SiteLogo.vue'
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import Icon from '@/components/icons/Icon.vue'

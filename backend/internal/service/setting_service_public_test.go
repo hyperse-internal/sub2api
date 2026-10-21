@@ -82,6 +82,30 @@ func TestSettingService_GetPublicSettings_ExposesTablePreferences(t *testing.T) 
 	require.Equal(t, []int{20, 50, 100}, settings.TablePageSizeOptions)
 }
 
+func TestSettingService_BuiltinHomePublicSettings(t *testing.T) {
+	for _, value := range []string{"", "false", "true"} {
+		t.Run(value, func(t *testing.T) {
+			values := map[string]string{SettingKeyHomeContent: "<h1>Custom home</h1>"}
+			if value != "" {
+				values[SettingKeyBuiltinHomeEnabled] = value
+			}
+			svc := NewSettingService(&settingPublicRepoStub{values: values}, &config.Config{})
+
+			settings, err := svc.GetPublicSettings(context.Background())
+			require.NoError(t, err)
+			require.Equal(t, value == "true", settings.BuiltinHomeEnabled)
+			require.Equal(t, values[SettingKeyHomeContent], settings.HomeContent)
+
+			raw, err := svc.GetPublicSettingsForInjection(context.Background())
+			require.NoError(t, err)
+			payload, ok := raw.(*PublicSettingsInjectionPayload)
+			require.True(t, ok)
+			require.Equal(t, settings.BuiltinHomeEnabled, payload.BuiltinHomeEnabled)
+			require.Equal(t, settings.HomeContent, payload.HomeContent)
+		})
+	}
+}
+
 func TestSettingService_GetPublicSettings_ExposesCompactHomeEnabled(t *testing.T) {
 	repo := &settingPublicRepoStub{
 		values: map[string]string{

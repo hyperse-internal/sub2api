@@ -400,14 +400,15 @@ export default {
       },
       notifyModeLabels: {
         silent: 'Silent',
-        popup: 'Popup'
+        popup: 'Popup',
+        noticeBar: 'Notice Bar'
       },
       form: {
         title: 'Title',
         content: 'Content (Markdown supported)',
         status: 'Status',
         notifyMode: 'Notify Mode',
-        notifyModeHint: 'Popup mode will show a popup notification to users',
+        notifyModeHint: 'Silent only appears in the bell list; Popup auto-opens a modal; Notice Bar shows a top banner',
         startsAt: 'Starts At',
         endsAt: 'Ends At',
         startsAtHint: 'Leave empty to start immediately',

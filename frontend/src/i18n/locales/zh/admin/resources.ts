@@ -397,14 +397,15 @@ export default {
       },
       notifyModeLabels: {
         silent: '静默',
-        popup: '弹窗'
+        popup: '弹窗',
+        noticeBar: '通告栏'
       },
       form: {
         title: '标题',
         content: '内容（支持 Markdown）',
         status: '状态',
         notifyMode: '通知方式',
-        notifyModeHint: '弹窗模式会自动弹出通知给用户',
+        notifyModeHint: '静默仅显示在铃铛列表；弹窗会自动弹出；通告栏在页面顶部展示',
         startsAt: '开始时间',
         endsAt: '结束时间',
         startsAtHint: '留空表示立即生效',
