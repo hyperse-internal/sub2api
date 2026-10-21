@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { mount, RouterLinkStub } from '@vue/test-utils'
 
 import HomeView from '../HomeView.vue'
@@ -56,7 +56,13 @@ function mountHome(settings: Record<string, unknown> = {}) {
 }
 
 function compactDestination(wrapper: ReturnType<typeof mountHome>) {
-  return wrapper.get('[data-testid="compact-home"]').findComponent(RouterLinkStub).props('to')
+  const destinations = wrapper
+    .get('[data-testid="compact-home"]')
+    .findAllComponents(RouterLinkStub)
+    .map((link) => link.props('to'))
+  return destinations.find(
+    (to) => to === '/login' || to === '/dashboard' || to === '/admin/dashboard',
+  )
 }
 
 function modelPlazaDestination(wrapper: ReturnType<typeof mountHome>) {
@@ -74,7 +80,21 @@ describe('HomeView compact mode', () => {
     authStore.checkAuth.mockClear()
     appStore.fetchPublicSettings.mockClear()
     localStorage.clear()
-    vi.spyOn(window, 'matchMedia').mockReturnValue({ matches: false } as MediaQueryList)
+    // BuiltinHomeView uses usePreferredReducedMotion → needs addListener/addEventListener
+    vi.spyOn(window, 'matchMedia').mockImplementation((query: string) => ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    }))
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
   })
 
   it.each(['', '<section id="custom-home">Custom home</section>', 'https://example.com/home'])(
