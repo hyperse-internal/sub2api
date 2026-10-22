@@ -52,14 +52,13 @@ describe('AppSidebar collapsible groups', () => {
 })
 
 describe('AppSidebar header styles', () => {
-  it('does not clip the version badge dropdown', () => {
+  it('centers the logo and does not show a version badge', () => {
     const sidebarHeaderBlockMatch = styleSource.match(/\.sidebar-header\s*\{[\s\S]*?\n {2}\}/)
-    const sidebarBrandBlockMatch = componentSource.match(/\.sidebar-brand\s*\{[\s\S]*?\n\}/)
 
     expect(sidebarHeaderBlockMatch).not.toBeNull()
-    expect(sidebarBrandBlockMatch).not.toBeNull()
-    expect(sidebarHeaderBlockMatch?.[0]).not.toContain('@apply overflow-hidden;')
-    expect(sidebarBrandBlockMatch?.[0]).not.toContain('overflow: hidden;')
+    expect(sidebarHeaderBlockMatch?.[0]).toContain('@apply flex items-center justify-center gap-3;')
+    expect(componentSource).not.toContain('VersionBadge')
+    expect(componentSource).not.toContain('siteVersion')
   })
 })
 
