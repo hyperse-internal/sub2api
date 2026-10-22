@@ -148,9 +148,9 @@ onMounted(() => {
 /* 深色：墨绿径向高光（勿用 :global(html…) 拆选择器，会误挂到 html 上） */
 .dark .auth-showcase {
   background:
-    radial-gradient(ellipse at 10% 5%, #0b2121 0, transparent 25%),
-    radial-gradient(ellipse at 100% 100%, #0b2121 0, transparent 25%),
-    #081717;
+    radial-gradient(ellipse at 10% 5%, #181b32 0, transparent 25%),
+    radial-gradient(ellipse at 100% 100%, #181b32 0, transparent 25%),
+    #0f1121;
 }
 
 .auth-showcase::before {
