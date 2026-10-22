@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" fill="none">
+  <defs>
+    <linearGradient id="card" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#fff"/>
+      <stop offset="1" stop-color="#eaf8f5"/>
+    </linearGradient>
+    <linearGradient id="hub" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#147e79"/>
+      <stop offset="1" stop-color="#073e48"/>
+    </linearGradient>
+    <linearGradient id="path" x1="0" y1="0" x2="1" y2="0">
+      <stop stop-color="#38b9ac"/>
+      <stop offset="1" stop-color="#16cddd"/>
+    </linearGradient>
+    <filter id="shadow" x="-30%" y="-40%" width="160%" height="190%">
+      <feDropShadow dx="0" dy="26" stdDeviation="28" flood-color="#052c30" flood-opacity=".18"/>
+    </filter>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="22"/>
+    </filter>
+  </defs>
+
+  <ellipse cx="510" cy="478" rx="270" ry="230" fill="#44c9bb" opacity=".11" filter="url(#glow)"/>
+  <circle cx="512" cy="486" r="375" stroke="#32aaa1" stroke-opacity=".12" stroke-width="2" stroke-dasharray="5 15"/>
+
+  <path d="M317 410H385M650 410H718" stroke="#0b706d" stroke-opacity=".2" stroke-width="24" stroke-linecap="round"/>
+  <path d="M317 410H385M650 410H718" stroke="url(#path)" stroke-width="7" stroke-linecap="round"/>
+  <path d="m371 398 14 12-14 12m333-24 14 12-14 12" stroke="#16b7ac" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M512 560v132" stroke="#0b706d" stroke-opacity=".18" stroke-width="20" stroke-linecap="round"/>
+  <path d="M512 560v132" stroke="url(#path)" stroke-width="6" stroke-linecap="round"/>
+
+  <g filter="url(#shadow)">
+    <rect x="58" y="222" width="270" height="386" rx="36" fill="url(#card)" stroke="#fff" stroke-width="3"/>
+    <rect x="70" y="234" width="246" height="362" rx="27" stroke="#1a8d84" stroke-opacity=".12" stroke-width="2"/>
+  </g>
+  <circle cx="104" cy="276" r="10" fill="#21b6a6"/>
+  <text x="126" y="286" fill="#0c4c53" font-family="Arial, sans-serif" font-size="25" font-weight="700" letter-spacing="2">AI MODELS</text>
+  <path d="M93 314h200" stroke="#c7e5df" stroke-width="2"/>
+  <g font-family="Arial, sans-serif" font-size="23" font-weight="700" letter-spacing="1" fill="#174b52">
+    <rect x="91" y="344" width="204" height="66" rx="19" fill="#e7f6f2"/>
+    <circle cx="126" cy="377" r="17" fill="#b3e7db"/>
+    <path d="M117 377h18m-9-9v18" stroke="#137f76" stroke-width="4" stroke-linecap="round"/>
+    <text x="164" y="385">TEXT</text>
+
+    <rect x="91" y="428" width="204" height="66" rx="19" fill="#e7f6f2"/>
+    <circle cx="126" cy="461" r="17" fill="#b3e7db"/>
+    <path d="m122 454-7 7 7 7m8-14 7 7-7 7" stroke="#137f76" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="164" y="469">CODE</text>
+
+    <rect x="91" y="512" width="204" height="66" rx="19" fill="#e7f6f2"/>
+    <circle cx="126" cy="545" r="17" fill="#b3e7db"/>
+    <rect x="116" y="537" width="20" height="16" rx="3" stroke="#137f76" stroke-width="3"/>
+    <path d="m117 550 6-6 4 4 3-3 6 6" stroke="#137f76" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="164" y="553">IMAGE</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="374" y="290" width="276" height="278" rx="42" fill="url(#hub)" stroke="#60d8ca" stroke-width="3"/>
+    <rect x="387" y="303" width="250" height="252" rx="31" stroke="#d5fff3" stroke-opacity=".22" stroke-width="2"/>
+  </g>
+  <circle cx="512" cy="380" r="52" fill="#ccfff1" fill-opacity=".13" stroke="#9debd9" stroke-opacity=".65" stroke-width="2"/>
+  <circle cx="495" cy="379" r="14" stroke="#d9fff4" stroke-width="8"/>
+  <path d="M509 379h43m-12 0v14m-13-14v11" stroke="#d9fff4" stroke-width="8" stroke-linecap="round"/>
+  <text x="512" y="473" text-anchor="middle" fill="#fff" font-family="Arial, sans-serif" font-size="30" font-weight="700" letter-spacing="3">API KEY</text>
+  <text x="512" y="513" text-anchor="middle" fill="#b5e9df" font-family="Arial, sans-serif" font-size="18" letter-spacing="2">ONE GATEWAY</text>
+  <circle cx="376" cy="410" r="9" fill="#82e8d8"/>
+  <circle cx="649" cy="410" r="9" fill="#82e8d8"/>
+
+  <g filter="url(#shadow)">
+    <rect x="707" y="222" width="258" height="386" rx="36" fill="url(#card)" stroke="#fff" stroke-width="3"/>
+    <rect x="719" y="234" width="234" height="362" rx="27" stroke="#1a8d84" stroke-opacity=".12" stroke-width="2"/>
+  </g>
+  <circle cx="752" cy="276" r="10" fill="#21b6a6"/>
+  <text x="774" y="286" fill="#0c4c53" font-family="Arial, sans-serif" font-size="25" font-weight="700" letter-spacing="2">CONNECT</text>
+  <path d="M741 314h190" stroke="#c7e5df" stroke-width="2"/>
+  <rect x="740" y="348" width="192" height="98" rx="21" fill="#e7f6f2"/>
+  <rect x="761" y="369" width="54" height="53" rx="11" fill="#c1e9df"/>
+  <path d="m785 386-9 9 9 9m8-18 9 9-9 9" stroke="#137f76" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="833" y="406" fill="#174b52" font-family="Arial, sans-serif" font-size="24" font-weight="700">IDE</text>
+  <rect x="740" y="465" width="192" height="98" rx="21" fill="#e7f6f2"/>
+  <rect x="761" y="486" width="54" height="53" rx="11" fill="#c1e9df"/>
+  <rect x="777" y="497" width="22" height="31" rx="4" stroke="#137f76" stroke-width="3"/>
+  <circle cx="788" cy="521" r="2" fill="#137f76"/>
+  <text x="833" y="523" fill="#174b52" font-family="Arial, sans-serif" font-size="24" font-weight="700">APP</text>
+
+  <g filter="url(#shadow)">
+    <rect x="358" y="684" width="308" height="136" rx="30" fill="url(#card)" stroke="#fff" stroke-width="3"/>
+  </g>
+  <text x="389" y="734" fill="#0c4c53" font-family="Arial, sans-serif" font-size="21" font-weight="700" letter-spacing="2">USAGE</text>
+  <path d="M389 782h246" stroke="#b9ddd6" stroke-width="2"/>
+  <rect x="490" y="750" width="20" height="30" rx="6" fill="#6fcdbd"/>
+  <rect x="523" y="736" width="20" height="44" rx="6" fill="#48b9aa"/>
+  <rect x="556" y="752" width="20" height="28" rx="6" fill="#6fcdbd"/>
+  <rect x="589" y="723" width="20" height="57" rx="6" fill="#168f84"/>
+</svg>

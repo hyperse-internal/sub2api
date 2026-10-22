@@ -41,8 +41,8 @@
               :src="qqLightImg"
               :alt="t('common.supportQrAlt')"
               class="block h-full w-full dark:hidden"
-              width="1440"
-              height="1440"
+              width="930"
+              height="930"
               data-test="support-float-qr-light"
               draggable="false"
             />
@@ -50,8 +50,8 @@
               :src="qqDarkImg"
               :alt="t('common.supportQrAlt')"
               class="hidden h-full w-full dark:block"
-              width="1440"
-              height="1440"
+              width="930"
+              height="930"
               data-test="support-float-qr-dark"
               draggable="false"
             />
@@ -121,6 +121,7 @@ import { useAppStore } from '@/stores/app'
 import { useClipboard } from '@/composables/useClipboard'
 import qqDarkImg from '@/assets/images/qq-group-qr-dark.png'
 import qqLightImg from '@/assets/images/qq-group-qr-light.png'
+import { QQ_GROUP_NUMBER } from '@/constants/community'
 
 const STORAGE_KEY = 'support_float_btn_top'
 const DRAG_THRESHOLD_PX = 4
@@ -131,7 +132,7 @@ const DEFAULT_TOP_RATIO = 0.65
 const { t } = useI18n()
 const appStore = useAppStore()
 const contactInfo = computed(() => appStore.contactInfo?.trim() || '')
-const groupNumber = '1084708543'
+const groupNumber = QQ_GROUP_NUMBER
 const { copied: groupCopied, copyToClipboard: copyGroupNumber } = useClipboard()
 const { copied: contactCopied, copyToClipboard: copyContactInfo } = useClipboard()
 

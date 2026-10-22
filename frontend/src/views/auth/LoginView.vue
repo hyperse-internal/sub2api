@@ -1,8 +1,8 @@
 <template>
-  <AuthLayout>
+  <AuthLayout split>
     <div class="space-y-6">
       <!-- Title -->
-      <div class="text-center">
+      <div class="auth-heading">
         <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
           {{ t('auth.welcomeBack') }}
         </h2>
@@ -10,6 +10,10 @@
           {{ t('auth.signInToAccount') }}
         </p>
       </div>
+      <nav v-if="!backendModeEnabled && publicSettingsLoaded && registrationEnabled" class="auth-navigation" :aria-label="t('auth.accountAccess')">
+        <router-link to="/login" aria-current="page"><Icon name="login" size="sm" />{{ t('auth.signIn') }}</router-link>
+        <router-link to="/register"><Icon name="userPlus" size="sm" />{{ t('auth.signUp') }}</router-link>
+      </nav>
       <!-- Login Form -->
       <form @submit.prevent="handleLogin" class="space-y-5">
         <!-- Email Input -->
@@ -28,7 +32,7 @@
               required
               autofocus
               autocomplete="email"
-              :disabled="authActionDisabled"
+              :disabled="formFieldsDisabled"
               class="input pl-11"
               :class="{ 'input-error': errors.email }"
               :placeholder="t('auth.emailPlaceholder')"
@@ -51,7 +55,7 @@
               :type="showPassword ? 'text' : 'password'"
               required
               autocomplete="current-password"
-              :disabled="authActionDisabled"
+              :disabled="formFieldsDisabled"
               class="input pl-11 pr-11"
               :class="{ 'input-error': errors.password }"
               :placeholder="t('auth.passwordPlaceholder')"
@@ -59,7 +63,7 @@
             <button
               type="button"
               @click="showPassword = !showPassword"
-              :disabled="authActionDisabled"
+              :disabled="formFieldsDisabled"
               class="absolute inset-y-0 right-0 flex items-center pr-3.5 text-gray-400 transition-colors hover:text-gray-600 dark:hover:text-dark-300"
             >
               <Icon v-if="showPassword" name="eyeOff" size="md" />
@@ -344,8 +348,13 @@ const agreementGateActive = computed(
   () => loginAgreementEnabled.value && !agreementAccepted.value
 )
 
+// 协议未接受时仍可填写账号密码；登录 / 第三方按钮由 authActionDisabled 拦截
+const formFieldsDisabled = computed(
+  () => isLoading.value || passkeyLoading.value || !publicSettingsLoaded.value
+)
+
 const authActionDisabled = computed(
-  () => isLoading.value || passkeyLoading.value || !publicSettingsLoaded.value || agreementGateActive.value
+  () => formFieldsDisabled.value || agreementGateActive.value
 )
 
 const showPasskeyLogin = computed(

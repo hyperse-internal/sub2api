@@ -40,6 +40,7 @@ export default {
       inputTokens: '输入',
       outputTokens: '输出',
       cacheReadTokens: '缓存命中',
+      cacheRatio: '缓存占比',
       totalTokens: '总 Token',
       listCost: '标准价',
       actualCost: '实扣'
@@ -54,7 +55,8 @@ export default {
     },
     hints: {
       listCost: '倍率前的标准计费（usage_logs.total_cost）',
-      actualCost: '实际扣费（含分组倍率，usage_logs.actual_cost）'
+      actualCost: '实际扣费（含分组倍率，usage_logs.actual_cost）',
+      cacheRatio: '缓存命中 Token ÷（输入 + 缓存命中 + 缓存创建）'
     }
   }
 }

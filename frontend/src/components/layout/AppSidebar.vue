@@ -115,7 +115,7 @@
             :key="item.path"
             :to="item.path"
             class="sidebar-link mb-1"
-            :class="{ 'sidebar-link-active': isActive(item.path), 'sidebar-link-collapsed': sidebarCollapsed }"
+            :class="{ 'sidebar-link-active': isActive(item.path), 'sidebar-link-collapsed': sidebarCollapsed, 'affiliate-promo-link': item.path === '/affiliate' && !sidebarCollapsed }"
             :title="sidebarCollapsed ? item.label : undefined"
             :data-tour="item.path === '/keys' ? 'sidebar-my-keys' : undefined"
             :target="linkTarget(item)"
@@ -125,6 +125,7 @@
             <span v-if="item.iconSvg" class="h-5 w-5 flex-shrink-0 sidebar-svg-icon" v-html="sanitizeSvg(item.iconSvg)"></span>
             <component v-else :is="item.icon" class="h-5 w-5 flex-shrink-0" />
             <span class="sidebar-label" :class="{ 'sidebar-label-collapsed': sidebarCollapsed }" :aria-hidden="sidebarCollapsed ? 'true' : 'false'">{{ item.label }}</span>
+            <img v-if="item.path === '/affiliate' && !sidebarCollapsed" :src="affiliatePromoBadge" alt="" class="affiliate-promo-badge" />
           </router-link>
         </div>
 
@@ -159,7 +160,7 @@
             :key="item.path"
             :to="item.path"
             class="sidebar-link mb-1"
-            :class="{ 'sidebar-link-active': isActive(item.path), 'sidebar-link-collapsed': sidebarCollapsed }"
+            :class="{ 'sidebar-link-active': isActive(item.path), 'sidebar-link-collapsed': sidebarCollapsed, 'affiliate-promo-link': item.path === '/affiliate' && !sidebarCollapsed }"
             :title="sidebarCollapsed ? item.label : undefined"
             :data-tour="item.path === '/keys' ? 'sidebar-my-keys' : undefined"
             :target="linkTarget(item)"
@@ -169,6 +170,7 @@
             <span v-if="item.iconSvg" class="h-5 w-5 flex-shrink-0 sidebar-svg-icon" v-html="sanitizeSvg(item.iconSvg)"></span>
             <component v-else :is="item.icon" class="h-5 w-5 flex-shrink-0" />
             <span class="sidebar-label" :class="{ 'sidebar-label-collapsed': sidebarCollapsed }" :aria-hidden="sidebarCollapsed ? 'true' : 'false'">{{ item.label }}</span>
+            <img v-if="item.path === '/affiliate' && !sidebarCollapsed" :src="affiliatePromoBadge" alt="" class="affiliate-promo-badge" />
           </router-link>
         </div>
 
@@ -238,6 +240,7 @@
 
 <script setup lang="ts">
 import SiteLogo from '@/components/common/SiteLogo.vue'
+import affiliatePromoBadge from '@/assets/images/affiliate-rebate-20.png'
 import { computed, h, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
@@ -1099,6 +1102,21 @@ onBeforeUnmount(() => {
   gap: 0;
   padding-left: 0.875rem;
   padding-right: 0.875rem;
+}
+
+.affiliate-promo-link {
+  position: relative;
+  padding-right: 3.25rem;
+}
+
+.affiliate-promo-badge {
+  position: absolute;
+  top: 50%;
+  right: 0.5rem;
+  width: 2.25rem;
+  height: 2.25rem;
+  object-fit: contain;
+  transform: translateY(-50%);
 }
 
 .sidebar-section-title {

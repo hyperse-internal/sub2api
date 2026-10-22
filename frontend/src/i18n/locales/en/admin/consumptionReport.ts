@@ -40,6 +40,7 @@ export default {
       inputTokens: 'Input',
       outputTokens: 'Output',
       cacheReadTokens: 'Cache hit',
+      cacheRatio: 'Cache ratio',
       totalTokens: 'Total tokens',
       listCost: 'List cost',
       actualCost: 'Billed'
@@ -54,7 +55,8 @@ export default {
     },
     hints: {
       listCost: 'Pre-multiplier list pricing (usage_logs.total_cost)',
-      actualCost: 'Actual charge including group rate (usage_logs.actual_cost)'
+      actualCost: 'Actual charge including group rate (usage_logs.actual_cost)',
+      cacheRatio: 'Cache hit tokens ÷ (input + cache hit + cache creation)'
     }
   }
 }

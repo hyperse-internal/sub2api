@@ -160,6 +160,12 @@
                 <th class="px-3 py-3 font-medium text-right">{{ t('admin.consumptionReport.daily.inputTokens') }}</th>
                 <th class="px-3 py-3 font-medium text-right">{{ t('admin.consumptionReport.daily.outputTokens') }}</th>
                 <th class="px-3 py-3 font-medium text-right">{{ t('admin.consumptionReport.daily.cacheReadTokens') }}</th>
+                <th
+                  class="px-3 py-3 font-medium text-right"
+                  :title="t('admin.consumptionReport.hints.cacheRatio')"
+                >
+                  {{ t('admin.consumptionReport.daily.cacheRatio') }}
+                </th>
                 <th class="px-3 py-3 font-medium text-right">{{ t('admin.consumptionReport.daily.totalTokens') }}</th>
                 <th class="px-3 py-3 font-medium text-right" :title="t('admin.consumptionReport.hints.listCost')">
                   {{ t('admin.consumptionReport.daily.listCost') }}
@@ -183,6 +189,12 @@
                 <td class="px-3 py-2.5 text-right tabular-nums">{{ formatTokensM(row.input_tokens) }}</td>
                 <td class="px-3 py-2.5 text-right tabular-nums">{{ formatTokensM(row.output_tokens) }}</td>
                 <td class="px-3 py-2.5 text-right tabular-nums">{{ formatTokensM(row.cache_read_tokens) }}</td>
+                <td
+                  class="px-3 py-2.5 text-right tabular-nums"
+                  :title="t('admin.consumptionReport.hints.cacheRatio')"
+                >
+                  {{ formatCacheRatio(row.cache_read_tokens, row.input_tokens, row.cache_creation_tokens) }}
+                </td>
                 <td class="px-3 py-2.5 text-right tabular-nums">{{ formatTokensM(row.total_tokens) }}</td>
                 <td class="px-3 py-2.5 text-right tabular-nums">${{ formatCostFixed(row.cost) }}</td>
                 <td class="px-4 py-2.5 text-right tabular-nums font-medium text-teal-700 dark:text-teal-400 sm:px-6">
@@ -204,6 +216,18 @@
                 </td>
                 <td class="px-3 py-2.5 text-right font-semibold tabular-nums">
                   {{ formatTokensM(report.summary.total_cache_read_tokens) }}
+                </td>
+                <td
+                  class="px-3 py-2.5 text-right font-semibold tabular-nums"
+                  :title="t('admin.consumptionReport.hints.cacheRatio')"
+                >
+                  {{
+                    formatCacheRatio(
+                      report.summary.total_cache_read_tokens,
+                      report.summary.total_input_tokens,
+                      report.summary.total_cache_creation_tokens
+                    )
+                  }}
                 </td>
                 <td class="px-3 py-2.5 text-right font-semibold tabular-nums">
                   {{ formatTokensM(report.summary.total_tokens) }}
@@ -376,6 +400,17 @@ function formatTokensM(tokens: number): string {
   if (tokens >= 1_000_000) return `${(tokens / 1_000_000).toFixed(2)}M`
   if (tokens >= 1_000) return `${(tokens / 1_000).toFixed(1)}K`
   return formatNumberLocaleString(tokens)
+}
+
+/** 缓存命中 ÷（输入 + 缓存命中 + 缓存创建），与 TokenUsageTrend 口径一致 */
+function formatCacheRatio(
+  cacheReadTokens: number,
+  inputTokens: number,
+  cacheCreationTokens: number
+): string {
+  const promptTokens = inputTokens + cacheReadTokens + cacheCreationTokens
+  if (promptTokens <= 0) return '—'
+  return `${((cacheReadTokens / promptTokens) * 100).toFixed(1)}%`
 }
 
 function inclusiveDaySpan(start: string, end: string): number {

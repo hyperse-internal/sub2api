@@ -140,6 +140,7 @@ aicodex
 output/
 .codegraph/
 issues/
+.pnpm-store/
 
 # Vitest / Vite cache at repo root
 .vite/

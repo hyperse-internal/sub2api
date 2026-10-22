@@ -1,8 +1,8 @@
 <template>
-  <AuthLayout>
+  <AuthLayout split>
     <div class="space-y-6">
       <!-- Title -->
-      <div class="text-center">
+      <div class="auth-heading">
         <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
           {{ t('auth.createAccount') }}
         </h2>
@@ -11,6 +11,10 @@
         </p>
       </div>
 
+      <nav class="auth-navigation" :aria-label="t('auth.accountAccess')">
+        <router-link to="/login"><Icon name="login" size="sm" />{{ t('auth.signIn') }}</router-link>
+        <router-link to="/register" aria-current="page"><Icon name="userPlus" size="sm" />{{ t('auth.signUp') }}</router-link>
+      </nav>
       <!-- Registration Disabled Message -->
       <div
         v-if="!registrationEnabled && settingsLoaded"
