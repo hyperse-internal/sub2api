@@ -83,7 +83,6 @@ export default function Home(props: Route.ComponentProps) {
         <div className="home-hero-grid pointer-events-none absolute inset-0" aria-hidden />
         <div className="relative mx-auto max-w-3xl">
           <p className="home-eyebrow">{t.eyebrow}</p>
-          <Logo className="mx-auto mt-6 h-12 w-auto sm:h-14" title={siteConfig.name} />
           <h1 className="mt-6 text-3xl font-semibold tracking-tight sm:text-4xl md:text-[2.75rem]">
             {t.title}
             <br />
