@@ -23,8 +23,6 @@
 
       <!-- Right: Promotion + Announcements + Docs + Language + Subscriptions + Balance + User Dropdown -->
       <div class="flex shrink-0 items-center gap-1 whitespace-nowrap sm:gap-3">
-        <GroupPromoButton v-if="user" />
-
         <!-- Announcement Bell -->
         <AnnouncementBell v-if="user" />
 
@@ -261,7 +259,6 @@ import { useAdminSettingsStore } from '@/stores/adminSettings'
 import LocaleSwitcher from '@/components/common/LocaleSwitcher.vue'
 import SubscriptionProgressMini from '@/components/common/SubscriptionProgressMini.vue'
 import AnnouncementBell from '@/components/common/AnnouncementBell.vue'
-import GroupPromoButton from '@/components/layout/GroupPromoButton.vue'
 import Icon from '@/components/icons/Icon.vue'
 import { FeatureFlags, isFeatureFlagEnabled } from '@/utils/featureFlags'
 import { resolveRouteMetaKeys } from '@/router/title'

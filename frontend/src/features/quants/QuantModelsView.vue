@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AppLayout from '@/components/layout/AppLayout.vue'
 import BaseDialog from '@/components/common/BaseDialog.vue'
+import QuantCasesDialog from './QuantCasesDialog.vue'
 import assistLight from '@/assets/images/quants/assist-light.png'
 import assistDark from '@/assets/images/quants/assist-dark.png'
 import qmtLight from '@/assets/images/quants/qmt-light.png'
@@ -16,12 +17,13 @@ const { t } = useI18n()
 
 const products = [
   { id: 'assist', slug: 'follow_t_assist', light: assistLight, dark: assistDark },
-  { id: 'qmt', slug: 'follow_t_qmt', light: qmtLight, dark: qmtDark },
   { id: 'super', slug: 'fenshi_super', light: superLight, dark: superDark },
+  { id: 'qmt', slug: 'follow_t_qmt', light: qmtLight, dark: qmtDark },
   { id: 'leader', slug: 'fenshi_leader', light: leaderLight, dark: leaderDark }
 ] as const
 
 const previewProduct = ref<(typeof products)[number] | null>(null)
+const caseProduct = ref<'assist' | 'super' | null>(null)
 </script>
 
 <template>
@@ -40,7 +42,7 @@ const previewProduct = ref<(typeof products)[number] | null>(null)
           :data-test="`quant-card-${product.id}`"
           class="group relative flex min-w-0 flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition duration-200 hover:border-primary-400 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-4 dark:border-dark-700 dark:bg-dark-900 dark:hover:border-primary-500 dark:focus-visible:ring-offset-dark-950"
         >
-          <div class="pointer-events-none absolute right-0 top-0 z-10 h-16 w-16 overflow-hidden">
+          <div v-if="product.id === 'assist' || product.id === 'super'" data-test="recommended" class="pointer-events-none absolute right-0 top-0 z-10 h-16 w-16 overflow-hidden">
             <span class="absolute -right-6 top-3 flex h-6 w-24 rotate-45 items-center justify-center bg-red-500 text-sm font-semibold text-white shadow-sm">{{ t('quantModels.recommended') }}</span>
           </div>
           <button
@@ -54,15 +56,16 @@ const previewProduct = ref<(typeof products)[number] | null>(null)
             <span class="absolute bottom-3 right-3 rounded-lg bg-gray-900/85 px-3 py-1.5 text-xs font-medium text-white">{{ t('quantModels.viewImage') }}</span>
           </button>
 
-          <a
-            :href="`https://www.alphaio.vip/features/${product.slug}`"
-            target="_blank"
-            rel="noopener noreferrer"
-            :aria-label="`${t(`quantModels.products.${product.id}.name`)} · ${t('quantModels.external')}`"
+          <div
             class="flex flex-1 flex-col p-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary-500 sm:p-6"
           >
-            <p class="text-xs font-medium text-primary-600 dark:text-primary-400">{{ t(`quantModels.products.${product.id}.category`) }}</p>
-            <h2 class="mt-2 text-xl font-bold text-gray-900 dark:text-white">{{ t(`quantModels.products.${product.id}.name`) }}</h2>
+            <div class="flex items-center justify-between gap-3">
+              <div>
+                <p class="text-xs font-medium text-primary-600 dark:text-primary-400">{{ t(`quantModels.products.${product.id}.category`) }}</p>
+                <h2 class="mt-2 text-xl font-bold text-gray-900 dark:text-white">{{ t(`quantModels.products.${product.id}.name`) }}</h2>
+              </div>
+              <button v-if="product.id === 'assist' || product.id === 'super'" type="button" :data-test="`view-cases-${product.id}`" class="btn btn-primary shrink-0" @click="caseProduct = product.id">{{ t('quantModels.viewCases') }}</button>
+            </div>
             <p class="mt-3 text-sm leading-7 text-gray-600 dark:text-gray-300">{{ t(`quantModels.products.${product.id}.description`) }}</p>
             <div class="mt-4 flex flex-wrap gap-2">
               <span v-for="tag in t(`quantModels.products.${product.id}.tags`).split(' / ')" :key="tag" class="rounded-md bg-primary-50 px-2.5 py-1 text-xs font-medium text-primary-700 dark:bg-primary-900/30 dark:text-primary-300">{{ tag }}</span>
@@ -86,19 +89,20 @@ const previewProduct = ref<(typeof products)[number] | null>(null)
 
             <div class="mt-auto pt-5">
               <p class="rounded-lg bg-gray-50 px-3 py-2.5 text-xs leading-5 text-gray-500 dark:bg-dark-800 dark:text-gray-400">{{ t(`quantModels.products.${product.id}.note`) }}</p>
-              <div class="mt-5 flex items-center justify-between border-t border-gray-100 pt-4 dark:border-dark-700">
+              <a :href="`https://www.alphaio.vip/features/${product.slug}`" target="_blank" rel="noopener noreferrer" :aria-label="`${t(`quantModels.products.${product.id}.name`)} · ${t('quantModels.external')}`" class="mt-5 flex items-center justify-between border-t border-gray-100 pt-4 dark:border-dark-700">
                 <span class="text-sm font-semibold text-primary-600 dark:text-primary-400">{{ t('quantModels.details') }}</span>
                 <svg class="h-5 w-5 text-primary-600 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 dark:text-primary-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
                   <path d="M7 17 17 7M7 7h10v10" stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
-              </div>
+              </a>
             </div>
-          </a>
+          </div>
         </article>
       </div>
 
       <p class="text-xs leading-6 text-gray-500 dark:text-gray-400">{{ t('quantModels.notice') }}</p>
     </div>
+    <QuantCasesDialog v-if="caseProduct" :product="caseProduct" @close="caseProduct = null" />
     <BaseDialog
       :show="previewProduct !== null"
       :title="previewProduct ? t('quantModels.imageAlt', { name: t(`quantModels.products.${previewProduct.id}.name`) }) : ''"

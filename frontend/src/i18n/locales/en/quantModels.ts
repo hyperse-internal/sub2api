@@ -1,5 +1,20 @@
 export default {
   quantModels: {
+    viewCases: "View cases",
+    caseTitle: "{name} · Case gallery",
+    goToCase: "View case {number}",
+    previousCase: "Previous case",
+    nextCase: "Next case",
+    cases: {
+      assist1: "The tracking pool brings symbols, chart types, base positions, anchor prices and recent signals into one list. Controls for risk settings, position adjustments and pausing help connect each tracked symbol with its intraday alerts and position information.",
+      assist2: "The intraday signal view separates holding returns from intraday contributions and lists position changes and signals. A cumulative chart and dated records support reviewing alerts alongside their chart context.",
+      assist3: "The trade detail view places the signal ledger beside the intraday chart. A selected dip signal is located on the price curve, allowing its time and quantity to be checked against the surrounding price movement.",
+      assist4: "The single-symbol backtest provides symbol, base-position, date and session controls. Return metrics and a cumulative chart show how holdings and intraday contributions changed over the selected period.",
+      assist5: "The backtest detail overlays multiple dip signals and a late-session sell signal on one chart. Timestamps and quantities can be compared with the ledger to review the sequence behind the backtest statistics.",
+      assist6: "Strategy settings group exit risk controls, Feishu notifications and delivery switches. Stop-loss, profit-target and maximum-holding-day inputs can be compared with per-symbol overrides to understand when exit suggestions are triggered.",
+      super1: "This Feishu sell alert shows the symbol, signal time, reference price, quantity and current position. The explanation identifies an excess-position adjustment near the close, providing context for reviewing the alert.",
+      super2: "This Feishu dip alert includes the symbol, time, reference price, suggested quantity, base position and cost. Its explanation lists average-price deviation and indicator conditions for reviewing the signal before deciding independently."
+    },
     title: 'Quant Models',
     description: 'Intraday signals and local execution tools.',
     eyebrow: 'ALPHAIO · QUANT TOOLS',
