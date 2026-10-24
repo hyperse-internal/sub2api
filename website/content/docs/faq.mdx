@@ -1,0 +1,22 @@
+---
+title: FAQ
+description: Common troubleshooting when connecting or switching providers.
+---
+
+# Codex chat history disappears after switching API
+
+Open **Settings** in the top-left of CC Switch, go to **General**, and turn on **Unify Codex session history**. When you continue a session across providers, the server may still be unable to decrypt Codex `encrypted_content`, so the original session may not resume.
+
+![Unify Codex session history](/docs/assets/ccswitch-history.png)
+
+# Requests keep timing out / cannot connect
+
+1. Confirm the API URL is reachable and the HTTPS certificate is valid; check whether the client requires a full path
+2. Copy the full API Key again and make sure there are no extra spaces or line breaks
+3. Check account balance, token group, and permissions for the target model
+4. Confirm the CC Switch provider, app route, and master route are all enabled, then restart the target tool
+5. If you use a proxy, check whether the proxy, DNS, or node blocks the target domain; do not assume you should disable the proxy
+
+# CC Switch switch did not take effect
+
+Make sure the CC Switch master route and the target app route are both green, and that the matching provider has been clicked **Enable**.

@@ -76,11 +76,12 @@
               </div>
             </template>
             <!-- Normal item (no children) -->
-            <router-link
+            <component
+              :is="item.external ? 'a' : 'router-link'"
               v-else
-              :to="item.path"
+              v-bind="item.external ? { href: item.path } : { to: item.path }"
               class="sidebar-link mb-1"
-              :class="{ 'sidebar-link-active': isActive(item.path), 'sidebar-link-collapsed': sidebarCollapsed }"
+              :class="{ 'sidebar-link-active': !item.external && isActive(item.path), 'sidebar-link-collapsed': sidebarCollapsed }"
               :title="sidebarCollapsed ? item.label : undefined"
               :id="
                 item.path === '/admin/accounts'
@@ -98,7 +99,7 @@
               <span v-if="item.iconSvg" class="h-5 w-5 flex-shrink-0 sidebar-svg-icon" v-html="sanitizeSvg(item.iconSvg)"></span>
               <component v-else :is="item.icon" class="h-5 w-5 flex-shrink-0" />
               <span class="sidebar-label" :class="{ 'sidebar-label-collapsed': sidebarCollapsed }" :aria-hidden="sidebarCollapsed ? 'true' : 'false'">{{ item.label }}</span>
-            </router-link>
+            </component>
           </template>
         </div>
 
@@ -110,12 +111,13 @@
             </span>
           </div>
 
-          <router-link
+          <component
+            :is="item.external ? 'a' : 'router-link'"
             v-for="item in personalNavItems"
             :key="item.path"
-            :to="item.path"
+            v-bind="item.external ? { href: item.path } : { to: item.path }"
             class="sidebar-link mb-1"
-            :class="{ 'sidebar-link-active': isActive(item.path), 'sidebar-link-collapsed': sidebarCollapsed }"
+            :class="{ 'sidebar-link-active': !item.external && isActive(item.path), 'sidebar-link-collapsed': sidebarCollapsed }"
             :title="sidebarCollapsed ? item.label : undefined"
             :data-tour="item.path === '/keys' ? 'sidebar-my-keys' : undefined"
             :target="linkTarget(item)"
@@ -128,7 +130,7 @@
             <span v-if="item.path === '/affiliate' && !sidebarCollapsed" class="ml-auto inline-flex shrink-0 items-center gap-1 rounded bg-orange-500 px-1.5 py-0.5 text-xs font-medium leading-5 text-white">
               {{ t('nav.affiliateRebateBadge') }}
             </span>
-          </router-link>
+          </component>
         </div>
 
         <div v-if="toolNavItems.length" class="sidebar-section">
@@ -157,12 +159,13 @@
       <!-- Regular User View -->
       <template v-else-if="!appStore.backendModeEnabled">
         <div class="sidebar-section">
-          <router-link
+          <component
+            :is="item.external ? 'a' : 'router-link'"
             v-for="item in userNavItems"
             :key="item.path"
-            :to="item.path"
+            v-bind="item.external ? { href: item.path } : { to: item.path }"
             class="sidebar-link mb-1"
-            :class="{ 'sidebar-link-active': isActive(item.path), 'sidebar-link-collapsed': sidebarCollapsed }"
+            :class="{ 'sidebar-link-active': !item.external && isActive(item.path), 'sidebar-link-collapsed': sidebarCollapsed }"
             :title="sidebarCollapsed ? item.label : undefined"
             :data-tour="item.path === '/keys' ? 'sidebar-my-keys' : undefined"
             :target="linkTarget(item)"
@@ -175,7 +178,7 @@
             <span v-if="item.path === '/affiliate' && !sidebarCollapsed" class="ml-auto inline-flex shrink-0 items-center gap-1 rounded bg-orange-500 px-1.5 py-0.5 text-xs font-medium leading-5 text-white">
               {{ t('nav.affiliateRebateBadge') }}
             </span>
-          </router-link>
+          </component>
         </div>
 
         <div v-if="toolNavItems.length" class="sidebar-section">
@@ -283,6 +286,7 @@ import { useI18n } from 'vue-i18n'
 import { useAdminSettingsStore, useAppStore, useAuthStore, useOnboardingStore } from '@/stores'
 import Icon from '@/components/icons/Icon.vue'
 import { sanitizeSvg } from '@/utils/sanitize'
+import { resolveDocsUrl } from '@/utils/docsUrl'
 import { sanitizeUrl } from '@/utils/url'
 import { FeatureFlags, makeSidebarFlag } from '@/utils/featureFlags'
 import { resolveSiteBillingMode } from '@/utils/siteBillingMode'
@@ -312,6 +316,8 @@ interface NavItem {
    * 缺省时在系统内切换路由。
    */
   openInNewTab?: boolean
+  /** Absolute URL — render as `<a href>` instead of `router-link`. */
+  external?: boolean
 }
 
 // applyFeatureFlags 递归过滤掉 featureFlag() === false 的节点（含子节点）。
@@ -329,7 +335,7 @@ function applyFeatureFlags(items: NavItem[]): NavItem[] {
   return out
 }
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 const route = useRoute()
 const router = useRouter()
@@ -346,6 +352,9 @@ const sidebarNavRef = ref<HTMLElement | null>(null)
 const isDark = ref(document.documentElement.classList.contains('dark'))
 
 const homePath = computed(() => (isAdmin.value ? '/admin/dashboard' : '/dashboard'))
+const docsUrl = computed(() =>
+  resolveDocsUrl(appStore.docUrl || appStore.cachedPublicSettings?.doc_url, '', locale.value)
+)
 
 // Per-group expand/collapse overrides. A group with no entry follows the
 // automatic behavior (expanded while the active route is one of its children);
@@ -840,7 +849,7 @@ function buildSelfNavItems(withDashboard: boolean): NavItem[] {
   }
   items.push(
     { path: '/keys', label: t('nav.apiKeys'), icon: KeyIcon },
-    { path: '/docs', label: t('nav.docs'), icon: BookIcon, openInNewTab: true },
+    { path: docsUrl.value, label: t('nav.docs'), icon: BookIcon, openInNewTab: true, external: true },
     { path: '/batch-image', label: t('nav.batchImage'), icon: BatchImageIcon, hideInSimpleMode: true, featureFlag: flagBatchImageAccess },
     { path: '/usage', label: t('nav.usage'), icon: ChartIcon, hideInSimpleMode: true },
     { path: '/available-channels', label: t('nav.availableChannels'), icon: ChannelIcon, hideInSimpleMode: true, featureFlag: flagAvailableChannels },
@@ -967,7 +976,7 @@ const adminNavItems = computed((): NavItem[] => {
   if (authStore.isSimpleMode) {
     const filtered = visible.filter(item => !item.hideInSimpleMode)
     filtered.push({ path: '/keys', label: t('nav.apiKeys'), icon: KeyIcon })
-    filtered.push({ path: '/docs', label: t('nav.docs'), icon: BookIcon, openInNewTab: true })
+    filtered.push({ path: docsUrl.value, label: t('nav.docs'), icon: BookIcon, openInNewTab: true, external: true })
     filtered.push({ path: '/admin/settings', label: t('nav.settings'), icon: CogIcon })
     for (const cm of customMenuItemsForAdmin.value) {
       filtered.push({ path: `/custom/${cm.id}`, label: cm.label, icon: null, iconSvg: cm.icon_svg })

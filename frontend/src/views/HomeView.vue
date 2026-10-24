@@ -33,13 +33,15 @@
         </div>
         <div class="flex max-w-full shrink-0 flex-wrap items-center justify-end gap-2">
           <LocaleSwitcher />
-          <router-link
-            to="/docs" target="_blank" rel="noopener noreferrer"
+          <a
+            :href="docsUrl"
+            target="_blank"
+            rel="noopener noreferrer"
             class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 dark:text-dark-400 dark:hover:bg-dark-800"
             :title="t('home.viewDocs')"
           >
             <Icon name="book" size="md" />
-          </router-link>
+          </a>
           <router-link
             v-if="showModelPlazaEntry"
             to="/model-plaza"
@@ -131,13 +133,15 @@
           <LocaleSwitcher />
 
           <!-- Doc Link -->
-          <router-link
-            to="/docs" target="_blank" rel="noopener noreferrer"
+          <a
+            :href="docsUrl"
+            target="_blank"
+            rel="noopener noreferrer"
             class="rounded-lg p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:text-dark-400 dark:hover:bg-dark-800 dark:hover:text-white"
             :title="t('home.viewDocs')"
           >
             <Icon name="book" size="md" />
-          </router-link>
+          </a>
 
           <!-- Model Plaza Link -->
           <router-link
@@ -468,12 +472,14 @@
           &copy; {{ currentYear }} {{ siteName }}. {{ t('home.footer.allRightsReserved') }}
         </p>
         <div class="flex items-center gap-4">
-          <router-link
-            to="/docs" target="_blank" rel="noopener noreferrer"
+          <a
+            :href="docsUrl"
+            target="_blank"
+            rel="noopener noreferrer"
             class="text-sm text-gray-500 transition-colors hover:text-gray-700 dark:text-dark-400 dark:hover:text-white"
           >
             {{ t('home.docs') }}
-          </router-link>
+          </a>
         </div>
       </div>
     </footer>
@@ -488,10 +494,11 @@ import { useAuthStore, useAppStore } from '@/stores'
 import LocaleSwitcher from '@/components/common/LocaleSwitcher.vue'
 import Icon from '@/components/icons/Icon.vue'
 import BuiltinHomeView from './BuiltinHomeView.vue'
+import { resolveDocsUrl } from '@/utils/docsUrl'
 import { sanitizeUrl } from '@/utils/url'
 import { FeatureFlags, isFeatureFlagEnabled } from '@/utils/featureFlags'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 const authStore = useAuthStore()
 const appStore = useAppStore()
@@ -499,6 +506,9 @@ const appStore = useAppStore()
 // Site settings - directly from appStore (already initialized from injected config)
 const siteName = computed(() => appStore.cachedPublicSettings?.site_name || appStore.siteName || 'Sub2API')
 const siteLogo = computed(() => sanitizeUrl(appStore.cachedPublicSettings?.site_logo || appStore.siteLogo || '', { allowRelative: true, allowDataUrl: true }))
+const docsUrl = computed(() =>
+  resolveDocsUrl(appStore.docUrl || appStore.cachedPublicSettings?.doc_url, '', locale.value)
+)
 const siteSubtitle = computed(() => appStore.cachedPublicSettings?.site_subtitle || 'AI API Gateway Platform')
 const homeContent = computed(() => appStore.cachedPublicSettings?.home_content || '')
 const hasHomeContent = computed(() => homeContent.value.trim().length > 0)

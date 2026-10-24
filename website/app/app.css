@@ -1,0 +1,194 @@
+@import 'tailwindcss';
+@import 'fumadocs-ui/css/neutral.css';
+@import 'fumadocs-ui/css/preset.css';
+@import 'fumadocs-twoslash/twoslash.css';
+@source './**/*.{js,ts,jsx,tsx,mdx}';
+@source '../content/**/*.mdx';
+@source '../node_modules/fumadocs-ui/dist/**/*.js';
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --font-sans:
+    'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+    'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+.alphaio-logo {
+  --logo-accent: #16cddd;
+  --logo-primary: #061a46;
+}
+
+.dark .alphaio-logo {
+  --logo-accent: #20e2ec;
+  --logo-primary: #ffffff;
+}
+
+/* —— Home landing (BuiltinHome-inspired) —— */
+.home-page {
+  --home-accent: #16cddd;
+  --home-glow: rgba(22, 205, 221, 0.14);
+  --home-line: color-mix(in srgb, var(--color-fd-border) 80%, transparent);
+}
+
+.dark .home-page {
+  --home-accent: #20e2ec;
+  --home-glow: rgba(32, 226, 236, 0.16);
+}
+
+.home-accent-text {
+  color: var(--home-accent);
+}
+
+.home-eyebrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.9rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-fd-muted-foreground);
+}
+
+.home-eyebrow::before,
+.home-eyebrow::after {
+  content: '';
+  width: 3rem;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--home-line));
+}
+
+.home-eyebrow::after {
+  transform: rotate(180deg);
+}
+
+.home-eyebrow-left {
+  justify-content: flex-start;
+}
+
+.home-eyebrow-left::before {
+  display: none;
+}
+
+.home-hero {
+  background:
+    radial-gradient(ellipse at 50% 0%, var(--home-glow), transparent 55%);
+}
+
+.home-hero-grid {
+  background-image:
+    linear-gradient(var(--home-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--home-line) 1px, transparent 1px);
+  background-size: 88px 88px;
+  opacity: 0.35;
+  mask-image: radial-gradient(ellipse at 50% 40%, #000, transparent 72%);
+}
+
+.home-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.15rem;
+  border-radius: 999px;
+  border: 1px solid var(--color-fd-border);
+  background: color-mix(in srgb, var(--color-fd-card) 70%, transparent);
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition:
+    background 0.2s,
+    border-color 0.2s,
+    opacity 0.2s;
+}
+
+.home-pill:hover {
+  border-color: var(--home-accent);
+  background: var(--home-glow);
+}
+
+.home-pill-primary {
+  background: linear-gradient(
+    180deg,
+    var(--home-glow),
+    color-mix(in srgb, var(--color-fd-card) 80%, transparent)
+  );
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.12),
+    0 0 24px var(--home-glow);
+}
+
+.home-glass {
+  border: 1px solid var(--color-fd-border);
+  border-radius: 1rem;
+  background: color-mix(in srgb, var(--color-fd-card) 75%, transparent);
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.06),
+    0 12px 28px rgba(0, 0, 0, 0.04);
+}
+
+.dark .home-glass {
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.04),
+    0 16px 32px rgba(0, 0, 0, 0.2);
+}
+
+.home-flow-tilt-l {
+  transform: none;
+}
+
+.home-flow-tilt-r {
+  transform: none;
+}
+
+@media (min-width: 640px) {
+  .home-flow-tilt-l {
+    transform: rotate(-4deg) translateX(6px);
+  }
+
+  .home-flow-tilt-r {
+    transform: rotate(4deg) translateX(-6px);
+  }
+}
+
+.home-key-orbit {
+  border: 1px solid var(--color-fd-border);
+  background: var(--home-glow);
+  box-shadow: 0 0 32px var(--home-glow);
+}
+
+.home-icon-disc {
+  border: 1px solid var(--color-fd-border);
+  background: color-mix(in srgb, var(--color-fd-card) 80%, transparent);
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.08),
+    inset 0 10px 20px var(--home-glow);
+}
+
+.home-text-link {
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-fd-foreground);
+  transition: color 0.15s;
+}
+
+.home-text-link:hover {
+  color: var(--home-accent);
+}
+
+.home-closing-glow {
+  background: radial-gradient(
+    ellipse at 50% 70%,
+    var(--home-glow),
+    transparent 65%
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-flow-tilt-l,
+  .home-flow-tilt-r {
+    transform: none;
+  }
+}

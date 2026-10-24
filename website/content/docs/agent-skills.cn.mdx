@@ -1,10 +1,6 @@
 ---
-id: agent-skills
 title: Agent 技能安装
-eyebrow: 中转站 · 进阶
 description: 在 Codex 中安装 AlphaIO 图片生成 Agent 技能。
-navLabel: Agent 技能安装
-navNote: 安装与配置
 ---
 
 装好 Agent 技能后，在 Codex 里直接用对话画图，不用记命令。
@@ -17,14 +13,14 @@ navNote: 安装与配置
 
 最容易搞错的是技能目录，见下方「找到技能目录」。
 
-接入前请先完成 [注册账号](?doc=register)，并在控制台 [创建 API Key](?doc=purchase)。用法说明见 [图片生成](?doc=image-generation)。
+接入前请先完成 [注册账号](/docs/register)，并在控制台 [创建 API Key](/docs/purchase)。用法说明见 [图片生成](/docs/image-generation)。
 
 ## 最省事：让 AI 自己装
 
 不想手动下载解压，可以交给 Codex 来装。启动后把下面这段提示词**完整复制**粘贴进去：
 
 ```
-帮我安装 AlphaIO 的图片生成 Agent 技能，教程https://ai.alphaio.vip/zh/docs/agent-skills。
+帮我安装 AlphaIO 的图片生成 Agent 技能，教程 https://ai.alphaio.vip/zh/docs/agent-skills。
 
 技能包下载地址：
 - https://file.shunquan.wang/skills/alphaio-image.zip
@@ -193,7 +189,7 @@ grep -E '^\s*(base_url|api_key)\s*=' ~/.codex/.env 2>/dev/null
 
 支持文生图、图生图和局部重绘。图片默认存到当前目录，也可以说「存到桌面」。默认模型是 `gpt-image-2`；想换模型可在描述里写明，例如「用 gpt-image-2.5 画一只小水獭」。
 
-更多用法见 [图片生成](?doc=image-generation)。
+更多用法见 [图片生成](/docs/image-generation)。
 
 ## 生图前请先放开权限
 

@@ -7,10 +7,11 @@ import Icon from '@/components/icons/Icon.vue'
 import LocaleSwitcher from '@/components/common/LocaleSwitcher.vue'
 import SiteLogo from '@/components/common/SiteLogo.vue'
 import { FeatureFlags, resolveFeatureFlag } from '@/utils/featureFlags'
+import { resolveDocsUrl } from '@/utils/docsUrl'
 import { resolveSiteBillingMode } from '@/utils/siteBillingMode'
 import { sanitizeUrl } from '@/utils/url'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const appStore = useAppStore()
 const authStore = useAuthStore()
 const menuOpen = ref(false)
@@ -34,6 +35,10 @@ watch([siteName, reducedMotion], () => {
 }, { immediate: true })
 
 const siteLogo = computed(() => sanitizeUrl(settings.value?.site_logo || appStore.siteLogo || '', { allowRelative: true, allowDataUrl: true }))
+const docsBase = computed(() => appStore.docUrl || settings.value?.doc_url)
+const docsUrl = computed(() => resolveDocsUrl(docsBase.value, '', locale.value))
+const docsConfigToolUrl = computed(() => resolveDocsUrl(docsBase.value, 'config-tool', locale.value))
+const docsFaqUrl = computed(() => resolveDocsUrl(docsBase.value, 'faq', locale.value))
 const registrationEnabled = computed(() => appStore.publicSettingsLoaded && settings.value?.registration_enabled === true)
 const modelPlazaEnabled = computed(() => appStore.publicSettingsLoaded && resolveFeatureFlag(settings.value, FeatureFlags.modelPlaza))
 const paymentEnabled = computed(() => appStore.publicSettingsLoaded && !simpleMode.value && resolveFeatureFlag(settings.value, FeatureFlags.payment))
@@ -51,7 +56,7 @@ const plazaLabel = computed(() => {
 })
 const purchasePath = computed(() => protectedPath(billingMode.value === 'subscription_only' ? '/purchase?tab=subscription' : '/purchase'))
 const capabilities = computed(() => [
-  { id: 'tools', icon: 'terminal' as const, path: '/docs?doc=config-tool' },
+  { id: 'tools', icon: 'terminal' as const, href: docsConfigToolUrl.value },
   { id: 'keys', icon: 'key' as const, path: protectedPath('/keys') },
   ...(!simpleMode.value ? [{ id: 'usage', icon: 'chart' as const, path: protectedPath('/usage') }] : [])
 ])
@@ -60,7 +65,7 @@ const steps = computed(() => [
     title: t(`home.builtin.steps.${!registrationEnabled.value && !authStore.isAuthenticated ? 'existingAccount' : simpleMode.value ? 'login' : 'accountTitle'}`),
     description: t(`home.builtin.steps.${simpleMode.value ? 'accountSimple' : registrationEnabled.value ? 'accountDescription' : 'existingDescription'}`) },
   { id: 'key', icon: 'key' as const, path: protectedPath('/keys'), title: t('home.builtin.steps.keyTitle'), description: t('home.builtin.steps.keyDescription') },
-  { id: 'connect', icon: 'terminal' as const, path: '/docs?doc=config-tool', title: t('home.builtin.steps.connectTitle'), description: t('home.builtin.steps.connectDescription') }
+  { id: 'connect', icon: 'terminal' as const, href: docsConfigToolUrl.value, title: t('home.builtin.steps.connectTitle'), description: t('home.builtin.steps.connectDescription') }
 ])
 const faqs = computed(() => [
   { id: 'models', answer: t('home.builtin.faq.modelsAnswer') },
@@ -97,7 +102,7 @@ function closeMenu() {
         <nav class="desktop-nav" :aria-label="t('home.builtin.navigation')">
           <a href="#capabilities">{{ t('home.builtin.capabilitiesNav') }}</a>
           <RouterLink v-if="modelPlazaEnabled" :to="plazaPath">{{ plazaLabel }}</RouterLink>
-          <RouterLink to="/docs">{{ t('home.builtin.docs') }}</RouterLink>
+          <a :href="docsUrl" target="_blank" rel="noopener noreferrer">{{ t('home.builtin.docs') }}</a>
         </nav>
         <div class="nav-actions">
           <div class="desktop-controls"><LocaleSwitcher /></div>
@@ -109,7 +114,7 @@ function closeMenu() {
       <nav v-if="menuOpen" id="home-mobile-menu" class="mobile-nav shell" :aria-label="t('home.builtin.navigation')" data-test="mobile-menu">
         <a href="#capabilities" @click="menuOpen = false">{{ t('home.builtin.capabilitiesNav') }}</a>
         <RouterLink v-if="modelPlazaEnabled" :to="plazaPath" @click="menuOpen = false">{{ plazaLabel }}</RouterLink>
-        <RouterLink to="/docs" @click="menuOpen = false">{{ t('home.builtin.docs') }}</RouterLink>
+        <a :href="docsUrl" target="_blank" rel="noopener noreferrer" @click="menuOpen = false">{{ t('home.builtin.docs') }}</a>
         <LocaleSwitcher />
       </nav>
     </header>
@@ -132,7 +137,7 @@ function closeMenu() {
           <p class="intro">{{ t(`home.builtin.${simpleMode ? 'descriptionSimple' : 'description'}`) }}</p>
           <div class="actions">
             <RouterLink :to="accountPath" class="pill primary" data-test="hero-account">{{ accountLabel }}<Icon name="arrowRight" size="sm" /></RouterLink>
-            <RouterLink to="/docs?doc=config-tool" class="pill">{{ t('home.builtin.guide') }}<Icon name="book" size="sm" /></RouterLink>
+            <a :href="docsConfigToolUrl" target="_blank" rel="noopener noreferrer" class="pill">{{ t('home.builtin.guide') }}<Icon name="book" size="sm" /></a>
           </div>
           <RouterLink v-if="!authStore.isAuthenticated && registrationEnabled" to="/login" class="login-link">{{ t('home.builtin.existingLogin') }}</RouterLink>
 
@@ -182,7 +187,18 @@ function closeMenu() {
             <div class="icon-disc"><Icon :name="capability.icon" size="lg" /></div>
             <h3>{{ t(`home.builtin.capabilities.${capability.id}.title`) }}</h3>
             <p>{{ t(`home.builtin.capabilities.${capability.id}.description`) }}</p>
-            <RouterLink :to="capability.path" class="text-link">{{ t(`home.builtin.capabilities.${capability.id}.action`) }}<Icon name="arrowRight" size="sm" /></RouterLink>
+            <a
+              v-if="capability.href"
+              :href="capability.href"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-link"
+            >{{ t(`home.builtin.capabilities.${capability.id}.action`) }}<Icon name="arrowRight" size="sm" /></a>
+            <RouterLink
+              v-else
+              :to="capability.path!"
+              class="text-link"
+            >{{ t(`home.builtin.capabilities.${capability.id}.action`) }}<Icon name="arrowRight" size="sm" /></RouterLink>
           </article>
         </div>
       </section>
@@ -212,7 +228,18 @@ function closeMenu() {
           <li v-for="(step, index) in steps" :key="step.id" class="glass step-card">
             <span class="step-number">0{{ index + 1 }}</span><Icon :name="step.icon" size="lg" />
             <h3>{{ step.title }}</h3><p>{{ step.description }}</p>
-            <RouterLink :to="step.path" class="text-link">{{ t(`home.builtin.steps.${step.id}Action`) }}<Icon name="arrowRight" size="sm" /></RouterLink>
+            <a
+              v-if="step.href"
+              :href="step.href"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-link"
+            >{{ t(`home.builtin.steps.${step.id}Action`) }}<Icon name="arrowRight" size="sm" /></a>
+            <RouterLink
+              v-else
+              :to="step.path!"
+              class="text-link"
+            >{{ t(`home.builtin.steps.${step.id}Action`) }}<Icon name="arrowRight" size="sm" /></RouterLink>
           </li>
         </ol>
         <aside class="tool-strip" aria-labelledby="tool-title" data-test="image-tool">
@@ -227,20 +254,20 @@ function closeMenu() {
         <div class="faq-list">
           <details v-for="faq in faqs" :key="faq.id" :data-test="`faq-${faq.id}`"><summary>{{ t(`home.builtin.faq.${faq.id}Question`) }}<Icon name="plus" size="sm" /></summary><p>{{ faq.answer }}</p></details>
         </div>
-        <RouterLink to="/docs?doc=faq" class="text-link more-help">{{ t('home.builtin.moreHelp') }}<Icon name="arrowRight" size="sm" /></RouterLink>
+        <a :href="docsFaqUrl" target="_blank" rel="noopener noreferrer" class="text-link more-help">{{ t('home.builtin.moreHelp') }}<Icon name="arrowRight" size="sm" /></a>
       </section>
 
       <section class="closing section shell" aria-labelledby="closing-title">
         <div class="closing-glow" aria-hidden="true" /><div class="icon-disc"><Icon name="key" size="lg" /></div>
         <h2 id="closing-title">{{ t('home.builtin.closingTitle') }}</h2><p>{{ t('home.builtin.closingDescription') }}</p>
-        <div class="actions"><RouterLink :to="accountPath" class="pill primary">{{ accountLabel }}<Icon name="arrowRight" size="sm" /></RouterLink><RouterLink to="/docs" class="pill">{{ t('home.builtin.docs') }}</RouterLink></div>
+        <div class="actions"><RouterLink :to="accountPath" class="pill primary">{{ accountLabel }}<Icon name="arrowRight" size="sm" /></RouterLink><a :href="docsUrl" target="_blank" rel="noopener noreferrer" class="pill">{{ t('home.builtin.docs') }}</a></div>
       </section>
     </main>
 
     <footer class="site-footer shell">
       <div class="footer-top">
         <RouterLink to="/" class="brand"><SiteLogo :src="siteLogo" :title="siteName" class="h-6" :class="siteLogo ? 'w-6' : 'w-20'" /><span v-if="siteLogo">{{ siteName }}</span></RouterLink>
-        <nav :aria-label="t('home.builtin.footerNavigation')"><RouterLink to="/docs">{{ t('home.builtin.docs') }}</RouterLink><RouterLink to="/key-usage">{{ t('home.builtin.keyUsage') }}</RouterLink><RouterLink v-for="document in legalDocuments" :key="document.id" :to="`/legal/${encodeURIComponent(document.id)}`">{{ document.title }}</RouterLink></nav>
+        <nav :aria-label="t('home.builtin.footerNavigation')"><a :href="docsUrl" target="_blank" rel="noopener noreferrer">{{ t('home.builtin.docs') }}</a><RouterLink to="/key-usage">{{ t('home.builtin.keyUsage') }}</RouterLink><RouterLink v-for="document in legalDocuments" :key="document.id" :to="`/legal/${encodeURIComponent(document.id)}`">{{ document.title }}</RouterLink></nav>
       </div>
       <p v-if="contactInfo" class="contact" data-test="contact">{{ t('home.builtin.contact') }} · {{ contactInfo }}</p>
       <p class="copyright">© {{ year }} {{ siteName }}</p>

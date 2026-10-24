@@ -1,0 +1,215 @@
+---
+title: Configure tools
+description: Connect Claude Code, Codex, Cursor, DeepSeek, and more with CC Switch.
+---
+
+After [creating an account](/docs/register) and getting an API Key, follow the steps below to connect common AI tools.
+
+## CC Switch
+
+### Overview
+
+CC Switch is a small utility that lets you **switch** the backend URL and Key for Claude Code, Codex, and similar AI apps in one place.
+
+Download: [Releases · farion1231/cc-switch](https://github.com/farion1231/cc-switch/releases) (pick the build for your OS)
+
+### Connection modes
+
+Each app (for example Codex or Claude Code) has three tabs at the top of its provider page:
+
+| Mode | Role |
+| --- | --- |
+| **Direct** | The client connects straight to a provider, without local forwarding. |
+| **Route** | Requests go through local CC Switch first, then to the provider you choose. Recommended when connecting AlphaIO. |
+| **Aggregate** | Routes different models to multiple providers by rule (advanced; not covered here). |
+
+A green **Route** badge next to an app name in the sidebar means that app is currently in route mode.
+
+### Setup (Codex example)
+
+Common fields:
+
+| Field | What to enter |
+| --- | --- |
+| Provider name | Anything, e.g. `DeepSeek` or `AlphaIO` |
+| API Key | The full AlphaIO API Key you created earlier |
+| API base URL | The URL from the AlphaIO console. Example: `https://ai.alphaio.vip`. If the client requires `/v1` or another path, append it per the site docs. |
+| Model list | Model IDs available in your current group; use **Fetch models** or **Add manually** |
+
+> Claude Code, Codex, Cursor, and DeepSeek may use different API protocols. If CC Switch or the client asks you to choose Anthropic Messages, OpenAI Responses, or an OpenAI-compatible API, follow the current AlphaIO guidance; a bare root domain alone may not be enough.
+
+**1. Open the provider page**
+
+Open CC Switch and select **Codex** on the left. Click **+ Add provider** in the top right.
+
+![Codex provider page](/docs/assets/cc-1.png)
+
+**2. Choose how to add**
+
+Search for a preset vendor, or click **Custom** at the top and enter the URL and API Key yourself. For AlphaIO, you can also start from a similar template (for example DeepSeek) and change the request URL to AlphaIO in the next step.
+
+![Add provider](/docs/assets/cc-2.png)
+
+**3. Fill in Key, URL, and models**
+
+On the edit page, enter:
+
+- **API Key**: full AlphaIO Key
+- **API base URL**: e.g. `https://ai.alphaio.vip`
+- **Model list**: display name and the actual request model ID (`deepseek-v4.1-flash` in screenshots is only an example; use models available in your group)
+
+Confirm the Key mapping in `auth.json` at the bottom is correct, then click **Save**. Restart Codex after changing the model list so the change takes effect.
+
+![Fill provider and models](/docs/assets/cc-3.png)
+
+**4. Switch to Route**
+
+Back on the provider list, click the **Route** tab. Adding a provider is not enough—you must enable routing so requests are forwarded through CC Switch to AlphaIO.
+
+![Switch to Route tab](/docs/assets/cc-4.png)
+
+**5. Start routing**
+
+If you are still on Direct, the page may say you are viewing Route while Codex is still Direct. Click the green **Start routing** on the right.
+
+![Start routing](/docs/assets/cc-5.png)
+
+**6. Choose the forward target**
+
+The dialog explains that requests go through local CC Switch first, then to the selected provider. Under **Route to**, pick the provider you just configured (for example DeepSeek / AlphaIO), then click **Start routing**.
+
+![Select route target provider](/docs/assets/cc-6.png)
+
+After it succeeds, a green **Route** badge appears next to Codex in the sidebar. Start or restart Codex and pick a model that is configured and allowed by your group to verify.
+
+### Troubleshooting
+
+If the tool does not pick up the switch:
+
+1. Confirm the provider API Key, request URL, and model ID are correct
+2. Confirm the app is on **Route**, and **Route to** points at your AlphaIO provider
+3. Fully quit and restart the target tool (refresh behavior for open windows varies by version)
+
+Claude Code, Claude Desktop, and similar apps use the same flow: select the app on the left → add provider → switch to **Route** → **Start routing** and pick the target provider.
+
+## Claude Code
+
+### Prerequisites
+
+The official install scripts below do not require Node.js or Git up front. Install those only if you use the npm install path or need Git for version control. If the terminal cannot find the command after install, restart the terminal and check PATH.
+
+### Install
+
+**macOS, Linux, WSL:**
+
+```bash
+curl -fsSL https://claude.ai/install.sh | bash
+```
+
+**Windows PowerShell:**
+
+```powershell
+irm https://claude.ai/install.ps1 | iex
+```
+
+**Windows CMD:**
+
+```bat
+curl -fsSL https://claude.ai/install.cmd -o install.cmd && install.cmd && del install.cmd
+```
+
+After install, confirm Claude Code is available:
+
+```bash
+claude --version
+```
+
+A version number is enough. On first use, follow the prompts to sign in or authenticate.
+
+### Connect via relay
+
+Go back to **CC Switch** above, select **Claude Code** on the left, and add a provider the same way: enter the API Key, AlphaIO request URL, and model list, then save. Switch to **Route**, click **Start routing**, and send traffic to that provider.
+
+### Launch
+
+When a green **Route** badge appears next to Claude Code in the sidebar, open a terminal and run `claude`. If auth or models fail, check the API Key, group, and model list first.
+
+## Codex
+
+### Install
+
+- Official entry: [chatgpt.com/codex](https://chatgpt.com/codex). Follow the page for desktop or CLI.
+
+### Configure
+
+See **CC Switch** above for the full steps. Choose the protocol and full API URL required by your client, save, then enable **Route** and select your AlphaIO provider.
+
+### Use
+
+Start or restart Codex, pick a model allowed by your current group, and send a test request. If it fails, check the API URL, protocol, Key, group, and whether CC Switch is in route mode.
+
+Some Codex versions let you change model and thinking strength in the bottom right; options depend on the version.
+
+## Cursor
+
+### Add a model
+
+Confirm the target model is available in the AlphaIO console, open Cursor **Settings → Models**, and click **Add Custom Model** to add the model ID. `deepseek-v4.1-flash` in screenshots is only an example; use the current model list.
+
+![Cursor Models — add custom model](/docs/assets/cursor-models.png)
+
+### Enter the key
+
+Open **API Keys** settings, enable **OpenAI API Key**, and paste the full AlphaIO API Key. Also enable **Override OpenAI Base URL** and enter the OpenAI-compatible URL currently provided by the site. If the client needs a full path such as `/v1`, append it per the site docs.
+
+![Cursor API Keys settings](/docs/assets/cursor-api-keys.png)
+
+### Verify
+
+Return to the chat window, select the model you added and enabled from the model dropdown, and send a test message.
+
+![Cursor chat — select model](/docs/assets/cursor-chat-model.png)
+
+## DeepSeek
+
+### Harness
+
+The screenshots below show where entries and fields are. Provider URL, API protocol, Key group, and model ID can change with server or client versions—confirm current values in the AlphaIO console; do not copy outdated vendor details from screenshots.
+
+Click **More** in the bottom left of DeepSeek Harness, then **Settings**.
+
+![DeepSeek Harness settings entry](/docs/assets/dsh-entry.png)
+
+Click **Models**, then **Add model provider**.
+
+![Add model provider](/docs/assets/dsh-provider.png)
+
+Under **Custom model API**, enter the current API URL, the protocol your client requires, the full API Key, and available model IDs. If you use Anthropic Messages or an OpenAI-compatible protocol, match the interface type the server provides.
+
+![Fill custom model API](/docs/assets/dsh-config.png)
+
+Then create the provider.
+
+In the chat window bottom right, click the model name and select the model you just created.
+
+![Select model](/docs/assets/dsh-select-model.png)
+
+### ZCode
+
+Click **Settings** in the bottom left of ZCode.
+
+![ZCode settings entry](/docs/assets/zcode-settings.png)
+
+Follow the screenshots to open add-provider.
+
+![ZCode add provider entry](/docs/assets/zcode-add-provider.png)
+
+Enter the current API URL, protocol, API Key, and model ID. Save the provider, then select the enabled model in chat.
+
+![Fill provider info](/docs/assets/zcode-add-model-1.png)
+
+![Complete model config](/docs/assets/zcode-add-model-2.png)
+
+Then pick the model in the chat bottom right and send a test message to confirm the connection.
+
+![Select enabled model](/docs/assets/zcode-select-model.png)

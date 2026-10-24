@@ -1,0 +1,12 @@
+{
+  "title": "AlphaIO",
+  "pages": [
+    "index",
+    "register",
+    "purchase",
+    "config-tool",
+    "agent-skills",
+    "image-generation",
+    "faq"
+  ]
+}

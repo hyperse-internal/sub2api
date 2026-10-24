@@ -171,11 +171,11 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/docs',
     name: 'Docs',
-    component: () => import('@/views/docs/DocsView.vue'),
+    component: () => import('@/views/docs/DocsRedirectView.vue'),
     meta: {
       requiresAuth: false,
       title: 'Docs',
-      titleKey: 'docsCenter.title'
+      titleKey: 'home.viewDocs'
     }
   },
   {

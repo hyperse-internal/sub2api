@@ -1,0 +1,95 @@
+---
+title: Image generation
+description: Configure an image provider in the web app, generate from prompts, or edit with reference images.
+---
+
+On the [Image Studio page](https://ai.alphaio.vip/image-studio), configure an image provider, then generate or edit images: **configure provider → write a prompt → choose model and params → generate → download**.
+
+For AlphaIO, first [create an account](/docs/register), then follow [Top up or redeem](/docs/purchase) to prepare an API Key and balance. You can also connect other image-compatible providers with their URL, Key, and models.
+
+## First use: configure a provider
+
+1. Open Image Studio and click **Provider settings** in the top right.
+2. In Image service settings, click **Add provider** and fill in the fields below.
+
+| Field | How to fill |
+| --- | --- |
+| Name | A label you recognize, e.g. `AlphaIO`. |
+| Base URL | For AlphaIO use `https://ai.alphaio.vip/v1`; for others use their public HTTPS API root. Do not use a website homepage or a full image-generation endpoint path. |
+| API Key | The full API Key for that provider. |
+| Models | Click model tags and select at least one. If missing, enter the exact model ID under “Add model name”, then **Add**. |
+
+Click **Save**; that provider becomes active. Close settings and return to the studio.
+
+You can select multiple models; only selected ones appear in the studio **Model** dropdown. Listed names are for selection only—availability depends on the provider and Key permissions. Saving does not verify connectivity.
+
+Later the top right shows the current provider name; click it to reopen settings. Click a provider in the list to switch, or **Edit** to change URL, Key, and models.
+
+Provider settings are stored in the current browser. After changing device/browser or clearing site data, configure again. On generate, this site forwards with your Key to the provider; each generate or edit uses that provider’s balance.
+
+## Generate from text
+
+1. In **Prompt**, describe subject, scene, style, composition, and any text to keep (max 4000 characters).
+2. Leave **Reference images** empty and pick a configured model under **Model**.
+3. On first use, keep default size and quality; set count to `1`, format to `png`, background to Auto.
+4. Click **Generate image**. Wait while the button shows “Generating”; results appear in the preview.
+
+Example:
+
+> A small otter in a beret sitting at a wooden table, rainy window outside, warm indoor light, watercolor illustration, subject centered, simple background, no text.
+
+To refine style, open **Prompt assistant** and pick tags under quality, style, composition, lighting, color, or material. Tags append English phrases to the prompt; you can edit further afterward.
+
+## Edit with reference images
+
+1. Under **Reference images**, click **Upload** for a local file, or copy an image and click **Clipboard**. You can also open **History**, select one or more generated images, and confirm to append them as references.
+2. Confirm thumbnails appear, then describe what to change and what to keep.
+3. Choose a model that supports image-to-image and output params, then click **Edit image**.
+
+Example:
+
+> Keep the otter’s shape, beret, and composition; change the window to a snowy night; keep warm indoor light and watercolor style.
+
+References support **PNG, JPEG, WebP**, max **10MB** each, up to **10** references; masks are not supported yet. Multiple references are sent together; capabilities depend on provider and model.
+
+With references attached, the button switches from Generate to Edit automatically. Remove images via the corner control; removing all restores text-to-image. References persist until you remove them or leave the page—check before the next run.
+
+## Choosing parameters
+
+| Param | Notes |
+| --- | --- |
+| Size | `auto` lets the service decide; or pick square, landscape, or portrait. Options vary by model—use the current dropdown. |
+| Quality | `auto`, `low`, `medium`, `high`; some models also show `xhigh` / `max` when the provider supports them. |
+| Count | Integer `1`–`4` per run; generate one first, then increase if needed. |
+| Format | `png`, `jpeg`, or `webp`. Use PNG or WebP for transparency. |
+| Compression | JPEG/WebP only, `0`–`100`; blank means `100`. Not used for PNG. |
+| Background | Auto, Opaque, or Transparent. Transparent with JPEG auto-switches to PNG. |
+
+Provider support for models and params varies. If the service rejects a param, adjust per the error or reset to defaults and retry.
+
+## View and download results
+
+The screenshot below shows a result for the prompt “a kitten”—preview the image and use the toolbar to zoom or download.
+
+![Image generation result example: kitten plus preview and download toolbar](/docs/assets/generate-image-result.png)
+
+- With multiple images, click a thumbnail to select, then **Download** each.
+- Use scroll or zoom controls for detail; drag, flip horizontally/vertically; **Reset view** restores the initial display.
+- Zoom, pan, and flip affect preview only; downloads are the original images from the service.
+- To edit a result further, pick it in reference **History**, then write a new edit prompt.
+
+The left icon rail switches **Chat** and **History** (hover for labels). History is newest-first, keeps the latest **10** generated images, and supports preview, download, and delete. After refresh you can reopen images from history.
+
+**Download anything you need to keep long-term.** History lives only in the current browser; beyond 10 images the oldest are removed, and clearing browser data also deletes them. If local storage fails, the page prompts you to download while results remain viewable. Unsubmitted prompts and current references are not kept after refresh or leaving the page; saved provider settings remain in that browser.
+
+## Troubleshooting
+
+| Issue | What to do |
+| --- | --- |
+| Save button disabled | Complete name, Base URL, API Key, and select at least one model. |
+| Model dropdown empty or missing your model | Edit the current provider, select or add the model, then save. |
+| Invalid Base URL | Use a public HTTPS API root; for AlphaIO `https://ai.alphaio.vip/v1`—not localhost or private network URLs. |
+| Model does not support image-to-image | Switch to a model that supports editing, or remove references and use text-to-image. |
+| Clipboard or upload failed | Confirm you copied an image and allowed clipboard access, or use Upload; check format and 10MB limit. |
+| Image service error | Read server details in the message; check URL, Key, balance, model permissions, and params. |
+| Timeout, cannot connect, or no image returned | Check provider status and retry later; resubmitting may use balance again. |

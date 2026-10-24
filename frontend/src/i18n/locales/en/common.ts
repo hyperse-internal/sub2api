@@ -490,14 +490,5 @@ export default {
     adminApiKeyForbidden: 'Admin API keys cannot perform this operation. Use a two-factor verified admin session.'
   },
 
-  docsCenter: {
-    title: 'Docs',
-    nav: 'Documentation',
-    toc: 'On this page',
-    tocMobile: 'On this page',
-    emptyToc: 'This article has no headings',
-    console: 'Console'
-  },
-
   // Dashboard
 }

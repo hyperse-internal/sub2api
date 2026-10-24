@@ -1,0 +1,224 @@
+---
+title: Install Agent skills
+description: Install the AlphaIO image-generation Agent skill in Codex.
+---
+
+After the Agent skill is installed, you can generate images in Codex by chatting—no commands to memorize.
+
+| Skill | Example prompts after install |
+| --- | --- |
+| **Image generation & editing** | “Draw an otter wearing a hat” / “Replace this image’s background with snowy mountains” |
+
+Install flow: **download the zip → find the skills directory → extract into it → configure API Key → restart the client**
+
+The skills directory is the easiest place to go wrong—see **Find the skills directory** below.
+
+Before connecting, [create an account](/docs/register) and [create an API Key](/docs/purchase) in the console. For usage, see [Image generation](/docs/image-generation).
+
+## Easiest: let AI install it
+
+If you prefer not to download and unzip manually, ask Codex to do it. After launch, paste this prompt **in full**:
+
+```
+Help me install the AlphaIO image-generation Agent skill. Tutorial: https://ai.alphaio.vip/docs/agent-skills
+
+Skill zip download:
+- https://file.shunquan.wang/skills/alphaio-image.zip
+
+Please:
+1. Confirm I am using Codex. Prefer ~/.agents/skills/ for the skills directory; if ~/.codex/skills/ already exists, installing there is also fine. Create the directory if it is missing.
+2. Download the zip above and extract it into the skills directory. After extract, confirm the layout is <skills-dir>/alphaio-image/SKILL.md, with image.mjs and config.mjs under scripts/. Do not nest an extra folder.
+3. Ensure ~/.codex/.env exists and write (or complete) these two lines (use a placeholder key; do not invent one):
+   base_url=https://ai.alphaio.vip/v1
+   api_key=sk-paste-your-key-here
+   If api_key / base_url already exist, skip and tell me you will reuse them.
+4. After install, list the skills directory to confirm files are in place, then tell me where to replace the real key and that I must restart Codex for it to take effect.
+
+Note: never invent an API Key—always use a placeholder.
+```
+
+The AI follows the prompt; use a placeholder Key first, then replace it with the real Key from the console, and **restart Codex**.
+
+To install manually, or if AI install fails, follow the steps below.
+
+## Download the skill pack
+
+Download the “Image generation & editing” skill:
+
+[Image generation & editing skill pack](https://file.shunquan.wang/skills/alphaio-image.zip)
+
+Save it locally (for example your Downloads folder).
+
+## Find the skills directory
+
+Place skills in a directory Codex can discover (either works; scripts also search in this order):
+
+| Path | Notes |
+| --- | --- |
+| `~/.agents/skills/` | Common Codex skills directory (recommended) |
+| `~/.codex/skills/` | Also supported |
+
+`~` is your home directory. Folders starting with a dot are hidden by default.
+
+**Mac:**
+
+```
+1. Open Finder
+2. Press Command + Shift + G to open Go to Folder
+3. Enter the skills path, e.g. ~/.agents/skills, and press Return
+4. If the folder does not exist, create it under your home directory
+   (create .agents first, then skills inside it)
+
+Tip: Command + Shift + . (period) toggles hidden files
+```
+
+**Windows:**
+
+```
+1. Open File Explorer
+2. Click the address bar, enter e.g. %USERPROFILE%\.agents\skills, and press Enter
+   (%USERPROFILE% is your user folder, usually C:\Users\YourName)
+3. If it is missing, create the folders under your user folder
+   (create .agents first, then skills inside it)
+
+Tip: View → Show → Hidden items shows hidden folders
+```
+
+On Windows, creating a folder named `.agents` via right-click may say you must type a file name. Workaround: type `.agents.` (**trailing period**); after Enter, Windows drops the trailing period.
+
+## Extract the skill pack
+
+Unzip the download and **drag the extracted folder into the skills directory**.
+
+- **Mac**: double-click the zip, then drag the `alphaio-image` folder into the skills directory
+- **Windows**: right-click the zip → Extract All, then drag the extracted folder into the skills directory
+
+The final layout should look like this—`SKILL.md` must be at the first level of the skill folder:
+
+```
+~/.agents/skills/
+└── alphaio-image/
+    ├── SKILL.md
+    └── scripts/
+        ├── image.mjs
+        └── config.mjs
+```
+
+Most common mistake: an extra nested folder. If you get `skills/alphaio-image/alphaio-image/SKILL.md`, move the inner `alphaio-image` **up one level** and delete the empty outer folder.
+
+CLI install:
+
+```bash
+mkdir -p ~/.agents/skills
+curl -fsSL -o /tmp/alphaio-image.zip https://file.shunquan.wang/skills/alphaio-image.zip
+unzip -o /tmp/alphaio-image.zip -d ~/.agents/skills/
+```
+
+```powershell
+New-Item -ItemType Directory -Force -Path "$HOME\.agents\skills" | Out-Null
+Invoke-WebRequest -Uri "https://file.shunquan.wang/skills/alphaio-image.zip" -OutFile "$env:TEMP\alphaio-image.zip"
+Expand-Archive -Path "$env:TEMP\alphaio-image.zip" -DestinationPath "$HOME\.agents\skills\" -Force
+```
+
+`-d` / `-DestinationPath` is the skills directory; the zip already includes the skill folder layer, so nesting is usually avoided.
+
+## Configure the API Key
+
+Scripts read credentials in this order (any one is enough):
+
+1. Environment variable `CODEXZH_API_KEY`
+2. `apiKey` in `~/.codexzh/config.json`
+3. `api_key` / `base_url` in `~/.codex/.env`
+
+Recommended: configure `~/.codex/.env` (Windows: `%USERPROFILE%\.codex\.env`). **The file must exist** and contain:
+
+```
+base_url=https://ai.alphaio.vip/v1
+api_key=sk-your-key
+```
+
+If the file does not exist yet:
+
+```bash
+mkdir -p ~/.codex
+touch ~/.codex/.env
+```
+
+Then write the two lines with an editor. Create and copy `api_key` from the [AlphaIO console](https://ai.alphaio.vip).
+
+You can also use a config file (API base URL optional):
+
+```json
+{
+  "apiKey": "sk-your-key",
+  "apiBaseUrl": "https://ai.alphaio.vip/v1"
+}
+```
+
+Save as `~/.codexzh/config.json`, and preferably:
+
+```bash
+chmod 600 ~/.codexzh/config.json
+```
+
+Keep your API Key private: do not screenshot it or paste it into public chats.
+
+Check that `.env` is configured:
+
+```bash
+grep -E '^\s*(base_url|api_key)\s*=' ~/.codex/.env 2>/dev/null
+```
+
+You should see two non-empty lines.
+
+## Restart and try it
+
+**Skills load when the client starts—restart Codex after placing the files.**
+
+After restart you can say:
+
+```
+Draw a small otter in a beret sitting at a wooden table, soft lighting
+```
+
+```
+Replace this image’s background with snowy mountains
+```
+
+(For image-to-image, attach a local image path.)
+
+Text-to-image, image-to-image, and inpainting are supported. Images save to the current directory by default; you can also say “save to Desktop”. Default model is `gpt-image-2`; to change it, say so in the prompt, e.g. “use gpt-image-2.5 to draw a small otter”.
+
+More usage: [Image generation](/docs/image-generation).
+
+## Allow permissions before generating
+
+The Codex sandbox defaults toward read-only and may block network for commands, so generation can fail.
+
+Before generating, switch chat permissions to **Full access**, or set Full access under Settings → Configuration → Sandbox.
+
+## About image costs
+
+Image generation is billed per call and deducted from your balance; **exact amounts follow the console usage details**.
+
+The Agent may self-check and retry, so one request can mean multiple calls; sometimes the image is generated but the client times out before showing it. If that matters, use the console / web API for single-shot generation instead.
+
+## FAQ
+
+### Skill not visible in the client
+
+1. Confirm extract location is `~/.agents/skills/` or `~/.codex/skills/`
+2. Confirm there is no extra nested folder—`SKILL.md` should be directly under `alphaio-image/`, with `scripts/image.mjs` present
+3. Restart Codex—without a restart after extract, it will not appear
+
+### CodexZH API Key not found
+
+Confirm `CODEXZH_API_KEY`, `~/.codexzh/config.json`, or `api_key` in `~/.codex/.env` is set; reopen the terminal and restart Codex after changes.
+
+### Invalid token
+
+Wrong or rotated Key. Copy again from the console and avoid leading/trailing spaces.
+
+### How to update the skill
+
+Re-download [alphaio-image.zip](https://file.shunquan.wang/skills/alphaio-image.zip), extract over the existing directory, then restart Codex.
