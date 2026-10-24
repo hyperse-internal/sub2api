@@ -28,6 +28,15 @@ export function legalDocumentUrl(id: string) {
   return `${siteConfig.url}/legal/${id}`;
 }
 
+/** Website marketing home (avoid `/` — that is the Go panel on ai.alphaio.vip). */
+export function toolsHomePath(locale: string = i18n.defaultLanguage): string {
+  const localePrefix =
+    i18n.hideLocale === 'default-locale' && locale === i18n.defaultLanguage
+      ? ''
+      : `/${locale}`;
+  return `${localePrefix}/tools`;
+}
+
 export function baseOptions(locale: string = i18n.defaultLanguage): BaseLayoutProps {
   const localePrefix =
     i18n.hideLocale === 'default-locale' && locale === i18n.defaultLanguage
@@ -42,7 +51,7 @@ export function baseOptions(locale: string = i18n.defaultLanguage): BaseLayoutPr
           <Logo className="h-7 w-auto" title={siteConfig.name} />
         </span>
       ),
-      url: localePrefix || '/',
+      url: toolsHomePath(locale),
     },
     links: [
       {

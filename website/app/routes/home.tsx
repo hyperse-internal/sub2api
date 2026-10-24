@@ -15,7 +15,12 @@ import {
 } from 'lucide-react';
 import { Logo } from '~/components/Logo';
 import { getHomeCopy } from '~/home-copy';
-import { baseOptions, legalDocumentUrl, siteConfig } from '~/layout.config';
+import {
+  baseOptions,
+  legalDocumentUrl,
+  siteConfig,
+  toolsHomePath,
+} from '~/layout.config';
 import { i18n } from '~/i18n';
 
 export function meta({ params }: Route.MetaArgs) {
@@ -233,7 +238,7 @@ export default function Home(props: Route.ComponentProps) {
       <footer className="border-fd-border border-t px-4 py-8">
         <div className="mx-auto flex max-w-5xl flex-col gap-6">
           <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-            <Link to={localePrefix || '/'} className="inline-flex items-center gap-2">
+            <Link to={toolsHomePath(lang)} className="inline-flex items-center gap-2">
               <Logo className="h-6 w-auto" title={siteConfig.name} />
             </Link>
             <nav
