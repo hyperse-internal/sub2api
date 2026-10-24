@@ -25,6 +25,17 @@
     @apply min-h-screen;
   }
 
+  html:has([data-test='console-layout']),
+  body:has([data-test='console-layout']) {
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+
+  body:has([data-test='console-layout']) {
+    min-height: 0;
+    height: 100dvh;
+  }
+
   /* 自定义滚动条 - 仅针对 Firefox，避免 Chrome 取消 webkit 的全局定制 */
   @supports (-moz-appearance:none) {
     * {
@@ -547,7 +558,7 @@
 
   /* ============ 侧边栏 ============ */
   .sidebar {
-    @apply fixed inset-y-0 left-0 z-40;
+    @apply absolute inset-y-0 left-0 z-40 shrink-0 lg:relative lg:inset-auto;
     @apply w-64 bg-white dark:bg-dark-900;
     @apply border-r border-gray-200 dark:border-dark-800;
     @apply flex flex-col;
@@ -556,7 +567,7 @@
   }
 
   .sidebar-header {
-    @apply h-16 px-6;
+    @apply h-16 shrink-0 px-6;
     @apply flex items-center justify-center gap-3;
     @apply border-b border-gray-100 dark:border-dark-800;
     transition:
@@ -565,7 +576,7 @@
   }
 
   .sidebar-nav {
-    @apply flex-1 overflow-y-auto px-3 py-4;
+    @apply min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-4;
   }
 
   .sidebar-link {

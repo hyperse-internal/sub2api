@@ -33,6 +33,7 @@ describe('GroupPromoButton', () => {
     expect(document.body.querySelector('[data-test="group-promo-qr-light"]')).not.toBeNull()
     expect(document.body.querySelector('[data-test="group-promo-qr-dark"]')).not.toBeNull()
     expect(document.body.querySelector('[data-test="group-promo-number"]')?.textContent).toBe('2155071618')
+    expect(document.body.querySelector('[data-test="group-promo-speed"]')?.textContent).toContain('common.groupPromoSpeedRate')
 
     document.body.querySelector<HTMLButtonElement>('[data-test="group-promo-copy"]')?.click()
     expect(copyToClipboard).toHaveBeenCalledWith('2155071618')

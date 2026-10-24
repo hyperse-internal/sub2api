@@ -338,7 +338,7 @@ export interface UpdateSubscriptionRequest {
 // ==================== Announcement Types ====================
 
 export type AnnouncementStatus = 'draft' | 'active' | 'archived'
-export type AnnouncementNotifyMode = 'silent' | 'popup' | 'notice_bar'
+export type AnnouncementNotifyMode = 'silent' | 'popup' | 'notice_bar' | 'global_bar'
 
 export type AnnouncementConditionType = 'subscription' | 'balance'
 

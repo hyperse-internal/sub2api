@@ -398,14 +398,16 @@ export default {
       notifyModeLabels: {
         silent: '静默',
         popup: '弹窗',
-        noticeBar: '通告栏'
+        noticeBar: '通告栏',
+        globalBar: '全局通告栏'
       },
       form: {
         title: '标题',
         content: '内容（支持 Markdown）',
         status: '状态',
         notifyMode: '通知方式',
-        notifyModeHint: '静默仅显示在铃铛列表；弹窗会自动弹出；通告栏在页面顶部展示',
+        notifyModeHint: '静默仅显示在铃铛列表；弹窗会自动弹出；通告栏在页面顶部展示；全局通告栏在控制台最顶部持续滚动展示',
+        globalBarHint: '支持纯文字、Markdown 或 HTML 富文本（加粗、斜体、链接等），以单行滚动展示；多条有效通告依次展示，已读不隐藏。选择“展示中”后生效，无有效通告时自动隐藏。',
         startsAt: '开始时间',
         endsAt: '结束时间',
         startsAtHint: '留空表示立即生效',

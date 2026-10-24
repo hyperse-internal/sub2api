@@ -25,6 +25,33 @@ beforeEach(() => {
 afterEach(() => vi.restoreAllMocks())
 
 describe('announcement notice bar queue', () => {
+  it('retains global notices beyond the bell limit and after marking all as read', async () => {
+    const store = useAnnouncementStore()
+    list.mockResolvedValueOnce([
+      ...Array.from({ length: 21 }, (_, index) => notice(index + 1, 'silent')),
+      { ...notice(22, 'global_bar'), read_at: '2026-09-18T01:00:00Z' }
+    ])
+    await store.fetchAnnouncements()
+    expect(store.announcements).toHaveLength(20)
+    expect(store.globalAnnouncements.map((item) => item.id)).toEqual([22])
+    expect(store.currentNoticeBar).toBeNull()
+    expect(store.currentPopup).toBeNull()
+    await store.markAllAsRead()
+    expect(store.globalAnnouncements).toHaveLength(1)
+    expect(markRead).not.toHaveBeenCalledWith(22)
+    list.mockResolvedValueOnce([])
+    await store.fetchAnnouncements(true)
+    expect(store.globalAnnouncements).toEqual([])
+  })
+
+  it('clears global notices on logout', async () => {
+    const store = useAnnouncementStore()
+    list.mockResolvedValueOnce([notice(1, 'global_bar')])
+    await store.fetchAnnouncements()
+    store.reset()
+    expect(store.globalAnnouncements).toEqual([])
+  })
+
   it('enqueues unread notice_bar items and ignores popup/silent', async () => {
     const store = useAnnouncementStore()
     list.mockResolvedValueOnce([

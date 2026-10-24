@@ -4,6 +4,8 @@
  */
 
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
+import { nextTick } from 'vue'
+import { captureConsoleScroll, restoreConsoleScroll } from './consoleScroll'
 import { useAuthStore } from '@/stores/auth'
 import { useAppStore } from '@/stores/app'
 import { useAdminSettingsStore } from '@/stores/adminSettings'
@@ -223,6 +225,30 @@ const routes: RouteRecordRaw[] = [
       title: 'API Keys',
       titleKey: 'keys.title',
       descriptionKey: 'keys.description'
+    }
+  },
+  {
+    path: '/about-alphaio',
+    name: 'AboutAlphaio',
+    component: () => import('@/features/quants/AboutAlphaioView.vue'),
+    meta: {
+      requiresAuth: true,
+      requiresAdmin: false,
+      title: 'About AlphaIO',
+      titleKey: 'aboutAlphaio.title',
+      descriptionKey: 'aboutAlphaio.description'
+    }
+  },
+  {
+    path: '/quant-models',
+    name: 'QuantModels',
+    component: () => import('@/features/quants/QuantModelsView.vue'),
+    meta: {
+      requiresAuth: true,
+      requiresAdmin: false,
+      title: 'Quant Models',
+      titleKey: 'quantModels.title',
+      descriptionKey: 'quantModels.description'
     }
   },
   {
@@ -766,7 +792,9 @@ const routes: RouteRecordRaw[] = [
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes,
-  scrollBehavior(_to, _from, savedPosition) {
+  async scrollBehavior(_to, _from, savedPosition) {
+    await nextTick()
+    if (restoreConsoleScroll(savedPosition !== null)) return false
     // Scroll to saved position when using browser back/forward
     if (savedPosition) {
       return savedPosition
@@ -774,6 +802,10 @@ const router = createRouter({
     // Scroll to top for new routes
     return { top: 0 }
   }
+})
+
+router.beforeEach(() => {
+  captureConsoleScroll()
 })
 
 /**

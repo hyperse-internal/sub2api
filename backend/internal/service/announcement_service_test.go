@@ -72,6 +72,28 @@ func TestAnnouncementServiceCreateAcceptsNoticeBarNotifyMode(t *testing.T) {
 	require.Equal(t, AnnouncementNotifyModeNoticeBar, got.NotifyMode)
 }
 
+func TestAnnouncementServiceGlobalBarNotifyMode(t *testing.T) {
+	repo := &announcementRepoStub{}
+	svc := NewAnnouncementService(repo, nil, nil, nil)
+	created, err := svc.Create(context.Background(), &CreateAnnouncementInput{
+		Title: "全局通告栏", Content: "**内容**", Status: AnnouncementStatusActive,
+		NotifyMode: AnnouncementNotifyModeGlobalBar,
+	})
+	require.NoError(t, err)
+	require.Equal(t, AnnouncementNotifyModeGlobalBar, created.NotifyMode)
+
+	mode := AnnouncementNotifyModeSilent
+	_, err = svc.Update(context.Background(), created.ID, &UpdateAnnouncementInput{NotifyMode: &mode})
+	require.NoError(t, err)
+	mode = AnnouncementNotifyModeGlobalBar
+	updated, err := svc.Update(context.Background(), created.ID, &UpdateAnnouncementInput{NotifyMode: &mode})
+	require.NoError(t, err)
+	require.Equal(t, AnnouncementNotifyModeGlobalBar, updated.NotifyMode)
+	mode = "invalid"
+	_, err = svc.Update(context.Background(), created.ID, &UpdateAnnouncementInput{NotifyMode: &mode})
+	require.ErrorIs(t, err, ErrAnnouncementInvalidNotifyMode)
+}
+
 func TestAnnouncementServiceUpdateRejectsEqualStartEndTimes(t *testing.T) {
 	repo := &announcementRepoStub{
 		item: &Announcement{

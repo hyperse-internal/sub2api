@@ -8,6 +8,7 @@ const THROTTLE_MS = 20 * 60 * 1000 // 20 minutes
 export const useAnnouncementStore = defineStore('announcements', () => {
   // State
   const announcements = ref<UserAnnouncement[]>([])
+  const globalAnnouncements = ref<UserAnnouncement[]>([])
   const loading = ref(false)
   const lastFetchTime = ref(0)
   const popupQueue = ref<UserAnnouncement[]>([])
@@ -40,7 +41,8 @@ export const useAnnouncementStore = defineStore('announcements', () => {
       loading.value = true
       const all = await announcementsAPI.list(false)
       if (generation !== fetchGeneration) return
-      announcements.value = all.slice(0, 20)
+      globalAnnouncements.value = all.filter((a) => a.notify_mode === 'global_bar')
+      announcements.value = all.filter((a) => a.notify_mode !== 'global_bar').slice(0, 20)
       enqueueNewPopups()
       enqueueNewNoticeBars()
     } catch (err: any) {
@@ -172,6 +174,7 @@ export const useAnnouncementStore = defineStore('announcements', () => {
   function reset() {
     fetchGeneration++
     announcements.value = []
+    globalAnnouncements.value = []
     lastFetchTime.value = 0
     shownPopupIds = new Set()
     shownNoticeBarIds = new Set()
@@ -185,6 +188,7 @@ export const useAnnouncementStore = defineStore('announcements', () => {
   return {
     // State
     announcements,
+    globalAnnouncements,
     loading,
     currentPopup,
     currentNoticeBar,

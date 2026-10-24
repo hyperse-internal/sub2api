@@ -19,27 +19,39 @@
   <BaseDialog
     :show="open"
     :title="t('common.groupPromoTitle')"
-    width="narrow"
+    width="wide"
     :z-index="100"
     :close-on-click-outside="true"
     @close="open = false"
   >
     <div class="-mx-4 -my-3 overflow-hidden rounded-b-2xl bg-gradient-to-b from-[#043746] via-[#075870] to-[#112e5b] text-white sm:-mx-6 sm:-my-4" data-test="group-promo-dialog">
-      <div class="relative px-6 pb-16 pt-7">
+      <div class="relative px-6 pb-8 pt-5 sm:grid sm:grid-cols-[minmax(0,1fr)_250px] sm:items-start sm:gap-8 sm:px-8 sm:pb-10">
         <span aria-hidden="true" class="pointer-events-none absolute -right-14 -top-16 h-48 w-48 rounded-full border-[24px] border-white/10" />
         <span aria-hidden="true" class="pointer-events-none absolute -bottom-20 right-4 h-44 w-44 rounded-full bg-cyan-300/25 blur-3xl" />
-        <div class="relative">
+        <div class="relative sm:col-start-1">
           <span class="inline-flex items-center gap-1.5 rounded-full border border-white/25 bg-white/10 px-3 py-1 text-xs font-semibold text-cyan-50">
             <Icon name="gift" size="sm" />
             {{ t('common.groupPromoTag') }}
           </span>
-          <h3 class="mt-4 text-3xl font-black tracking-tight sm:text-[34px]">
+          <h3 class="mt-3 text-3xl font-black tracking-tight sm:text-[34px]">
             DeepSeek
             <span class="block text-amber-300">{{ t('common.groupPromoFreeDay') }}</span>
           </h3>
           <span class="mt-3 inline-flex rounded-full bg-amber-300 px-3 py-1 text-xs font-bold text-slate-900">{{ t('common.groupPromoUnlimited') }}</span>
-          <p class="mt-3 max-w-[300px] text-sm leading-relaxed text-cyan-50/90">{{ t('common.groupPromoDescription') }}</p>
-          <ol class="mt-4 grid grid-cols-3 gap-2">
+          <p class="mt-2 max-w-[560px] text-sm leading-relaxed text-cyan-50/90">{{ t('common.groupPromoDescription') }}</p>
+          <div class="mt-3 space-y-0.5 text-xs leading-relaxed text-cyan-100/80" data-test="group-promo-speed">
+            <p class="text-sm font-bold text-cyan-50">
+              {{ t('common.groupPromoSpeedTitle') }}
+              <span class="ml-1 text-lg font-black tracking-tight text-amber-300">{{ t('common.groupPromoSpeedRate') }}</span>
+            </p>
+            <p>
+              {{ t('common.groupPromoSpeedAverage') }} · {{ t('common.groupPromoSpeedFirstToken') }}
+            </p>
+            <p>
+              {{ t('common.groupPromoSpeedPeak') }} · {{ t('common.groupPromoSpeedP90') }}
+            </p>
+          </div>
+          <ol class="mt-3 grid grid-cols-3 gap-2">
             <li class="rounded-lg bg-white/10 px-2 py-2 text-center ring-1 ring-white/15">
               <span aria-hidden="true" class="block text-[10px] font-bold text-amber-300">01</span>
               <span class="mt-0.5 block text-[11px] font-semibold leading-tight">{{ t('common.groupPromoStepJoin') }}</span>
@@ -54,13 +66,11 @@
             </li>
           </ol>
         </div>
-      </div>
 
-      <div class="relative -mt-8 px-5 pb-5">
-        <div class="rounded-2xl border border-cyan-100/25 bg-white/[0.08] p-4 shadow-[0_18px_48px_rgba(0,17,43,0.25)] backdrop-blur-sm">
+        <div class="relative mt-6 rounded-2xl border border-cyan-100/25 bg-white/[0.08] p-3 shadow-[0_18px_48px_rgba(0,17,43,0.25)] backdrop-blur-sm sm:col-start-2 sm:row-start-1 sm:mt-0 sm:p-4">
           <p class="text-center text-sm font-semibold text-cyan-50">{{ t('common.supportQrHint') }}</p>
-          <div class="mx-auto mt-3 w-fit rounded-2xl border border-cyan-100/20 bg-white p-2 shadow-[0_10px_30px_rgba(0,15,35,0.3)] dark:bg-[#262626]">
-            <div class="aspect-square w-[188px] overflow-hidden rounded-lg bg-white dark:bg-[#262626] sm:w-[208px]">
+          <div class="mx-auto mt-2 w-fit rounded-2xl border border-cyan-100/20 bg-white p-2 shadow-[0_10px_30px_rgba(0,15,35,0.3)] dark:bg-[#262626]">
+            <div class="aspect-square w-[168px] overflow-hidden rounded-lg bg-white dark:bg-[#262626] sm:w-[176px]">
               <img
                 :src="qqLightImg"
                 :alt="t('common.supportQrAlt')"
@@ -82,7 +92,7 @@
             </div>
           </div>
 
-          <div class="mt-4 flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-[#031e32]/35 px-3 py-2">
+          <div class="mt-3 flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-[#031e32]/35 px-3 py-2">
             <span class="text-xs text-cyan-100/75">{{ t('common.supportGroupNumber') }}</span>
             <div class="flex items-center gap-2">
               <span class="select-text font-mono text-sm font-semibold tracking-wide text-white" data-test="group-promo-number">{{ QQ_GROUP_NUMBER }}</span>
@@ -98,9 +108,9 @@
               </button>
             </div>
           </div>
-        </div>
 
-        <p class="mt-3 text-center text-xs leading-relaxed text-cyan-100/75">{{ t('common.groupPromoJoinHint') }}</p>
+          <p class="mt-2 text-center text-xs leading-relaxed text-cyan-100/75">{{ t('common.groupPromoJoinHint') }}</p>
+        </div>
       </div>
     </div>
   </BaseDialog>

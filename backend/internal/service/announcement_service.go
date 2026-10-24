@@ -407,7 +407,7 @@ func isValidAnnouncementStatus(status string) bool {
 
 func isValidAnnouncementNotifyMode(mode string) bool {
 	switch mode {
-	case AnnouncementNotifyModeSilent, AnnouncementNotifyModePopup, AnnouncementNotifyModeNoticeBar:
+	case AnnouncementNotifyModeSilent, AnnouncementNotifyModePopup, AnnouncementNotifyModeNoticeBar, AnnouncementNotifyModeGlobalBar:
 		return true
 	default:
 		return false

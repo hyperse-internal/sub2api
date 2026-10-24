@@ -186,6 +186,7 @@
         <div>
           <label class="input-label">{{ t('admin.announcements.form.content') }}</label>
           <textarea v-model="form.content" rows="6" class="input" required></textarea>
+          <p v-if="form.notify_mode === 'global_bar'" class="input-hint">{{ t('admin.announcements.form.globalBarHint') }}</p>
         </div>
 
         <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -251,7 +252,7 @@
     />
 
     <AnnouncementPopup
-      v-if="previewAnnouncement && previewAnnouncement.notify_mode !== 'notice_bar'"
+      v-if="previewAnnouncement && !['notice_bar', 'global_bar'].includes(previewAnnouncement.notify_mode)"
       :announcement="previewAnnouncement"
       preview
       @close="previewAnnouncement = null"
@@ -262,6 +263,11 @@
       preview
       @close="previewAnnouncement = null"
     />
+    <Teleport to="body">
+      <div v-if="previewAnnouncement?.notify_mode === 'global_bar'" class="fixed inset-x-0 top-0 z-[110]">
+        <GlobalAnnouncementBar :announcement="previewAnnouncement" @close="previewAnnouncement = null" />
+      </div>
+    </Teleport>
   </AppLayout>
 </template>
 
@@ -269,6 +275,8 @@
 import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAppStore } from '@/stores/app'
+import { useAnnouncementStore } from '@/stores/announcements'
+import GlobalAnnouncementBar from '@/components/common/GlobalAnnouncementBar.vue'
 import { getPersistedPageSize } from '@/composables/usePersistedPageSize'
 import { adminAPI } from '@/api/admin'
 import { extractApiErrorMessage } from '@/utils/apiError'
@@ -330,10 +338,12 @@ const statusOptions = computed(() => [
 const notifyModeOptions = computed(() => [
   { value: 'silent', label: t('admin.announcements.notifyModeLabels.silent') },
   { value: 'popup', label: t('admin.announcements.notifyModeLabels.popup') },
-  { value: 'notice_bar', label: t('admin.announcements.notifyModeLabels.noticeBar') }
+  { value: 'notice_bar', label: t('admin.announcements.notifyModeLabels.noticeBar') },
+  { value: 'global_bar', label: t('admin.announcements.notifyModeLabels.globalBar') }
 ])
 
 function notifyModeLabel(mode: string) {
+  if (mode === 'global_bar') return t('admin.announcements.notifyModeLabels.globalBar')
   if (mode === 'popup') return t('admin.announcements.notifyModeLabels.popup')
   if (mode === 'notice_bar') return t('admin.announcements.notifyModeLabels.noticeBar')
   return t('admin.announcements.notifyModeLabels.silent')
@@ -572,6 +582,7 @@ async function handleSave() {
     if (!editingAnnouncement.value) {
       const payload = buildCreatePayload()
       await adminAPI.announcements.create(payload)
+      await useAnnouncementStore().fetchAnnouncements(true)
       appStore.showSuccess(t('common.success'))
       showEditDialog.value = false
       await loadAnnouncements()
@@ -581,6 +592,7 @@ async function handleSave() {
     const original = editingAnnouncement.value
     const payload = buildUpdatePayload(original)
     await adminAPI.announcements.update(original.id, payload)
+    await useAnnouncementStore().fetchAnnouncements(true)
     appStore.showSuccess(t('common.success'))
     showEditDialog.value = false
     editingAnnouncement.value = null
@@ -612,6 +624,7 @@ async function confirmDelete() {
 
   try {
     await adminAPI.announcements.delete(deletingAnnouncement.value.id)
+    await useAnnouncementStore().fetchAnnouncements(true)
     appStore.showSuccess(t('common.success'))
     showDeleteDialog.value = false
     deletingAnnouncement.value = null

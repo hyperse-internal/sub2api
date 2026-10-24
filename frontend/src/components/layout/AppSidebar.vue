@@ -115,7 +115,7 @@
             :key="item.path"
             :to="item.path"
             class="sidebar-link mb-1"
-            :class="{ 'sidebar-link-active': isActive(item.path), 'sidebar-link-collapsed': sidebarCollapsed, 'affiliate-promo-link': item.path === '/affiliate' && !sidebarCollapsed }"
+            :class="{ 'sidebar-link-active': isActive(item.path), 'sidebar-link-collapsed': sidebarCollapsed }"
             :title="sidebarCollapsed ? item.label : undefined"
             :data-tour="item.path === '/keys' ? 'sidebar-my-keys' : undefined"
             :target="linkTarget(item)"
@@ -125,7 +125,9 @@
             <span v-if="item.iconSvg" class="h-5 w-5 flex-shrink-0 sidebar-svg-icon" v-html="sanitizeSvg(item.iconSvg)"></span>
             <component v-else :is="item.icon" class="h-5 w-5 flex-shrink-0" />
             <span class="sidebar-label" :class="{ 'sidebar-label-collapsed': sidebarCollapsed }" :aria-hidden="sidebarCollapsed ? 'true' : 'false'">{{ item.label }}</span>
-            <img v-if="item.path === '/affiliate' && !sidebarCollapsed" :src="affiliatePromoBadge" alt="" class="affiliate-promo-badge" />
+            <span v-if="item.path === '/affiliate' && !sidebarCollapsed" class="ml-auto inline-flex shrink-0 items-center gap-1 rounded bg-orange-500 px-1.5 py-0.5 text-xs font-medium leading-5 text-white">
+              {{ t('nav.affiliateRebateBadge') }}
+            </span>
           </router-link>
         </div>
 
@@ -160,7 +162,7 @@
             :key="item.path"
             :to="item.path"
             class="sidebar-link mb-1"
-            :class="{ 'sidebar-link-active': isActive(item.path), 'sidebar-link-collapsed': sidebarCollapsed, 'affiliate-promo-link': item.path === '/affiliate' && !sidebarCollapsed }"
+            :class="{ 'sidebar-link-active': isActive(item.path), 'sidebar-link-collapsed': sidebarCollapsed }"
             :title="sidebarCollapsed ? item.label : undefined"
             :data-tour="item.path === '/keys' ? 'sidebar-my-keys' : undefined"
             :target="linkTarget(item)"
@@ -170,7 +172,9 @@
             <span v-if="item.iconSvg" class="h-5 w-5 flex-shrink-0 sidebar-svg-icon" v-html="sanitizeSvg(item.iconSvg)"></span>
             <component v-else :is="item.icon" class="h-5 w-5 flex-shrink-0" />
             <span class="sidebar-label" :class="{ 'sidebar-label-collapsed': sidebarCollapsed }" :aria-hidden="sidebarCollapsed ? 'true' : 'false'">{{ item.label }}</span>
-            <img v-if="item.path === '/affiliate' && !sidebarCollapsed" :src="affiliatePromoBadge" alt="" class="affiliate-promo-badge" />
+            <span v-if="item.path === '/affiliate' && !sidebarCollapsed" class="ml-auto inline-flex shrink-0 items-center gap-1 rounded bg-orange-500 px-1.5 py-0.5 text-xs font-medium leading-5 text-white">
+              {{ t('nav.affiliateRebateBadge') }}
+            </span>
           </router-link>
         </div>
 
@@ -196,10 +200,43 @@
           </router-link>
         </div>
       </template>
+      <div v-if="isAdmin || !appStore.backendModeEnabled" class="sidebar-section">
+        <div class="sidebar-section-title" :class="{ 'sidebar-section-title-collapsed': sidebarCollapsed }" :aria-hidden="sidebarCollapsed ? 'true' : 'false'">
+          <span class="sidebar-section-title-text" :class="{ 'sidebar-section-title-text-collapsed': sidebarCollapsed }">
+            {{ t('nav.quantZone') }}
+          </span>
+        </div>
+        <router-link
+          to="/quant-models"
+          class="sidebar-link mb-1"
+          :class="{ 'sidebar-link-active': isActive('/quant-models'), 'sidebar-link-collapsed': sidebarCollapsed }"
+          :title="sidebarCollapsed ? t('nav.quantModels') : undefined"
+          @click="handleMenuItemClick('/quant-models')"
+        >
+          <ChartIcon class="h-5 w-5 flex-shrink-0" />
+          <span class="sidebar-label" :class="{ 'sidebar-label-collapsed': sidebarCollapsed }" :aria-hidden="sidebarCollapsed ? 'true' : 'false'">{{ t('nav.quantModels') }}</span>
+          <span v-if="!sidebarCollapsed" class="ml-auto inline-flex shrink-0 items-center gap-1 rounded bg-[#f56565] px-1.5 py-0.5 text-xs font-medium leading-5 text-white">
+            <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path d="M2 8h3v10H2V8Zm5 10V8l5-6h1a2 2 0 0 1 2 2l-1 4h3a2 2 0 0 1 2 2l-2 6a3 3 0 0 1-3 2H7Z" />
+            </svg>
+            {{ t('nav.quantModelsRecommended') }}
+          </span>
+        </router-link>
+        <router-link
+          to="/about-alphaio"
+          class="sidebar-link mb-1"
+          :class="{ 'sidebar-link-active': isActive('/about-alphaio'), 'sidebar-link-collapsed': sidebarCollapsed }"
+          :title="sidebarCollapsed ? t('nav.aboutAlphaio') : undefined"
+          @click="handleMenuItemClick('/about-alphaio')"
+        >
+          <span class="flex h-5 w-5 flex-shrink-0 items-center justify-center text-xl font-bold leading-none" aria-hidden="true">A</span>
+          <span class="sidebar-label" :class="{ 'sidebar-label-collapsed': sidebarCollapsed }" :aria-hidden="sidebarCollapsed ? 'true' : 'false'">{{ t('nav.aboutAlphaio') }}</span>
+        </router-link>
+      </div>
     </nav>
 
     <!-- Bottom Section -->
-    <div class="mt-auto border-t border-gray-100 p-3 dark:border-dark-800">
+    <div class="mt-auto shrink-0 border-t border-gray-100 p-3 dark:border-dark-800">
       <!-- Theme Toggle -->
       <button
         @click="toggleTheme"
@@ -232,7 +269,7 @@
   <transition name="fade">
     <div
       v-if="mobileOpen"
-      class="fixed inset-0 z-30 bg-black/50 lg:hidden"
+      class="absolute inset-0 z-30 bg-black/50 lg:hidden"
       @click="closeMobile"
     ></div>
   </transition>
@@ -240,7 +277,6 @@
 
 <script setup lang="ts">
 import SiteLogo from '@/components/common/SiteLogo.vue'
-import affiliatePromoBadge from '@/assets/images/affiliate-rebate-20.png'
 import { computed, h, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
@@ -1102,21 +1138,6 @@ onBeforeUnmount(() => {
   gap: 0;
   padding-left: 0.875rem;
   padding-right: 0.875rem;
-}
-
-.affiliate-promo-link {
-  position: relative;
-  padding-right: 3.25rem;
-}
-
-.affiliate-promo-badge {
-  position: absolute;
-  top: 50%;
-  right: 0.5rem;
-  width: 2.25rem;
-  height: 2.25rem;
-  object-fit: contain;
-  transform: translateY(-50%);
 }
 
 .sidebar-section-title {

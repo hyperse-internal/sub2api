@@ -401,14 +401,16 @@ export default {
       notifyModeLabels: {
         silent: 'Silent',
         popup: 'Popup',
-        noticeBar: 'Notice Bar'
+        noticeBar: 'Notice Bar',
+        globalBar: 'Global Announcement Bar'
       },
       form: {
         title: 'Title',
         content: 'Content (Markdown supported)',
         status: 'Status',
         notifyMode: 'Notify Mode',
-        notifyModeHint: 'Silent only appears in the bell list; Popup auto-opens a modal; Notice Bar shows a top banner',
+        notifyModeHint: 'Silent only appears in the bell list; Popup auto-opens a modal; Notice Bar shows a top banner; Global Announcement Bar continuously scrolls at the top of the console',
+        globalBarHint: 'Supports plain text, Markdown, or HTML formatting (bold, italic, links) in a single scrolling line. Active announcements appear in sequence and stay visible after reading. Set status to Active to display; the bar hides when no announcements are active.',
         startsAt: 'Starts At',
         endsAt: 'Ends At',
         startsAtHint: 'Leave empty to start immediately',
