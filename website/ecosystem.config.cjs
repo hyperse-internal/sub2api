@@ -20,7 +20,8 @@ module.exports = {
     {
       name: 'alphaio-docs',
       cwd: '/opt/sub2api/website',
-      script: './node_modules/.bin/react-router-serve',
+      // 用包内 bin.js，勿用 .bin/ 下的 shell shim（PM2+node 会当 JS 解析失败）
+      script: './node_modules/@react-router/serve/bin.js',
       args: './build/server/index.js',
       interpreter: 'node',
       instances: 1,
