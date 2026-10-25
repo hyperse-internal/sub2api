@@ -59,7 +59,7 @@ const dialogRef = ref<HTMLElement | null>(null)
 const modalBodyRef = ref<HTMLElement | null>(null)
 let previousActiveElement: HTMLElement | null = null
 
-type DialogWidth = 'narrow' | 'normal' | 'wide' | 'extra-wide' | 'full'
+type DialogWidth = 'narrow' | 'medium' | 'normal' | 'wide' | 'extra-wide' | 'full'
 
 interface Props {
   show: boolean
@@ -91,11 +91,12 @@ const zIndexStyle = computed(() => {
 })
 
 const widthClasses = computed(() => {
-  // Width guidance: narrow=confirm/short prompts, normal=standard forms,
-  // wide=multi-section forms or rich content, extra-wide=analytics/tables,
-  // full=full-screen or very dense layouts.
+  // Width guidance: narrow=confirm/short prompts, medium≈1.5×narrow,
+  // normal=standard forms, wide=multi-section forms or rich content,
+  // extra-wide=analytics/tables, full=full-screen or very dense layouts.
   const widths: Record<DialogWidth, string> = {
     narrow: 'max-w-md',
+    medium: 'max-w-2xl',
     normal: 'max-w-lg',
     wide: 'w-full sm:max-w-2xl md:max-w-3xl lg:max-w-4xl',
     'extra-wide': 'w-full sm:max-w-3xl md:max-w-4xl lg:max-w-5xl xl:max-w-6xl',

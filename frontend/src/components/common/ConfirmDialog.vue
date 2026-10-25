@@ -1,5 +1,5 @@
 <template>
-  <BaseDialog :show="show" :title="title" width="narrow" @close="handleCancel">
+  <BaseDialog :show="show" :title="title" :width="width" @close="handleCancel">
     <div class="space-y-4">
       <p class="text-sm text-gray-600 dark:text-gray-400">{{ message }}</p>
       <slot></slot>
@@ -45,6 +45,7 @@ interface Props {
   confirmText?: string
   cancelText?: string
   danger?: boolean
+  width?: 'narrow' | 'medium' | 'normal' | 'wide' | 'extra-wide' | 'full'
 }
 
 interface Emits {
@@ -53,7 +54,8 @@ interface Emits {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  danger: false
+  danger: false,
+  width: 'narrow'
 })
 
 const confirmText = computed(() => props.confirmText || t('common.confirm'))

@@ -206,6 +206,7 @@
         :confirm-text="t('redeem.subscriptionConfirmContinue')"
         :cancel-text="t('redeem.subscriptionConfirmCancel')"
         :danger="subscriptionConfirmTone === 'overwrite'"
+        width="medium"
         @confirm="confirmSubscriptionRedeem"
         @cancel="cancelSubscriptionRedeem"
       >
@@ -219,14 +220,14 @@
               />
               <div :class="['space-y-2 text-sm', subscriptionConfirmTextClass]">
                 <p class="font-semibold">{{ t('redeem.subscriptionConfirmPlanLabel') }}</p>
-                <p class="font-medium">
+                <p class="whitespace-nowrap font-medium">
                   {{
                     t('redeem.subscriptionConfirmGroup', {
                       name: pendingPreview?.group?.name || `#${pendingPreview?.group_id || ''}`
                     })
                   }}
                 </p>
-                <p>
+                <p class="whitespace-nowrap">
                   {{
                     t('redeem.subscriptionConfirmDays', {
                       days: pendingPreviewValidityDays
