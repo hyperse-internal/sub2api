@@ -8,4 +8,13 @@ export default {
   routeDiscovery: {
     mode: 'initial',
   },
+  // Opt into React Router v8 defaults early to clear Future Flag warnings.
+  // See https://reactrouter.com/v7/upgrading/future
+  future: {
+    v8_middleware: true,
+    v8_splitRouteModules: true,
+    v8_viteEnvironmentApi: true,
+    v8_passThroughRequests: true,
+    v8_trailingSlashAwareDataRequests: true,
+  },
 } satisfies Config;

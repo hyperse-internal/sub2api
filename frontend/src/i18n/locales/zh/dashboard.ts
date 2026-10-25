@@ -808,7 +808,26 @@ export default {
     historyLoadFailed: '加载兑换记录失败，请重试。',
     userRefreshFailed: '兑换成功，但账户信息刷新失败。',
     subscriptionRefreshFailed: '兑换成功，但订阅状态刷新失败。',
-    pleaseEnterCode: '请输入兑换码'
+    pleaseEnterCode: '请输入兑换码',
+    subscriptionConfirmTitle: '确认兑换订阅',
+    subscriptionConfirmLead: '请仔细确认以下影响后再继续。',
+    subscriptionConfirmContinue: '继续兑换',
+    subscriptionConfirmCancel: '取消兑换',
+    subscriptionConfirmPlanLabel: '即将兑换',
+    subscriptionConfirmDays: '有效天数：{days} 天',
+    subscriptionConfirmGroup: '订阅分组：{name}',
+    subscriptionConfirmOverwrite:
+      '该分组已有订阅。兑换后将覆盖现有订阅：未使用额度清零并重新发放，有效期从兑换时重新计算。',
+    subscriptionConfirmExtend:
+      '该分组已有订阅。兑换后将在现有到期时间上延长有效期，已用额度保留。',
+    subscriptionConfirmCreate: '您尚未拥有该分组订阅，兑换后将新开通一套订阅。',
+    subscriptionConfirmOthersUnaffected: '其他分组的现有订阅不受影响。',
+    subscriptionConfirmListTitle: '我的订阅',
+    subscriptionConfirmListEmpty: '暂无已开通的订阅',
+    subscriptionConfirmCurrentBadge: '本次兑换',
+    subscriptionConfirmExpires: '到期：{date}',
+    subscriptionConfirmNoExpiry: '无到期时间',
+    subscriptionConfirmPreviewFailed: '无法校验兑换码，请检查后重试。'
   },
 
   // Profile

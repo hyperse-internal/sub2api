@@ -38,6 +38,30 @@ type RedeemResponse struct {
 	NewConcurrency *int     `json:"new_concurrency,omitempty"`
 }
 
+// Preview handles redeem-code preview without consuming the code
+// POST /api/v1/redeem/preview
+func (h *RedeemHandler) Preview(c *gin.Context) {
+	subject, ok := middleware2.GetAuthSubjectFromContext(c)
+	if !ok {
+		response.Unauthorized(c, "User not authenticated")
+		return
+	}
+
+	var req RedeemRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.BadRequest(c, "Invalid request: "+err.Error())
+		return
+	}
+
+	result, err := h.redeemService.RedeemPreview(c.Request.Context(), subject.UserID, req.Code)
+	if err != nil {
+		response.ErrorFrom(c, err)
+		return
+	}
+
+	response.Success(c, dto.RedeemCodeFromService(result).Localized(c.GetHeader("Accept-Language")))
+}
+
 // Redeem handles redeeming a code
 // POST /api/v1/redeem
 func (h *RedeemHandler) Redeem(c *gin.Context) {

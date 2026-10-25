@@ -100,3 +100,53 @@ func TestRedeemRejectsInvitationCodeBeforeTransaction(t *testing.T) {
 	require.Equal(t, StatusUnused, redeemRepo.code.Status)
 	require.Nil(t, redeemRepo.code.UsedBy)
 }
+
+func TestRedeemPreviewDoesNotConsumeCode(t *testing.T) {
+	ctx := context.Background()
+	groupID := int64(13)
+	redeemRepo := &redeemRejectRepo{
+		code: RedeemCode{
+			ID:           2,
+			Code:         "SUB-PREVIEW",
+			Type:         RedeemTypeSubscription,
+			Status:       StatusUnused,
+			GroupID:      &groupID,
+			ValidityDays: 30,
+		},
+	}
+	subscriptionService := NewSubscriptionService(&subscriptionGroupRepoStub{group: &Group{
+		ID: 13, Name: "Pro", SubscriptionType: SubscriptionTypeSubscription, ResetQuotaOnRenewal: true,
+	}}, userSubRepoNoop{}, nil, nil, nil)
+	redeemService := NewRedeemService(redeemRepo, nil, subscriptionService, nil, nil, nil, nil, nil)
+
+	got, err := redeemService.RedeemPreview(ctx, 9, redeemRepo.code.Code)
+
+	require.NoError(t, err)
+	require.NotNil(t, got)
+	require.Equal(t, RedeemTypeSubscription, got.Type)
+	require.NotNil(t, got.Group)
+	require.Equal(t, "Pro", got.Group.Name)
+	require.True(t, got.Group.ResetQuotaOnRenewal)
+	require.False(t, redeemRepo.useCalled)
+	require.Equal(t, StatusUnused, redeemRepo.code.Status)
+}
+
+func TestRedeemPreviewRejectsInvitationCode(t *testing.T) {
+	ctx := context.Background()
+	redeemRepo := &redeemRejectRepo{
+		code: RedeemCode{
+			ID:     3,
+			Code:   "INVITE-PREVIEW",
+			Type:   RedeemTypeInvitation,
+			Status: StatusUnused,
+		},
+	}
+	redeemService := NewRedeemService(redeemRepo, nil, nil, nil, nil, nil, nil, nil)
+
+	got, err := redeemService.RedeemPreview(ctx, 2, redeemRepo.code.Code)
+
+	require.Nil(t, got)
+	require.Error(t, err)
+	require.Equal(t, "REDEEM_CODE_UNSUPPORTED_TYPE", infraerrors.Reason(err))
+	require.False(t, redeemRepo.useCalled)
+}

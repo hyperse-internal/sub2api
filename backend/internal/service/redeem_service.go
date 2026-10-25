@@ -390,6 +390,56 @@ func unsupportedRedeemTypeError(codeType string) error {
 	return infraerrors.BadRequest("REDEEM_CODE_UNSUPPORTED_TYPE", fmt.Sprintf("unsupported redeem type: %s", codeType))
 }
 
+// RedeemPreview 兑换前预览：校验码可用并返回类型/分组信息，不消耗兑换码。
+// 失败计数与正式兑换共用，防止枚举探测。
+func (s *RedeemService) RedeemPreview(ctx context.Context, userID int64, code string) (*RedeemCode, error) {
+	if err := s.checkRedeemRateLimit(ctx, userID); err != nil {
+		return nil, err
+	}
+
+	code = strings.TrimSpace(code)
+	if code == "" {
+		return nil, infraerrors.BadRequest("REDEEM_CODE_REQUIRED", "redeem code is required")
+	}
+
+	redeemCode, err := s.redeemRepo.GetByCode(ctx, code)
+	if err != nil {
+		if errors.Is(err, ErrRedeemCodeNotFound) {
+			s.incrementRedeemErrorCount(ctx, userID)
+			return nil, ErrRedeemCodeNotFound
+		}
+		return nil, fmt.Errorf("get redeem code: %w", err)
+	}
+
+	if redeemCode.IsExpired() {
+		s.incrementRedeemErrorCount(ctx, userID)
+		return nil, ErrRedeemCodeExpired
+	}
+	if !redeemCode.CanUse() {
+		s.incrementRedeemErrorCount(ctx, userID)
+		return nil, ErrRedeemCodeUsed
+	}
+
+	switch redeemCode.Type {
+	case RedeemTypeBalance, RedeemTypeConcurrency:
+	case RedeemTypeSubscription:
+		if redeemCode.GroupID == nil {
+			return nil, infraerrors.BadRequest("REDEEM_CODE_INVALID", "invalid subscription redeem code: missing group_id")
+		}
+		if s.subscriptionService != nil {
+			group, groupErr := s.subscriptionService.groupRepo.GetByID(ctx, *redeemCode.GroupID)
+			if groupErr != nil {
+				return nil, fmt.Errorf("get subscription group: %w", groupErr)
+			}
+			redeemCode.Group = group
+		}
+	default:
+		return nil, unsupportedRedeemTypeError(redeemCode.Type)
+	}
+
+	return redeemCode, nil
+}
+
 // Redeem 使用兑换码
 func (s *RedeemService) Redeem(ctx context.Context, userID int64, code string) (*RedeemCode, error) {
 	return s.redeem(ctx, userID, code, enforceRedeemRateLimit)
@@ -525,13 +575,14 @@ func (s *RedeemService) redeem(ctx context.Context, userID int64, code string, r
 			if validityDays == 0 {
 				validityDays = 30
 			}
-			_, _, err := s.subscriptionService.AssignOrExtendSubscription(txCtx, &AssignSubscriptionInput{
-				UserID:       userID,
-				GroupID:      *redeemCode.GroupID,
-				ValidityDays: validityDays,
-				AssignedBy:   0, // 系统分配
-				Notes:        fmt.Sprintf("通过兑换码 %s 兑换", redeemCode.Code),
-			})
+			_, _, err := s.subscriptionService.assignOrExtendSubscription(txCtx, &AssignSubscriptionInput{
+				ApplyRenewalPolicy: true,
+				UserID:             userID,
+				GroupID:            *redeemCode.GroupID,
+				ValidityDays:       validityDays,
+				AssignedBy:         0, // 系统分配
+				Notes:              fmt.Sprintf("通过兑换码 %s 兑换", redeemCode.Code),
+			}, true)
 			if err != nil {
 				return nil, fmt.Errorf("assign or extend subscription: %w", err)
 			}
@@ -588,6 +639,11 @@ func (s *RedeemService) invalidateRedeemCaches(ctx context.Context, userID int64
 	case RedeemTypeSubscription:
 		if s.authCacheInvalidator != nil {
 			s.authCacheInvalidator.InvalidateAuthCacheByUserID(ctx, userID)
+		}
+		if s.subscriptionService != nil && redeemCode.GroupID != nil {
+			if err := s.subscriptionService.invalidateSubscriptionCaches(userID, *redeemCode.GroupID); err != nil {
+				logger.LegacyPrintf("service.redeem", "subscription cache invalidation after redemption failed: %v", err)
+			}
 		}
 		if s.billingCacheService == nil {
 			return

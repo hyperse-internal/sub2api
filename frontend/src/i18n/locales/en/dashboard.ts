@@ -804,7 +804,26 @@ export default {
     historyLoadFailed: 'Failed to load activity. Please try again.',
     userRefreshFailed: 'Redeemed successfully, but failed to refresh account information.',
     subscriptionRefreshFailed: 'Redeemed successfully, but failed to refresh subscription status.',
-    pleaseEnterCode: 'Please enter a redeem code'
+    pleaseEnterCode: 'Please enter a redeem code',
+    subscriptionConfirmTitle: 'Confirm subscription redemption',
+    subscriptionConfirmLead: 'Please review the impact below before continuing.',
+    subscriptionConfirmContinue: 'Continue',
+    subscriptionConfirmCancel: 'Cancel',
+    subscriptionConfirmPlanLabel: 'You are redeeming',
+    subscriptionConfirmDays: 'Validity: {days} days',
+    subscriptionConfirmGroup: 'Group: {name}',
+    subscriptionConfirmOverwrite:
+      'You already have a subscription for this group. Redeeming will replace it: unused quota is cleared and reissued, and the term restarts from now.',
+    subscriptionConfirmExtend:
+      'You already have a subscription for this group. Redeeming will extend its expiry; current usage is kept.',
+    subscriptionConfirmCreate: 'You do not have this group yet. Redeeming will create a new subscription.',
+    subscriptionConfirmOthersUnaffected: 'Subscriptions in other groups are not affected.',
+    subscriptionConfirmListTitle: 'Your subscriptions',
+    subscriptionConfirmListEmpty: 'No active subscriptions yet',
+    subscriptionConfirmCurrentBadge: 'This code',
+    subscriptionConfirmExpires: 'Expires: {date}',
+    subscriptionConfirmNoExpiry: 'No expiry',
+    subscriptionConfirmPreviewFailed: 'Could not verify the redeem code. Please check and try again.'
   },
 
   // Profile

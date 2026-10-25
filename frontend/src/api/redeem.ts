@@ -4,7 +4,7 @@
  */
 
 import { apiClient } from './client'
-import type { PaginatedResponse, RedeemCodeRequest } from '@/types'
+import type { PaginatedResponse, RedeemCode, RedeemCodeRequest } from '@/types'
 
 export interface RedeemHistoryItem {
   id: number
@@ -25,6 +25,21 @@ export interface RedeemHistoryItem {
   }
 }
 
+export type RedeemPreview = Pick<
+  RedeemCode,
+  'id' | 'code' | 'type' | 'value' | 'status' | 'group_id' | 'validity_days' | 'group' | 'expires_at'
+>
+
+/**
+ * Preview a redeem code without consuming it
+ * @param code - Redeem code string
+ */
+export async function preview(code: string): Promise<RedeemPreview> {
+  const payload: RedeemCodeRequest = { code }
+  const { data } = await apiClient.post<RedeemPreview>('/redeem/preview', payload)
+  return data
+}
+
 /**
  * Redeem a code
  * @param code - Redeem code string
@@ -36,6 +51,8 @@ export async function redeem(code: string): Promise<{
   value: number
   new_balance?: number
   new_concurrency?: number
+  group_name?: string
+  validity_days?: number
 }> {
   const payload: RedeemCodeRequest = { code }
 
@@ -45,6 +62,8 @@ export async function redeem(code: string): Promise<{
     value: number
     new_balance?: number
     new_concurrency?: number
+    group_name?: string
+    validity_days?: number
   }>('/redeem', payload)
 
   return data
@@ -62,6 +81,7 @@ export async function getHistory(page = 1, pageSize = 20): Promise<PaginatedResp
 }
 
 export const redeemAPI = {
+  preview,
   redeem,
   getHistory
 }

@@ -198,6 +198,95 @@
         </div>
       </div>
 
+      <!-- Subscription redeem confirmation -->
+      <ConfirmDialog
+        :show="showSubscriptionConfirm"
+        :title="t('redeem.subscriptionConfirmTitle')"
+        :message="t('redeem.subscriptionConfirmLead')"
+        :confirm-text="t('redeem.subscriptionConfirmContinue')"
+        :cancel-text="t('redeem.subscriptionConfirmCancel')"
+        :danger="subscriptionConfirmTone === 'overwrite'"
+        @confirm="confirmSubscriptionRedeem"
+        @cancel="cancelSubscriptionRedeem"
+      >
+        <div class="space-y-4">
+          <div :class="['rounded-xl border p-4', subscriptionConfirmAlertClass]" role="alert">
+            <div class="flex items-start gap-3">
+              <Icon
+                :name="subscriptionConfirmTone === 'create' ? 'checkCircle' : 'exclamationCircle'"
+                size="md"
+                :class="['mt-0.5 flex-shrink-0', subscriptionConfirmIconClass]"
+              />
+              <div :class="['space-y-2 text-sm', subscriptionConfirmTextClass]">
+                <p class="font-semibold">{{ t('redeem.subscriptionConfirmPlanLabel') }}</p>
+                <p class="font-medium">
+                  {{
+                    t('redeem.subscriptionConfirmGroup', {
+                      name: pendingPreview?.group?.name || `#${pendingPreview?.group_id || ''}`
+                    })
+                  }}
+                </p>
+                <p>
+                  {{
+                    t('redeem.subscriptionConfirmDays', {
+                      days: pendingPreviewValidityDays
+                    })
+                  }}
+                </p>
+                <p class="font-semibold leading-relaxed">{{ subscriptionImpactMessage }}</p>
+                <p :class="subscriptionConfirmMutedTextClass">
+                  {{ t('redeem.subscriptionConfirmOthersUnaffected') }}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h4 class="mb-2 text-sm font-semibold text-gray-900 dark:text-white">
+              {{ t('redeem.subscriptionConfirmListTitle') }}
+            </h4>
+            <div
+              v-if="confirmSubscriptionList.length === 0"
+              class="rounded-xl border border-dashed border-gray-200 px-4 py-6 text-center text-sm text-gray-500 dark:border-dark-600 dark:text-dark-400"
+            >
+              {{ t('redeem.subscriptionConfirmListEmpty') }}
+            </div>
+            <ul v-else class="max-h-56 space-y-2 overflow-y-auto">
+              <li
+                v-for="item in confirmSubscriptionList"
+                :key="item.id"
+                :class="[
+                  'rounded-xl border px-4 py-3 text-sm',
+                  item.isTarget
+                    ? subscriptionConfirmTargetRowClass
+                    : 'border-gray-200 bg-gray-50 dark:border-dark-600 dark:bg-dark-800'
+                ]"
+              >
+                <div class="flex items-start justify-between gap-3">
+                  <div class="min-w-0">
+                    <p class="truncate font-medium text-gray-900 dark:text-white">
+                      {{ item.name }}
+                    </p>
+                    <p class="mt-1 text-xs text-gray-500 dark:text-dark-400">
+                      {{ item.expiresLabel }}
+                    </p>
+                  </div>
+                  <span
+                    v-if="item.isTarget"
+                    :class="[
+                      'shrink-0 rounded-md px-2 py-0.5 text-xs font-semibold text-white',
+                      subscriptionConfirmBadgeClass
+                    ]"
+                  >
+                    {{ t('redeem.subscriptionConfirmCurrentBadge') }}
+                  </span>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </ConfirmDialog>
+
       <!-- Recent Activity -->
       <div class="card">
         <div class="border-b border-gray-100 px-6 py-4 dark:border-dark-700">
@@ -371,10 +460,12 @@ import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 import { useAppStore } from '@/stores/app'
 import { useSubscriptionStore } from '@/stores/subscriptions'
-import { redeemAPI, authAPI, type RedeemHistoryItem } from '@/api'
+import { redeemAPI, authAPI, type RedeemHistoryItem, type RedeemPreview } from '@/api'
 import AppLayout from '@/components/layout/AppLayout.vue'
+import ConfirmDialog from '@/components/common/ConfirmDialog.vue'
 import Icon from '@/components/icons/Icon.vue'
 import { formatDateTime } from '@/utils/format'
+import type { UserSubscription } from '@/types'
 
 const { t } = useI18n()
 const authStore = useAuthStore()
@@ -396,6 +487,10 @@ const redeemResult = ref<{
 } | null>(null)
 const errorMessage = ref('')
 
+const showSubscriptionConfirm = ref(false)
+const pendingPreview = ref<RedeemPreview | null>(null)
+const pendingCode = ref('')
+
 // History data
 const history = ref<RedeemHistoryItem[]>([])
 const loadingHistory = ref(false)
@@ -405,6 +500,110 @@ const historyTotal = ref(0)
 let historyRequest = 0
 let loadedHistoryPageSize = 20
 const contactInfo = ref('')
+
+const pendingPreviewValidityDays = computed(() => {
+  const days = pendingPreview.value?.validity_days
+  if (days && days > 0) return days
+  return 30
+})
+
+const targetGroupId = computed(() => pendingPreview.value?.group_id ?? null)
+
+const existingTargetSubscription = computed(() => {
+  const groupId = targetGroupId.value
+  if (groupId == null) return null
+  return (
+    subscriptionStore.activeSubscriptions.find((sub) => sub.group_id === groupId) ?? null
+  )
+})
+
+type SubscriptionConfirmTone = 'create' | 'overwrite' | 'extend'
+
+const subscriptionConfirmTone = computed((): SubscriptionConfirmTone => {
+  if (!existingTargetSubscription.value) return 'create'
+  if (pendingPreview.value?.group?.reset_quota_on_renewal) return 'overwrite'
+  return 'extend'
+})
+
+const subscriptionImpactMessage = computed(() => {
+  switch (subscriptionConfirmTone.value) {
+    case 'create':
+      return t('redeem.subscriptionConfirmCreate')
+    case 'overwrite':
+      return t('redeem.subscriptionConfirmOverwrite')
+    default:
+      return t('redeem.subscriptionConfirmExtend')
+  }
+})
+
+const subscriptionConfirmAlertClass = computed(() =>
+  subscriptionConfirmTone.value === 'create'
+    ? 'border-emerald-300 bg-emerald-50 dark:border-emerald-700/60 dark:bg-emerald-900/20'
+    : 'border-amber-300 bg-amber-50 dark:border-amber-700/60 dark:bg-amber-900/20'
+)
+
+const subscriptionConfirmIconClass = computed(() =>
+  subscriptionConfirmTone.value === 'create'
+    ? 'text-emerald-600 dark:text-emerald-400'
+    : 'text-amber-600 dark:text-amber-400'
+)
+
+const subscriptionConfirmTextClass = computed(() =>
+  subscriptionConfirmTone.value === 'create'
+    ? 'text-emerald-900 dark:text-emerald-100'
+    : 'text-amber-900 dark:text-amber-100'
+)
+
+const subscriptionConfirmMutedTextClass = computed(() =>
+  subscriptionConfirmTone.value === 'create'
+    ? 'text-emerald-800/90 dark:text-emerald-200/90'
+    : 'text-amber-800/90 dark:text-amber-200/90'
+)
+
+const subscriptionConfirmTargetRowClass = computed(() =>
+  subscriptionConfirmTone.value === 'create'
+    ? 'border-emerald-400 bg-emerald-50 ring-2 ring-emerald-300/70 dark:border-emerald-500 dark:bg-emerald-900/30 dark:ring-emerald-600/40'
+    : 'border-amber-400 bg-amber-50 ring-2 ring-amber-300/70 dark:border-amber-500 dark:bg-amber-900/30 dark:ring-amber-600/40'
+)
+
+const subscriptionConfirmBadgeClass = computed(() =>
+  subscriptionConfirmTone.value === 'create' ? 'bg-emerald-500' : 'bg-amber-500'
+)
+
+type ConfirmSubscriptionRow = {
+  id: string
+  name: string
+  expiresLabel: string
+  isTarget: boolean
+}
+
+const confirmSubscriptionList = computed((): ConfirmSubscriptionRow[] => {
+  const groupId = targetGroupId.value
+  const rows: ConfirmSubscriptionRow[] = subscriptionStore.activeSubscriptions.map(
+    (sub: UserSubscription) => ({
+      id: `sub-${sub.id}`,
+      name: sub.group?.name || `#${sub.group_id}`,
+      expiresLabel: sub.expires_at
+        ? t('redeem.subscriptionConfirmExpires', { date: formatDateTime(sub.expires_at) })
+        : t('redeem.subscriptionConfirmNoExpiry'),
+      isTarget: groupId != null && sub.group_id === groupId
+    })
+  )
+
+  // 当前码对应分组没有订阅时，仍在列表首位展示即将开通的分组，便于对照。
+  if (groupId != null && !rows.some((row) => row.isTarget)) {
+    rows.unshift({
+      id: `preview-${groupId}`,
+      name: pendingPreview.value?.group?.name || `#${groupId}`,
+      expiresLabel: t('redeem.subscriptionConfirmDays', {
+        days: pendingPreviewValidityDays.value
+      }),
+      isTarget: true
+    })
+  }
+
+  return rows.sort((a, b) => Number(b.isTarget) - Number(a.isTarget))
+})
 
 // Helper functions for history display
 const isBalanceType = (type: string) => {
@@ -471,18 +670,23 @@ const fetchHistory = async (page = 1) => {
   }
 }
 
-const handleRedeem = async () => {
-  if (!redeemCode.value.trim()) {
-    appStore.showError(t('redeem.pleaseEnterCode'))
-    return
-  }
+const extractErrorMessage = (error: unknown) => {
+  const err = error as { response?: { data?: { detail?: string; message?: string } }; message?: string }
+  return (
+    err?.response?.data?.detail ||
+    err?.response?.data?.message ||
+    err?.message ||
+    t('redeem.failedToRedeem')
+  )
+}
 
+const performRedeem = async (code: string) => {
   submitting.value = true
   errorMessage.value = ''
   redeemResult.value = null
 
   try {
-    const result = await redeemAPI.redeem(redeemCode.value.trim())
+    const result = await redeemAPI.redeem(code)
 
     redeemResult.value = result
 
@@ -512,11 +716,58 @@ const handleRedeem = async () => {
 
     // Show success toast
     appStore.showSuccess(t('redeem.codeRedeemSuccess'))
-  } catch (error: any) {
-    errorMessage.value = error.response?.data?.detail || t('redeem.failedToRedeem')
-
+  } catch (error: unknown) {
+    errorMessage.value = extractErrorMessage(error)
     appStore.showError(t('redeem.redeemFailed'))
   } finally {
+    submitting.value = false
+  }
+}
+
+const cancelSubscriptionRedeem = () => {
+  showSubscriptionConfirm.value = false
+  pendingPreview.value = null
+  pendingCode.value = ''
+}
+
+const confirmSubscriptionRedeem = async () => {
+  const code = pendingCode.value
+  cancelSubscriptionRedeem()
+  if (!code) return
+  await performRedeem(code)
+}
+
+const handleRedeem = async () => {
+  const code = redeemCode.value.trim()
+  if (!code) {
+    appStore.showError(t('redeem.pleaseEnterCode'))
+    return
+  }
+
+  submitting.value = true
+  errorMessage.value = ''
+  redeemResult.value = null
+
+  try {
+    const preview = await redeemAPI.preview(code)
+    if (preview.type === 'subscription') {
+      pendingPreview.value = preview
+      pendingCode.value = code
+      try {
+        await subscriptionStore.fetchActiveSubscriptions(true)
+      } catch (error) {
+        console.error('Failed to load subscriptions before redeem confirm:', error)
+      }
+      showSubscriptionConfirm.value = true
+      submitting.value = false
+      return
+    }
+
+    submitting.value = false
+    await performRedeem(code)
+  } catch (error: unknown) {
+    errorMessage.value = extractErrorMessage(error) || t('redeem.subscriptionConfirmPreviewFailed')
+    appStore.showError(t('redeem.redeemFailed'))
     submitting.value = false
   }
 }
