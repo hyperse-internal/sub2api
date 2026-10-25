@@ -12,7 +12,7 @@ import { useFumadocsLoader } from 'fumadocs-core/source/client';
 import { getMDXComponents } from '../../../mdx-components';
 import { baseOptions } from '~/layout.config';
 import { docs, source } from '~/source';
-import { i18n } from '~/i18n';
+import { i18n, localePathPrefix } from '~/i18n';
 
 /** Legacy flat paths → nested docs after the menu restructure. */
 const legacyRedirects: Record<string, string> = {
@@ -27,11 +27,9 @@ export async function loader({ params }: Route.LoaderArgs) {
   const slugs = (params['*'] ?? '').split('/').filter((v) => v.length > 0);
   const legacyKey = slugs.join('/');
   if (legacyRedirects[legacyKey]) {
-    const localePrefix =
-      i18n.hideLocale === 'default-locale' && lang === i18n.defaultLanguage
-        ? ''
-        : `/${lang}`;
-    throw redirect(`${localePrefix}/docs/${legacyRedirects[legacyKey]}`);
+    throw redirect(
+      `${localePathPrefix(lang)}/docs/${legacyRedirects[legacyKey]}`,
+    );
   }
   const page = source.getPage(slugs, lang);
   if (!page) throw new Response('Not found', { status: 404 });
@@ -44,7 +42,7 @@ export async function loader({ params }: Route.LoaderArgs) {
   };
 }
 
-function Content({ path }: { path: string }) {
+function Content({ path, lang }: { path: string; lang: string }) {
   const page = docs.getPage(path);
   if (!page) throw new Error(`unknown page: ${path}`);
 
@@ -58,7 +56,7 @@ function Content({ path }: { path: string }) {
       <DocsTitle>{page.title}</DocsTitle>
       <DocsDescription>{page.description}</DocsDescription>
       <DocsBody>
-        <Mdx components={getMDXComponents()} />
+        <Mdx components={getMDXComponents(lang)} />
       </DocsBody>
     </DocsPage>
   );
@@ -74,7 +72,7 @@ export default function Page({ loaderData, params }: Route.ComponentProps) {
       {...baseOptions(lang)}
       sidebar={{ defaultOpenLevel: 1 }}
     >
-      <Content path={path} />
+      <Content path={path} lang={lang} />
     </DocsLayout>
   );
 }
