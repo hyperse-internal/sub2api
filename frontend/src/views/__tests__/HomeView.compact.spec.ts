@@ -33,7 +33,10 @@ vi.mock('vue-i18n', async (importOriginal) => {
   const actual = await importOriginal<typeof import('vue-i18n')>()
   return {
     ...actual,
-    useI18n: () => ({ t: (key: string) => key }),
+    useI18n: () => ({
+      t: (key: string) => key,
+      locale: { value: 'en' },
+    }),
   }
 })
 
@@ -59,9 +62,9 @@ function compactDestination(wrapper: ReturnType<typeof mountHome>) {
   const destinations = wrapper
     .get('[data-testid="compact-home"]')
     .findAllComponents(RouterLinkStub)
-    .map((link) => link.props('to'))
+    .map((link: any) => link.props('to'))
   return destinations.find(
-    (to) => to === '/login' || to === '/dashboard' || to === '/admin/dashboard',
+    (to: string) => to === '/login' || to === '/dashboard' || to === '/admin/dashboard',
   )
 }
 

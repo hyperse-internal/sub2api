@@ -1,13 +1,98 @@
 ---
 title: 快速开始
+icon: BookOpen
 description: 一个密钥，畅用多个 AI 模型 — 注册账号、充值兑换、创建 API Key，并将常用 AI 工具接入 AlphaIO。
 ---
 
-欢迎阅读 AlphaIO 文档。**一个密钥，畅用多个 AI 模型** — 建议按以下顺序阅读：
+<div className="docs-start">
 
-1. [注册账号](/docs/register) — 完成注册与登录
-2. [充值或兑换](/docs/purchase) — 获取额度并创建 API Key
-3. [配置工具](/docs/config-tool) — 接入 Claude Code、Codex、Cursor、DeepSeek 等
-4. [Agent 技能安装](/docs/agent-skills) — 在 Codex 对话中直接生图
-5. [图片生成](/docs/image-generation) — 使用网页图片工作室
-6. [常见问题](/docs/faq) — 常见排查说明
+<Callout title="一个密钥，畅用多个 AI 模型" type="info">
+无需管理多个订阅账号。完成注册、充值／兑换并创建 API Key 后，即可把 Claude Code、Codex、Cursor 等常用工具接到 AlphaIO。
+</Callout>
+
+## 建议路径
+
+按下面四步走完，即可完成第一次成功请求。可选步骤按需阅读。
+
+<Steps>
+<Step>
+
+### 账号管理
+
+使用邮箱、GitHub 或 Google 完成 [注册](/docs/account/register) 与 [登录](/docs/account/login)，进入控制台。
+
+</Step>
+<Step>
+
+### 充值 / 兑换
+
+通过 [充值](/docs/billing/topup) 或 [兑换](/docs/billing/redeem) 获取额度，并创建匹配目标模型分组的 API Key。
+
+</Step>
+<Step>
+
+### 工具配置
+
+用 [CC Switch](/docs/tools/cc-switch) 统一路由，或按客户端单独配置 [Claude Code](/docs/tools/claude-code)、[Codex](/docs/tools/codex)、[Cursor](/docs/tools/cursor) 等。
+
+</Step>
+<Step>
+
+### 能力拓展（可选）
+
+安装 [Agent 技能](/docs/ai/agent-skills) 在 Codex 对话中生图，或打开 [图片生成](/docs/image-generation) 使用网页工作室。遇到问题见 [常见问题](/docs/faq)。
+
+</Step>
+</Steps>
+
+## 文档目录
+
+点击卡片进入对应章节。
+
+<Cards>
+  <Card title="账号管理" href="/docs/account/register" icon={<Icon name="UserRound" />}>
+    注册与登录，进入控制台
+  </Card>
+  <Card title="充值 / 兑换" href="/docs/billing/topup" icon={<Icon name="Wallet" />}>
+    获取额度并创建 API Key
+  </Card>
+  <Card title="工具配置" href="/docs/tools/cc-switch" icon={<Icon name="Terminal" />}>
+    接入 Claude Code、Codex、Cursor 等
+  </Card>
+  <Card title="Agent 技能" href="/docs/ai/agent-skills" icon={<Icon name="Sparkles" />}>
+    在 Codex 对话中直接生图与改图
+  </Card>
+  <Card title="图片生成" href="/docs/image-generation" icon={<Icon name="Image" />}>
+    网页图片工作室：文生图与参考图编辑
+  </Card>
+  <Card title="常见问题" href="/docs/faq" icon={<Icon name="CircleQuestionMark" />}>
+    超时、路由、历史会话等排查说明
+  </Card>
+</Cards>
+
+## 常用工具接入
+
+已有 API Key 时，可直接跳到对应工具：
+
+<Cards>
+  <Card title="CC Switch" href="/docs/tools/cc-switch" icon={<Icon name="Waypoints" />}>
+    一键切换后端地址与 Key，推荐优先配置
+  </Card>
+  <Card title="Claude Code" href="/docs/tools/claude-code" icon={<Icon name="Bot" />}>
+    安装 CLI，经 CC Switch 接入 AlphaIO
+  </Card>
+  <Card title="Codex" href="/docs/tools/codex" icon={<Icon name="CodeXml" />}>
+    桌面版 / CLI，启用路由后验证模型
+  </Card>
+  <Card title="Cursor" href="/docs/tools/cursor" icon={<Icon name="MousePointer2" />}>
+    自定义模型 + OpenAI 兼容 Base URL
+  </Card>
+  <Card title="DeepSeek Harness" href="/docs/tools/deepseek-harness" icon={<Icon name="Cpu" />}>
+    添加自定义模型供应商
+  </Card>
+  <Card title="ZCode" href="/docs/tools/zcode" icon={<Icon name="SquareCode" />}>
+    填写地址、协议、Key 与模型
+  </Card>
+</Cards>
+
+</div>

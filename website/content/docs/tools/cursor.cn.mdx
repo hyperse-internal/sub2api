@@ -1,0 +1,23 @@
+---
+title: Cursor
+icon: MousePointer2
+description: 在 Cursor 中添加自定义模型，并填写 AlphaIO API Key 与 Base URL。
+---
+
+## 添加模型
+
+先在 AlphaIO 控制台确认目标模型可用，再打开 Cursor 设置的 **Models** 页面，点击 **Add Custom Model** 添加模型 ID。截图中的 `deepseek-v4.1-flash` 仅作示例，实际以当前模型列表为准。
+
+![Cursor Models 页面添加自定义模型](/docs/assets/cursor-models.png)
+
+## 填写密钥
+
+进入 **API Keys** 设置，启用 **OpenAI API Key**，填入完整的 AlphaIO API Key；同时启用 **Override OpenAI Base URL**，填写站点当前提供的 OpenAI 兼容地址。若当前客户端要求 `/v1` 等完整路径，请按站点说明补全。
+
+![Cursor API Keys 设置](/docs/assets/cursor-api-keys.png)
+
+## 验证
+
+回到对话窗口，在模型下拉菜单中选择刚才添加且已启用的模型，发送一条测试消息确认可用。
+
+![Cursor 对话窗口选择模型](/docs/assets/cursor-chat-model.png)

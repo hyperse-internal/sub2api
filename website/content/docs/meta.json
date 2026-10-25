@@ -2,10 +2,10 @@
   "title": "AlphaIO",
   "pages": [
     "index",
-    "register",
-    "purchase",
-    "config-tool",
-    "agent-skills",
+    "account",
+    "billing",
+    "tools",
+    "ai",
     "image-generation",
     "faq"
   ]

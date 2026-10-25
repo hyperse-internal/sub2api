@@ -1,0 +1,25 @@
+---
+title: DeepSeek Harness
+icon: Cpu
+description: 在 DeepSeek Harness 中添加自定义模型供应商并接入 AlphaIO。
+---
+
+下面示例展示入口和字段位置。供应商地址、API 协议、Key 分组和模型 ID 都可能随服务端或客户端版本变化，请先在 AlphaIO 控制台确认当前可用值，不要直接照抄截图中的旧供应商信息。
+
+点击 DeepSeek Harness 左下角**更多**，然后点击**设置**。
+
+![DeepSeek Harness 设置入口](/docs/assets/dsh-entry.png)
+
+点击「模型」，再点击「添加模型供应商」。
+
+![添加模型供应商](/docs/assets/dsh-provider.png)
+
+在**自定义模型 API**中填写当前 API 地址、客户端要求的协议、完整 API Key 和可用模型 ID；如果使用 Anthropic Messages 或 OpenAI 兼容协议，请与服务端提供的接口类型保持一致。
+
+![填写自定义模型 API](/docs/assets/dsh-config.png)
+
+然后点击创建供应商即可。
+
+之后在对话窗口右下角，点击模型名，然后选择刚才创建的模型。
+
+![选择模型](/docs/assets/dsh-select-model.png)

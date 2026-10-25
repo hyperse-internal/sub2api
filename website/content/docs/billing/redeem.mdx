@@ -1,0 +1,48 @@
+---
+title: Redeem
+icon: Ticket
+description: Use a redeem code to add balance, raise concurrency, or open／renew a subscription group.
+---
+
+Open [ai.alphaio.vip](https://ai.alphaio.vip), click **Redeem**, paste your code into the **Redeem code** field, then click **Redeem**.
+
+![Redeem page](/docs/assets/redeem.png)
+
+Common redeem-code types:
+
+| Type | Effect |
+| --- | --- |
+| Balance | Adds account balance |
+| Concurrency | Raises your concurrency limit |
+| Subscription | Opens or renews a subscription group |
+
+Balance and concurrency codes apply immediately. Balance usually appears after a refresh; if it does not update, sign in again or contact support to check redeem status.
+
+For online payment, go to [Top up](/docs/billing/topup) instead.
+
+## Subscription codes: confirm before redeeming
+
+Subscription codes are not consumed right away. The site first shows a confirmation dialog with the impact and your current subscriptions (the group for this code is listed first and highlighted). Only **Continue** completes the redeem; **Cancel** leaves the code unused.
+
+The dialog style and copy depend on whether you already have that group:
+
+| Situation | Dialog style | What happens after redeem |
+| --- | --- | --- |
+| **New** (no subscription for that group yet) | Green notice | Creates a new subscription for the group; the term starts at redeem time |
+| **Replace on renewal** (you already have the group, and it uses **Restart subscription on renewal**) | Amber warning | **Replaces** the current term: unused quota is cleared and reissued, and the term restarts from now; remaining time and quota from the old term are forfeited |
+| **Extend** (you already have the group, without that policy) | Amber notice | **Extends** the current expiry; existing usage is kept |
+
+**New subscription** example (green notice; Continue uses the primary button):
+
+![Subscription redeem confirm — new](/docs/assets/redeem-subscription-new.png)
+
+**Replace on renewal** example (amber warning; Continue uses the red danger button):
+
+![Subscription redeem confirm — overwrite](/docs/assets/redeem-subscription-overwrite.png)
+
+Subscriptions in other groups are not affected. If the dialog warns about replacement, confirm whether you still need the remaining quota before you continue.
+
+## Next steps
+
+1. Create an API Key using the steps in [Top up](/docs/billing/topup)
+2. Continue to [Tool setup](/docs/tools/cc-switch)

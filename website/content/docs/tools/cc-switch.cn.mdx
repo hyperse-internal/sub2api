@@ -1,0 +1,100 @@
+---
+title: CC Switch
+icon: Waypoints
+description: 使用 CC Switch 一键切换 Claude Code、Codex 等应用的后端地址与 Key。
+---
+
+完成 [注册](/docs/account/register) 并拿到 API Key 后，推荐先用 CC Switch 统一管理路由，再分别接入 [Claude Code](/docs/tools/claude-code)、[Codex](/docs/tools/codex) 等客户端。
+
+## 简介
+
+它是一个小工具，帮你**一键切换** Claude Code、Codex 等 AI 软件的后端地址和 Key。
+
+下载地址：[Releases · farion1231/cc-switch](https://github.com/farion1231/cc-switch/releases)（选择你的操作系统对应版本）
+
+## 连接模式
+
+每个应用（如 Codex、Claude Code）的供应商页顶部有三个标签：
+
+| 模式 | 作用 |
+| --- | --- |
+| **直连** | 客户端直接连到某个供应商，不经过本机转发。 |
+| **路由** | 请求先经过本机 CC Switch，再转发到你选的供应商。接入 AlphaIO 时推荐使用。 |
+| **聚合** | 按规则把不同模型分发给多个供应商（进阶用法，本文不展开）。 |
+
+侧栏应用名旁出现绿色「路由」标签，表示该应用当前走的是路由模式。
+
+## 配置步骤（以 Codex 为例）
+
+常用字段如下：
+
+| 字段 | 填什么 |
+| --- | --- |
+| 供应商名称 | 随便填，比如 `DeepSeek` 或 `AlphaIO` |
+| API Key | 前一步创建的完整 AlphaIO API Key |
+| API 请求地址 | AlphaIO 控制台提供的地址。示例如 `https://ai.alphaio.vip`；若客户端要求带 `/v1` 等路径，按站点说明补全。 |
+| 模型列表 | 当前分组可用的模型 ID；可「获取模型列表」或「手动添加」 |
+
+> Claude Code、Codex、Cursor 和 DeepSeek 可能使用不同的 API 协议。若 CC Switch 或客户端要求选择 Anthropic Messages、OpenAI Responses 或 OpenAI 兼容接口，请按 AlphaIO 当前说明选择；仅填写根域名不一定能完成请求。
+
+**1. 打开供应商页**
+
+打开 CC Switch，在左侧选择 **Codex**。右上角点击 **+ 添加供应商**。
+
+![Codex 供应商页](/docs/assets/cc-1.png)
+
+**2. 选择添加方式**
+
+可搜索预设厂商，或点顶部的 **自定义配置** 手动填写请求地址和 API Key。接入 AlphaIO 时，也可先选一个相近模板（如 DeepSeek），再在下一步把请求地址改成 AlphaIO。
+
+![添加供应商](/docs/assets/cc-2.png)
+
+**3. 填写 Key、地址与模型**
+
+在编辑页填入：
+
+- **API Key**：AlphaIO 完整 Key
+- **API 请求地址**：例如 `https://ai.alphaio.vip`
+- **模型列表**：菜单显示名与实际请求模型 ID（截图中的 `deepseek-v4.1-flash` 仅作示例，以你当前分组可用模型为准）
+
+确认底部 `auth.json` 中的 Key 映射正确后，点击 **保存**。模型列表改动后需要重启 Codex 才会生效。
+
+![填写供应商与模型](/docs/assets/cc-3.png)
+
+**4. 切换到「路由」**
+
+回到供应商列表后，点击顶部的 **路由** 标签。仅添加供应商还不够，必须启用路由，请求才会经 CC Switch 转发到 AlphaIO。
+
+![切换到路由标签](/docs/assets/cc-4.png)
+
+**5. 开始路由**
+
+若当前仍是直连，页面会提示「你在查看「路由」，Codex 目前是直连。」点击右侧绿色的 **开始路由**。
+
+![开始路由](/docs/assets/cc-5.png)
+
+**6. 选择转发目标**
+
+在弹窗中说明：请求会先经过本机 CC Switch，再转到所选供应商。在 **路由到** 下拉里选中刚才配置好的供应商（如 DeepSeek / AlphaIO），再点 **开始路由**。
+
+![选择路由目标供应商](/docs/assets/cc-6.png)
+
+启用成功后，侧栏 Codex 旁会出现绿色「路由」标签；之后启动或重启 Codex，在模型列表中选一个已配置且分组允许的模型即可验证。
+
+## 排障
+
+切换后如果工具没有生效：
+
+1. 确认对应供应商的 API Key、请求地址和模型 ID 正确
+2. 确认该应用已切到 **路由**，且「路由到」指向你配置的 AlphaIO 供应商
+3. 完全退出并重启目标工具（不同版本对已打开窗口的刷新方式可能不同）
+
+Claude Code、Claude Desktop 等应用的添加与启用流程相同：左侧点对应应用 → 添加供应商 → 切到 **路由** → **开始路由** 并选中目标供应商。
+
+## 相关文档
+
+- [Claude Code](/docs/tools/claude-code)
+- [Codex](/docs/tools/codex)
+- [Cursor](/docs/tools/cursor)
+- [DeepSeek Harness](/docs/tools/deepseek-harness)
+- [ZCode](/docs/tools/zcode)

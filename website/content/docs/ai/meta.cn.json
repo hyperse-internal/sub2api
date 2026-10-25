@@ -1,0 +1,6 @@
+{
+  "title": "AI 能力拓展",
+  "icon": "Sparkles",
+  "defaultOpen": true,
+  "pages": ["agent-skills"]
+}

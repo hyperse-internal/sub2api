@@ -1,4 +1,5 @@
 import type { BaseLayoutProps } from 'fumadocs-ui/layouts/shared';
+import { BookOpen, ChartLine, LayoutDashboard } from 'lucide-react';
 import { Logo } from '~/components/Logo';
 import { i18n } from '~/i18n';
 
@@ -57,16 +58,19 @@ export function baseOptions(locale: string = i18n.defaultLanguage): BaseLayoutPr
       {
         text: isCn ? '文档' : 'Documentation',
         url: `${localePrefix}/docs`,
+        icon: <BookOpen />,
         active: 'nested-url',
       },
       {
         text: isCn ? '控制台' : 'Console',
         url: siteConfig.url,
+        icon: <LayoutDashboard />,
         external: true,
       },
       {
-        text: isCn ? '量化模型' : 'Quant Models',
+        text: isCn ? '量化主站' : 'Quant site',
         url: siteConfig.quantModelsUrl,
+        icon: <ChartLine />,
         external: true,
       },
     ],

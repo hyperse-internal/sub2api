@@ -1,5 +1,6 @@
 import type { Route } from './+types/page';
 import { use } from 'react';
+import { redirect } from 'react-router';
 import { DocsLayout } from 'fumadocs-ui/layouts/docs';
 import {
   DocsBody,
@@ -13,9 +14,25 @@ import { baseOptions } from '~/layout.config';
 import { docs, source } from '~/source';
 import { i18n } from '~/i18n';
 
+/** Legacy flat paths → nested docs after the menu restructure. */
+const legacyRedirects: Record<string, string> = {
+  register: 'account/register',
+  purchase: 'billing/topup',
+  'config-tool': 'tools/cc-switch',
+  'agent-skills': 'ai/agent-skills',
+};
+
 export async function loader({ params }: Route.LoaderArgs) {
   const lang = params.lang ?? i18n.defaultLanguage;
   const slugs = (params['*'] ?? '').split('/').filter((v) => v.length > 0);
+  const legacyKey = slugs.join('/');
+  if (legacyRedirects[legacyKey]) {
+    const localePrefix =
+      i18n.hideLocale === 'default-locale' && lang === i18n.defaultLanguage
+        ? ''
+        : `/${lang}`;
+    throw redirect(`${localePrefix}/docs/${legacyRedirects[legacyKey]}`);
+  }
   const page = source.getPage(slugs, lang);
   if (!page) throw new Response('Not found', { status: 404 });
 

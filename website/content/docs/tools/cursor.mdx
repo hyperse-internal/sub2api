@@ -1,0 +1,23 @@
+---
+title: Cursor
+icon: MousePointer2
+description: Add a custom model in Cursor and set the AlphaIO API Key and Base URL.
+---
+
+## Add a model
+
+Confirm the target model is available in the AlphaIO console, open Cursor **Settings → Models**, and click **Add Custom Model** to add the model ID. `deepseek-v4.1-flash` in screenshots is only an example; use the current model list.
+
+![Cursor Models — add custom model](/docs/assets/cursor-models.png)
+
+## Enter the key
+
+Open **API Keys** settings, enable **OpenAI API Key**, and paste the full AlphaIO API Key. Also enable **Override OpenAI Base URL** and enter the OpenAI-compatible URL currently provided by the site. If the client needs a full path such as `/v1`, append it per the site docs.
+
+![Cursor API Keys settings](/docs/assets/cursor-api-keys.png)
+
+## Verify
+
+Return to the chat window, select the model you added and enabled from the model dropdown, and send a test message.
+
+![Cursor chat — select model](/docs/assets/cursor-chat-model.png)

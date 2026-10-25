@@ -1,0 +1,6 @@
+{
+  "title": "Account",
+  "icon": "UserRound",
+  "defaultOpen": true,
+  "pages": ["register", "login"]
+}

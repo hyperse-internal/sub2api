@@ -1,0 +1,51 @@
+---
+title: Top up
+icon: CreditCard
+description: Top up balance or buy a subscription, understand renewal policies, then create a usable API Key.
+---
+
+Open [ai.alphaio.vip](https://ai.alphaio.vip), click **Top up / Subscribe**:
+
+- **Balance top-up**: pay an amount; balance credits after success.
+- **Subscription plan**: buy a plan; payment success opens or renews the matching group subscription.
+
+![Top-up page](/docs/assets/purchase.png)
+
+If you already have a redeem code, go to [Redeem](/docs/billing/redeem) instead.
+
+## Two renewal policies for subscriptions
+
+Follow the plan-card notice and the group’s configuration:
+
+| Policy | Behavior |
+| --- | --- |
+| **Default: extend expiry** | Buying again before expiry adds days to the current end date; daily / weekly / monthly usage and refresh windows stay as they are |
+| **Restart subscription on renewal** | A successful purchase starts a new term immediately: expiry is recalculated from the effective time, and daily / weekly / monthly usage is reset; remaining time and unused quota from the old term are forfeited |
+
+Plans that restart on renewal show a clear notice on the purchase card that remaining benefits will be forfeited. Read it before you pay.
+
+**Only the purchased subscription group is affected**; other groups, account balance, and existing API Keys are unchanged.
+
+Failed or unpaid checkouts do not change your current subscription. Duplicate payment callbacks do not reset or re-time the term again.
+
+## Create an API Key
+
+An API Key is your credential for configuring AI tools. After a successful top-up or [redeem](/docs/billing/redeem):
+
+1. Click **API Keys** in the left menu
+2. Click **Create key**
+3. Enter any name (for your own reference)
+4. In the group picker, choose a group that includes the models you need; group names and permissions follow what the site shows
+5. Submit, then copy the full API Key (do not assume it must start with `sk-`)
+
+![API Keys → Create key](/docs/assets/create-api.png)
+
+**The group must match the models you need.** Groups control which models a token can access; follow the current model list and group notes on the site. If different tools need different groups or permissions, create separate tokens—do not reuse a Key that lacks the required access.
+
+Subscription quotas are usually tied to a group: pick a subscription group you already have and that is still active (or another group the site allows).
+
+![Group selection — pick based on the models you will use](/docs/assets/select-group.png)
+
+## Next steps
+
+With an API Key, continue to [Tool setup](/docs/tools/cc-switch).

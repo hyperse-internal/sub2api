@@ -1,13 +1,98 @@
 ---
 title: Getting started
+icon: BookOpen
 description: One Key, All AI Models — register, top up, create an API Key, and connect your AI tools to AlphaIO.
 ---
 
-Welcome to the AlphaIO docs. **One Key, All AI Models** — follow these pages in order:
+<div className="docs-start">
 
-1. [Create an account](/docs/register) — sign up and sign in
-2. [Top up or redeem](/docs/purchase) — get balance and create an API Key
-3. [Configure tools](/docs/config-tool) — connect Claude Code, Codex, Cursor, DeepSeek, and more
-4. [Install Agent skills](/docs/agent-skills) — generate images from chat in Codex
-5. [Image generation](/docs/image-generation) — use the web image studio
-6. [FAQ](/docs/faq) — common troubleshooting tips
+<Callout title="One Key, All AI Models" type="info">
+No need to juggle multiple subscriptions. Sign up, top up or redeem, create an API Key, then connect Claude Code, Codex, Cursor, and more to AlphaIO.
+</Callout>
+
+## Suggested path
+
+Follow these four steps for your first successful request. Optional steps can wait until you need them.
+
+<Steps>
+<Step>
+
+### Account
+
+[Sign up](/docs/account/register) and [sign in](/docs/account/login) with email, GitHub, or Google to open the console.
+
+</Step>
+<Step>
+
+### Top up / Redeem
+
+[Top up](/docs/billing/topup) or [redeem](/docs/billing/redeem) for balance, then create an API Key for the right model group.
+
+</Step>
+<Step>
+
+### Tool setup
+
+Use [CC Switch](/docs/tools/cc-switch) for routing, or configure [Claude Code](/docs/tools/claude-code), [Codex](/docs/tools/codex), [Cursor](/docs/tools/cursor), and other clients directly.
+
+</Step>
+<Step>
+
+### Extra capabilities (optional)
+
+Install [Agent skills](/docs/ai/agent-skills) for in-chat images in Codex, or open [Image generation](/docs/image-generation) for the web studio. Stuck? See the [FAQ](/docs/faq).
+
+</Step>
+</Steps>
+
+## Docs directory
+
+Jump to a section:
+
+<Cards>
+  <Card title="Account" href="/docs/account/register" icon={<Icon name="UserRound" />}>
+    Sign up and sign in to the console
+  </Card>
+  <Card title="Top up / Redeem" href="/docs/billing/topup" icon={<Icon name="Wallet" />}>
+    Get balance and create an API Key
+  </Card>
+  <Card title="Tool setup" href="/docs/tools/cc-switch" icon={<Icon name="Terminal" />}>
+    Connect Claude Code, Codex, Cursor, and more
+  </Card>
+  <Card title="Agent skills" href="/docs/ai/agent-skills" icon={<Icon name="Sparkles" />}>
+    Generate and edit images in Codex chat
+  </Card>
+  <Card title="Image generation" href="/docs/image-generation" icon={<Icon name="Image" />}>
+    Web studio for text-to-image and reference edits
+  </Card>
+  <Card title="FAQ" href="/docs/faq" icon={<Icon name="CircleQuestionMark" />}>
+    Timeouts, routing, and session history tips
+  </Card>
+</Cards>
+
+## Connect a tool
+
+Already have an API Key? Go straight to your client:
+
+<Cards>
+  <Card title="CC Switch" href="/docs/tools/cc-switch" icon={<Icon name="Waypoints" />}>
+    Switch backend URL and Key in one place — start here
+  </Card>
+  <Card title="Claude Code" href="/docs/tools/claude-code" icon={<Icon name="Bot" />}>
+    Install the CLI and connect via CC Switch
+  </Card>
+  <Card title="Codex" href="/docs/tools/codex" icon={<Icon name="CodeXml" />}>
+    Desktop / CLI — enable Route and verify a model
+  </Card>
+  <Card title="Cursor" href="/docs/tools/cursor" icon={<Icon name="MousePointer2" />}>
+    Custom model + OpenAI-compatible Base URL
+  </Card>
+  <Card title="DeepSeek Harness" href="/docs/tools/deepseek-harness" icon={<Icon name="Cpu" />}>
+    Add a custom model provider
+  </Card>
+  <Card title="ZCode" href="/docs/tools/zcode" icon={<Icon name="SquareCode" />}>
+    Enter URL, protocol, Key, and models
+  </Card>
+</Cards>
+
+</div>

@@ -1,0 +1,6 @@
+{
+  "title": "账号管理",
+  "icon": "UserRound",
+  "defaultOpen": true,
+  "pages": ["register", "login"]
+}
