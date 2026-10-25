@@ -1,0 +1,45 @@
+---
+title: Claude Code
+icon: Bot
+description: Install Claude Code and connect it to AlphaIO via CC Switch.
+---
+
+## Prerequisites
+
+The official install scripts below do not require Node.js or Git up front. Install those only if you use the npm install path or need Git for version control. If the terminal cannot find the command after install, restart the terminal and check PATH.
+
+## Install
+
+**macOS, Linux, WSL:**
+
+```bash
+curl -fsSL https://claude.ai/install.sh | bash
+```
+
+**Windows PowerShell:**
+
+```powershell
+irm https://claude.ai/install.ps1 | iex
+```
+
+**Windows CMD:**
+
+```bat
+curl -fsSL https://claude.ai/install.cmd -o install.cmd && install.cmd && del install.cmd
+```
+
+After install, confirm Claude Code is available:
+
+```bash
+claude --version
+```
+
+A version number is enough. On first use, follow the prompts to sign in or authenticate.
+
+## Connect via relay
+
+Open [CC Switch](/docs/tools/cc-switch), select **Claude Code** on the left, and add a provider the same way: enter the API Key, AlphaIO request URL, and model list, then save. Switch to **Route**, click **Start routing**, and send traffic to that provider.
+
+## Launch
+
+When a green **Route** badge appears next to Claude Code in the sidebar, open a terminal and run `claude`. If auth or models fail, check the API Key, group, and model list first.

@@ -1,0 +1,13 @@
+{
+  "title": "Tool setup",
+  "icon": "Terminal",
+  "defaultOpen": true,
+  "pages": [
+    "cc-switch",
+    "claude-code",
+    "codex",
+    "cursor",
+    "deepseek-harness",
+    "zcode"
+  ]
+}

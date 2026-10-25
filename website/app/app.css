@@ -192,3 +192,52 @@
     transform: none;
   }
 }
+
+/* —— Docs getting-started —— */
+.docs-start {
+  --docs-accent: #16cddd;
+  --docs-glow: rgba(22, 205, 221, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}
+
+.dark .docs-start {
+  --docs-accent: #20e2ec;
+  --docs-glow: rgba(32, 226, 236, 0.14);
+}
+
+.docs-start > h2,
+.docs-start h2 {
+  margin: 0.35rem 0 0.15rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.docs-start > p {
+  margin: 0;
+  color: var(--color-fd-muted-foreground);
+  font-size: 0.925rem;
+  line-height: 1.6;
+}
+
+.docs-start a[data-card='true'] {
+  transition:
+    border-color 0.2s,
+    background 0.2s,
+    box-shadow 0.2s;
+}
+
+.docs-start a[data-card='true']:hover {
+  border-color: color-mix(in srgb, var(--docs-accent) 55%, var(--color-fd-border));
+  background: color-mix(in srgb, var(--docs-glow) 70%, var(--color-fd-card));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--docs-accent) 25%, transparent);
+}
+
+.docs-start a[data-card='true'] > div:first-child {
+  color: var(--docs-accent);
+  border-color: color-mix(in srgb, var(--docs-accent) 35%, var(--color-fd-border));
+  background: var(--docs-glow);
+  box-shadow: none;
+}

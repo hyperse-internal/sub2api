@@ -1,0 +1,25 @@
+---
+title: DeepSeek Harness
+icon: Cpu
+description: Add a custom model provider in DeepSeek Harness and connect AlphaIO.
+---
+
+The screenshots below show where entries and fields are. Provider URL, API protocol, Key group, and model ID can change with server or client versions—confirm current values in the AlphaIO console; do not copy outdated vendor details from screenshots.
+
+Click **More** in the bottom left of DeepSeek Harness, then **Settings**.
+
+![DeepSeek Harness settings entry](/docs/assets/dsh-entry.png)
+
+Click **Models**, then **Add model provider**.
+
+![Add model provider](/docs/assets/dsh-provider.png)
+
+Under **Custom model API**, enter the current API URL, the protocol your client requires, the full API Key, and available model IDs. If you use Anthropic Messages or an OpenAI-compatible protocol, match the interface type the server provides.
+
+![Fill custom model API](/docs/assets/dsh-config.png)
+
+Then create the provider.
+
+In the chat window bottom right, click the model name and select the model you just created.
+
+![Select model](/docs/assets/dsh-select-model.png)

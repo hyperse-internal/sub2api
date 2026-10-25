@@ -363,9 +363,10 @@ func TestDeepseekPricingFileMatchesOfficialRates(t *testing.T) {
 		model                    string
 		input, output, cacheRead float64
 	}{
-		{"deepseek-flash", 2e-6, 8e-6, 4e-8},
-		{"deepseek-v4-flash", 2e-6, 8e-6, 4e-8},
-		{"deepseek-v4-flash-vision-exp", 2e-6, 8e-6, 4e-8},
+		// 与 resources/model-pricing/model_prices_and_context_window.json 中 DeepSeek 官方价卡对齐。
+		{"deepseek-flash", 1.5e-7, 6e-7, 3e-9},
+		{"deepseek-v4-flash", 1.5e-7, 6e-7, 3e-9},
+		{"deepseek-v4-flash-vision-exp", 1.5e-7, 6e-7, 3e-9},
 		{"deepseek-v4-pro", 6.6e-7, 1.98e-6, 2.2e-8},
 	}
 	for _, tt := range tests {
@@ -411,7 +412,7 @@ func TestCalculateCostUnified_DeepseekProRoutesToFlashAtCutoff(t *testing.T) {
 
 	tokens := UsageTokens{InputTokens: 1000, OutputTokens: 500, CacheReadTokens: 1000}
 	proTotal := 1000*6.6e-7 + 500*1.98e-6 + 1000*2.2e-8 // 切换前 Pro 价
-	flashTotal := 1000*2e-6 + 500*8e-6 + 1000*4e-8    // 切换后 Flash 价
+	flashTotal := 1000*2e-6 + 500*8e-6 + 1000*4e-8      // 切换后 Flash 价
 
 	// 切换时点之前（2026-09-13 周日，北京周末全天低谷）：仍按 Pro 价。
 	before, err := bs.CalculateCostUnified(CostInput{

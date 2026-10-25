@@ -1,0 +1,100 @@
+---
+title: CC Switch
+icon: Waypoints
+description: Use CC Switch to switch backend URL and Key for Claude Code, Codex, and similar apps.
+---
+
+After [signing up](/docs/account/register) and getting an API Key, use CC Switch to manage routing, then connect [Claude Code](/docs/tools/claude-code), [Codex](/docs/tools/codex), and other clients.
+
+## Overview
+
+CC Switch is a small utility that lets you **switch** the backend URL and Key for Claude Code, Codex, and similar AI apps in one place.
+
+Download: [Releases · farion1231/cc-switch](https://github.com/farion1231/cc-switch/releases) (pick the build for your OS)
+
+## Connection modes
+
+Each app (for example Codex or Claude Code) has three tabs at the top of its provider page:
+
+| Mode | Role |
+| --- | --- |
+| **Direct** | The client connects straight to a provider, without local forwarding. |
+| **Route** | Requests go through local CC Switch first, then to the provider you choose. Recommended when connecting AlphaIO. |
+| **Aggregate** | Routes different models to multiple providers by rule (advanced; not covered here). |
+
+A green **Route** badge next to an app name in the sidebar means that app is currently in route mode.
+
+## Setup (Codex example)
+
+Common fields:
+
+| Field | What to enter |
+| --- | --- |
+| Provider name | Anything, e.g. `DeepSeek` or `AlphaIO` |
+| API Key | The full AlphaIO API Key you created earlier |
+| API base URL | The URL from the AlphaIO console. Example: `https://ai.alphaio.vip`. If the client requires `/v1` or another path, append it per the site docs. |
+| Model list | Model IDs available in your current group; use **Fetch models** or **Add manually** |
+
+> Claude Code, Codex, Cursor, and DeepSeek may use different API protocols. If CC Switch or the client asks you to choose Anthropic Messages, OpenAI Responses, or an OpenAI-compatible API, follow the current AlphaIO guidance; a bare root domain alone may not be enough.
+
+**1. Open the provider page**
+
+Open CC Switch and select **Codex** on the left. Click **+ Add provider** in the top right.
+
+![Codex provider page](/docs/assets/cc-1.png)
+
+**2. Choose how to add**
+
+Search for a preset vendor, or click **Custom** at the top and enter the URL and API Key yourself. For AlphaIO, you can also start from a similar template (for example DeepSeek) and change the request URL to AlphaIO in the next step.
+
+![Add provider](/docs/assets/cc-2.png)
+
+**3. Fill in Key, URL, and models**
+
+On the edit page, enter:
+
+- **API Key**: full AlphaIO Key
+- **API base URL**: e.g. `https://ai.alphaio.vip`
+- **Model list**: display name and the actual request model ID (`deepseek-v4.1-flash` in screenshots is only an example; use models available in your group)
+
+Confirm the Key mapping in `auth.json` at the bottom is correct, then click **Save**. Restart Codex after changing the model list so the change takes effect.
+
+![Fill provider and models](/docs/assets/cc-3.png)
+
+**4. Switch to Route**
+
+Back on the provider list, click the **Route** tab. Adding a provider is not enough—you must enable routing so requests are forwarded through CC Switch to AlphaIO.
+
+![Switch to Route tab](/docs/assets/cc-4.png)
+
+**5. Start routing**
+
+If you are still on Direct, the page may say you are viewing Route while Codex is still Direct. Click the green **Start routing** on the right.
+
+![Start routing](/docs/assets/cc-5.png)
+
+**6. Choose the forward target**
+
+The dialog explains that requests go through local CC Switch first, then to the selected provider. Under **Route to**, pick the provider you just configured (for example DeepSeek / AlphaIO), then click **Start routing**.
+
+![Select route target provider](/docs/assets/cc-6.png)
+
+After it succeeds, a green **Route** badge appears next to Codex in the sidebar. Start or restart Codex and pick a model that is configured and allowed by your group to verify.
+
+## Troubleshooting
+
+If the tool does not pick up the switch:
+
+1. Confirm the provider API Key, request URL, and model ID are correct
+2. Confirm the app is on **Route**, and **Route to** points at your AlphaIO provider
+3. Fully quit and restart the target tool (refresh behavior for open windows varies by version)
+
+Claude Code, Claude Desktop, and similar apps use the same flow: select the app on the left → add provider → switch to **Route** → **Start routing** and pick the target provider.
+
+## Related docs
+
+- [Claude Code](/docs/tools/claude-code)
+- [Codex](/docs/tools/codex)
+- [Cursor](/docs/tools/cursor)
+- [DeepSeek Harness](/docs/tools/deepseek-harness)
+- [ZCode](/docs/tools/zcode)

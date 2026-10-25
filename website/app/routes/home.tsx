@@ -4,7 +4,7 @@ import { HomeLayout } from 'fumadocs-ui/layouts/home';
 import {
   ArrowRight,
   BookOpen,
-  CircleHelp,
+  CircleQuestionMark,
   Image,
   KeyRound,
   Sparkles,
@@ -44,12 +44,12 @@ function docsPath(localePrefix: string, slug = '') {
 }
 
 const guideIcons: Record<string, typeof BookOpen> = {
-  register: UserRound,
-  purchase: Wallet,
-  'config-tool': Terminal,
-  'agent-skills': Sparkles,
+  'account/register': UserRound,
+  'billing/topup': Wallet,
+  'tools/cc-switch': Terminal,
+  'ai/agent-skills': Sparkles,
   'image-generation': Image,
-  faq: CircleHelp,
+  faq: CircleQuestionMark,
 };
 
 const topicIcons: Record<string, typeof BookOpen> = {
@@ -96,7 +96,7 @@ export default function Home(props: Route.ComponentProps) {
               {t.ctaDocs}
               <BookOpen className="size-4" />
             </Link>
-            <Link to={docsPath(localePrefix, 'register')} className="home-pill">
+            <Link to={docsPath(localePrefix, 'account/register')} className="home-pill">
               {t.ctaStart}
               <ArrowRight className="size-4" />
             </Link>
@@ -226,7 +226,7 @@ export default function Home(props: Route.ComponentProps) {
               {t.ctaDocs}
               <ArrowRight className="size-4" />
             </Link>
-            <Link to={docsPath(localePrefix, 'config-tool')} className="home-pill">
+            <Link to={docsPath(localePrefix, 'tools/cc-switch')} className="home-pill">
               {t.topics[0]?.action ?? t.ctaStart}
             </Link>
           </div>

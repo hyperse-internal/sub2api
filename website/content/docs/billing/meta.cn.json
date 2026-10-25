@@ -1,0 +1,6 @@
+{
+  "title": "充值/兑换",
+  "icon": "Wallet",
+  "defaultOpen": true,
+  "pages": ["topup", "redeem"]
+}

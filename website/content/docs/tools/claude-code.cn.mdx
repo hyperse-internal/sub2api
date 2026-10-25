@@ -1,0 +1,45 @@
+---
+title: Claude Code
+icon: Bot
+description: 安装 Claude Code，并通过 CC Switch 接入 AlphaIO。
+---
+
+## 环境准备
+
+下面的官方安装脚本不要求预先安装 Node.js 或 Git。只有在使用 npm 安装方式或需要进行 Git 版本管理时，才按需安装对应工具。安装后若终端找不到命令，请重启终端并检查 PATH。
+
+## 安装
+
+**macOS, Linux, WSL:**
+
+```bash
+curl -fsSL https://claude.ai/install.sh | bash
+```
+
+**Windows PowerShell:**
+
+```powershell
+irm https://claude.ai/install.ps1 | iex
+```
+
+**Windows CMD:**
+
+```bat
+curl -fsSL https://claude.ai/install.cmd -o install.cmd && install.cmd && del install.cmd
+```
+
+安装完成后运行以下命令，确认 Claude Code 可用：
+
+```bash
+claude --version
+```
+
+能显示版本号即可。首次使用时，按提示完成登录或鉴权。
+
+## 接入中转
+
+打开 [CC Switch](/docs/tools/cc-switch)，左侧选择 **Claude Code**，按同样步骤添加供应商：填入 API Key、AlphaIO 请求地址，并配置模型列表后保存。再切到 **路由**，点击 **开始路由**，把流量转到该供应商。
+
+## 启动
+
+确认侧栏 Claude Code 旁已出现绿色「路由」标签后，打开终端输入 `claude`。如果提示鉴权或模型不可用，先检查 API Key、分组和模型列表。

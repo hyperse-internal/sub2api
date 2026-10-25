@@ -1,0 +1,6 @@
+{
+  "title": "Top up / Redeem",
+  "icon": "Wallet",
+  "defaultOpen": true,
+  "pages": ["topup", "redeem"]
+}
