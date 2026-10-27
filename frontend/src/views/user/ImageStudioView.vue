@@ -28,9 +28,45 @@
     <div v-if="loadingCatalog" class="flex flex-1 items-center justify-center">
       <Icon name="refresh" size="lg" class="animate-spin text-primary-500" />
     </div>
-    <div v-else-if="!groups.length" class="m-6 flex flex-col items-start gap-4 rounded-xl border border-gray-200 bg-white p-6 dark:border-dark-700 dark:bg-dark-900" data-test="image-studio-empty">
-      <p class="text-sm text-gray-600 dark:text-gray-300">{{ loadError || t('imageStudio.emptyModels') }}</p>
-      <a class="btn btn-primary" href="/keys" target="_blank" rel="noopener">{{ t('imageStudio.openKeys') }}</a>
+    <div v-else-if="!groups.length" class="flex flex-1 items-center justify-center p-6" data-test="image-studio-empty">
+      <div
+        class="w-full max-w-4xl rounded-2xl border border-gray-200 bg-white px-8 py-10 text-center shadow-sm dark:border-dark-700 dark:bg-dark-900"
+        :class="catalogErrorCode === IMAGE_STUDIO_INSUFFICIENT_BALANCE ? 'border-amber-200/80 dark:border-amber-900/50' : ''"
+      >
+        <div
+          class="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full"
+          :class="catalogErrorCode === IMAGE_STUDIO_INSUFFICIENT_BALANCE ? 'bg-amber-50 text-amber-600 dark:bg-amber-950/50 dark:text-amber-300' : 'bg-gray-100 text-gray-500 dark:bg-dark-800 dark:text-gray-300'"
+        >
+          <Icon :name="catalogErrorCode === IMAGE_STUDIO_INSUFFICIENT_BALANCE ? 'creditCard' : 'key'" size="lg" />
+        </div>
+
+        <template v-if="catalogErrorCode === IMAGE_STUDIO_INSUFFICIENT_BALANCE">
+          <h2 class="text-lg font-semibold text-gray-900 dark:text-white">{{ t('imageStudio.insufficientBalance.title') }}</h2>
+          <p class="mt-2 text-sm leading-relaxed text-gray-600 dark:text-gray-300">{{ t('imageStudio.insufficientBalance.description') }}</p>
+          <p class="mt-2 text-xs leading-relaxed text-gray-500 dark:text-dark-400">{{ t('imageStudio.insufficientBalance.detail') }}</p>
+
+          <div class="mt-6 rounded-xl border border-gray-100 bg-gray-50 px-5 py-4 text-left dark:border-dark-700 dark:bg-dark-950/60">
+            <p class="mb-3 text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-dark-400">{{ t('imageStudio.insufficientBalance.stepsTitle') }}</p>
+            <ol class="space-y-3">
+              <li v-for="(step, index) in balanceSteps" :key="step" class="flex gap-3 text-sm text-gray-700 dark:text-gray-200">
+                <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary-100 text-xs font-semibold text-primary-700 dark:bg-primary-900/40 dark:text-primary-200">{{ index + 1 }}</span>
+                <span class="leading-relaxed">{{ step }}</span>
+              </li>
+            </ol>
+          </div>
+
+          <p class="mt-4 text-xs leading-relaxed text-gray-500 dark:text-dark-400">{{ t('imageStudio.insufficientBalance.tip') }}</p>
+          <div class="mt-6 flex flex-wrap items-center justify-center gap-3">
+            <a class="btn btn-primary" href="/purchase" target="_blank" rel="noopener">{{ t('imageStudio.insufficientBalance.openPurchase') }}</a>
+            <button type="button" class="btn btn-secondary" :disabled="loadingCatalog" @click="reloadCatalog">{{ t('imageStudio.reloadCatalog') }}</button>
+          </div>
+        </template>
+
+        <template v-else>
+          <h2 class="text-base font-medium text-gray-900 dark:text-white">{{ loadError || t('imageStudio.emptyModels') }}</h2>
+          <a class="btn btn-primary mt-6" href="/keys" target="_blank" rel="noopener">{{ t('imageStudio.openKeys') }}</a>
+        </template>
+      </div>
     </div>
 
     <div v-else class="flex min-h-0 flex-1">
@@ -142,7 +178,28 @@
                 </label>
               </div>
             </section>
-            <p v-if="errorMessage" class="text-sm text-red-600" data-test="image-studio-error">{{ errorMessage }}</p>
+            <div
+              v-if="generateErrorCode === IMAGE_STUDIO_INSUFFICIENT_BALANCE"
+              class="rounded-xl border border-amber-200 bg-amber-50/80 p-4 text-center dark:border-amber-900/50 dark:bg-amber-950/30"
+              data-test="image-studio-error"
+            >
+              <div class="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-amber-100 text-amber-600 dark:bg-amber-950/60 dark:text-amber-300">
+                <Icon name="creditCard" size="md" />
+              </div>
+              <p class="text-sm font-medium text-amber-900 dark:text-amber-100">{{ t('imageStudio.insufficientBalance.title') }}</p>
+              <p class="mt-1 text-xs leading-relaxed text-amber-800/90 dark:text-amber-200/80">{{ t('imageStudio.insufficientBalance.description') }}</p>
+              <div class="mt-3 rounded-lg border border-amber-200/70 bg-white/70 px-3 py-3 text-left dark:border-amber-900/40 dark:bg-dark-950/40">
+                <p class="mb-2 text-[11px] font-medium uppercase tracking-wide text-amber-700/80 dark:text-amber-300/80">{{ t('imageStudio.insufficientBalance.stepsTitle') }}</p>
+                <ol class="space-y-2">
+                  <li v-for="(step, index) in balanceSteps" :key="step" class="flex gap-2 text-xs text-amber-900/90 dark:text-amber-100/90">
+                    <span class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-amber-100 text-[10px] font-semibold text-amber-700 dark:bg-amber-900/50 dark:text-amber-200">{{ index + 1 }}</span>
+                    <span class="leading-relaxed">{{ step }}</span>
+                  </li>
+                </ol>
+              </div>
+              <a class="btn btn-primary btn-sm mt-4" href="/purchase" target="_blank" rel="noopener">{{ t('imageStudio.insufficientBalance.openPurchase') }}</a>
+            </div>
+            <p v-else-if="errorMessage" class="text-sm text-red-600" data-test="image-studio-error">{{ errorMessage }}</p>
             <p v-if="historyWarning" class="text-sm text-amber-600">{{ historyWarning }}</p>
           </div>
           <div class="space-y-2 border-t border-gray-200 px-4 py-3 dark:border-dark-700">
@@ -204,7 +261,7 @@ import { useI18n } from 'vue-i18n'
 import Icon from '@/components/icons/Icon.vue'
 import { useAppStore, useAuthStore } from '@/stores'
 import { sanitizeUrl } from '@/utils/url'
-import { generateStudioImage, loadImageStudioCatalog } from '@/api/imageStudio'
+import { generateStudioImage, IMAGE_STUDIO_INSUFFICIENT_BALANCE, loadImageStudioCatalog } from '@/api/imageStudio'
 import {
   IMAGE_BACKGROUNDS,
   IMAGE_OUTPUT_FORMATS,
@@ -241,7 +298,14 @@ const isDark = ref(document.documentElement.classList.contains('dark'))
 
 const loadingCatalog = ref(true)
 const loadError = ref('')
+const catalogErrorCode = ref('')
+const generateErrorCode = ref('')
 const groups = ref<ImageStudioModelGroup[]>([])
+const balanceSteps = computed(() => [
+  t('imageStudio.insufficientBalance.steps.recharge'),
+  t('imageStudio.insufficientBalance.steps.wait'),
+  t('imageStudio.insufficientBalance.steps.retry')
+])
 const selectedId = ref('')
 const prompt = ref('')
 const size = ref('auto')
@@ -390,16 +454,30 @@ async function refreshHistory() {
   }
 }
 
-onMounted(async () => {
-  if (!appStore.publicSettingsLoaded) void appStore.fetchPublicSettings()
+async function reloadCatalog() {
+  loadingCatalog.value = true
+  loadError.value = ''
+  catalogErrorCode.value = ''
   try {
     groups.value = await loadImageStudioCatalog()
     selectedId.value = groups.value[0]?.models[0]?.id ?? ''
-  } catch {
-    loadError.value = t('imageStudio.loadFailed')
+  } catch (error) {
+    const message = error instanceof Error ? error.message : ''
+    if (message === IMAGE_STUDIO_INSUFFICIENT_BALANCE) {
+      catalogErrorCode.value = IMAGE_STUDIO_INSUFFICIENT_BALANCE
+      loadError.value = t('imageStudio.insufficientBalance.title')
+    } else {
+      loadError.value = t('imageStudio.loadFailed')
+    }
+    groups.value = []
   } finally {
     loadingCatalog.value = false
   }
+}
+
+onMounted(async () => {
+  if (!appStore.publicSettingsLoaded) void appStore.fetchPublicSettings()
+  await reloadCatalog()
   await refreshHistory()
 })
 
@@ -411,6 +489,7 @@ onBeforeUnmount(() => {
 })
 
 function showError(key: string) {
+  generateErrorCode.value = ''
   errorMessage.value = t(`imageStudio.errors.${key}`)
 }
 
@@ -545,6 +624,7 @@ async function generate() {
   }
   pending.value = true
   errorMessage.value = ''
+  generateErrorCode.value = ''
   historyWarning.value = ''
   previewId.value = null
   const format: ImageOutputFormat = background.value === 'transparent' && outputFormat.value === 'jpeg' ? 'png' : outputFormat.value
@@ -591,7 +671,12 @@ async function generate() {
     }))
   } catch (error) {
     const message = error instanceof Error ? error.message : ''
-    errorMessage.value = message === 'timeout' ? t('imageStudio.timeout') : message === 'empty_result' ? t('imageStudio.emptyResult') : message || t('imageStudio.loadFailed')
+    if (message === IMAGE_STUDIO_INSUFFICIENT_BALANCE) {
+      generateErrorCode.value = IMAGE_STUDIO_INSUFFICIENT_BALANCE
+      errorMessage.value = t('imageStudio.insufficientBalance.title')
+    } else {
+      errorMessage.value = message === 'timeout' ? t('imageStudio.timeout') : message === 'empty_result' ? t('imageStudio.emptyResult') : message || t('imageStudio.loadFailed')
+    }
   } finally {
     pending.value = false
   }

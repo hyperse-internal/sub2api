@@ -42,10 +42,26 @@ export default {
     emptyModels: 'No image models are available. Create an active OpenAI or Grok key in a group with image generation enabled.',
     openKeys: 'Manage API keys',
     loadFailed: 'Could not load models for your keys.',
+    reloadCatalog: 'Refresh and retry',
     emptyResult: 'The gateway returned no image.',
     timeout: 'Image generation timed out.',
     resultEmpty: 'Generated images will appear here.',
     historySaveFailed: 'The image was generated, but it could not be saved locally.',
+    insufficientBalance: {
+      title: 'Insufficient account balance',
+      description:
+        'Your account balance is too low to call image generation (code: INSUFFICIENT_BALANCE). Top up first, then come back to generate.',
+      detail:
+        'Gateway response: Insufficient account balance. When balance is below the auth threshold, model listing and image requests for your keys are rejected.',
+      stepsTitle: 'What to do',
+      steps: {
+        recharge: 'Open the purchase page, choose an amount, and complete payment (or redeem a code).',
+        wait: 'Wait for the balance to land — it usually applies right after a successful payment.',
+        retry: 'Return here, click “Refresh and retry”, confirm models load, then generate again.'
+      },
+      openPurchase: 'Top up',
+      tip: 'If you just topped up and still see this, wait a moment and refresh. For subscription groups, confirm the subscription is still active.'
+    },
     modules: { chat: 'Generate', history: 'History', chatTip: 'Generation', historyTip: 'History' },
     history: {
       title: 'History',

@@ -42,10 +42,25 @@ export default {
     emptyModels: '没有可用的图像模型。请创建一把启用的 OpenAI 或 Grok 密钥，且分组已打开图像生成。',
     openKeys: '管理 API 密钥',
     loadFailed: '无法读取密钥对应的模型。',
+    reloadCatalog: '刷新重试',
     emptyResult: '网关没有返回图片。',
     timeout: '生图超时。',
     resultEmpty: '生成结果会显示在这里。',
     historySaveFailed: '图片已生成，但没能保存到本地。',
+    insufficientBalance: {
+      title: '账户余额不足',
+      description:
+        '当前账户余额不足以调用图片生成接口（错误码：INSUFFICIENT_BALANCE）。请先充值，余额到账后再回来生图。',
+      detail: '网关返回：Insufficient account balance。余额低于鉴权阈值时，密钥对应的模型列表与生图请求都会被拒绝。',
+      stepsTitle: '操作流程',
+      steps: {
+        recharge: '打开充值页面，选择金额并完成支付（或使用兑换码入账）。',
+        wait: '等待余额到账，通常支付成功后即时生效。',
+        retry: '返回本页点击「刷新重试」，确认模型可用后再重新生成图片。'
+      },
+      openPurchase: '去充值',
+      tip: '若刚完成充值仍提示余额不足，请稍等片刻后刷新；订阅制分组请确认订阅仍在有效期内。'
+    },
     modules: { chat: '生成', history: '历史记录', chatTip: '生成', historyTip: '历史记录' },
     history: {
       title: '历史记录',

@@ -13,6 +13,9 @@ import {
 const PAGE_SIZE = 100
 const REQUEST_TIMEOUT_MS = 300_000
 
+/** Gateway / API-key auth rejects requests when the account has no usable balance. */
+export const IMAGE_STUDIO_INSUFFICIENT_BALANCE = 'INSUFFICIENT_BALANCE'
+
 export interface ImageStudioRequest {
   apiKey: string
   model: string
@@ -64,17 +67,24 @@ async function listModelsForKey(apiKey: string): Promise<string[]> {
 export async function loadImageStudioCatalog(): Promise<ImageStudioModelGroup[]> {
   const keys = await listActiveKeys()
   let failures = 0
+  let balanceFailures = 0
   const entries = await Promise.all(
     keys.map(async (key) => {
       try {
         return { key, models: await listModelsForKey(key.key) }
-      } catch {
+      } catch (error) {
         failures += 1
+        if (error instanceof Error && error.message === IMAGE_STUDIO_INSUFFICIENT_BALANCE) {
+          balanceFailures += 1
+        }
         return { key, models: [] as string[] }
       }
     })
   )
   if (keys.length > 0 && failures === keys.length) {
+    if (balanceFailures === keys.length) {
+      throw new Error(IMAGE_STUDIO_INSUFFICIENT_BALANCE)
+    }
     throw new Error('load_failed')
   }
   return buildImageStudioCatalog(entries)
@@ -156,8 +166,22 @@ async function dataUrlsFromImages(payload: unknown): Promise<string[]> {
   return urls
 }
 
+function gatewayErrorCode(body: unknown): string {
+  const root = body as { code?: unknown; error?: { code?: unknown; type?: unknown } } | null
+  const code = root?.code ?? root?.error?.code ?? root?.error?.type
+  return typeof code === 'string' ? code.trim() : ''
+}
+
 async function gatewayError(response: Response): Promise<Error> {
   const body = await response.json().catch(() => null)
+  const code = gatewayErrorCode(body)
+  if (
+    code === IMAGE_STUDIO_INSUFFICIENT_BALANCE ||
+    code === 'insufficient_quota' ||
+    code.toUpperCase() === IMAGE_STUDIO_INSUFFICIENT_BALANCE
+  ) {
+    return new Error(IMAGE_STUDIO_INSUFFICIENT_BALANCE)
+  }
   const message =
     (body as { error?: { message?: string } })?.error?.message ||
     (body as { message?: string })?.message ||
