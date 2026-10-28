@@ -39,6 +39,7 @@
           <th
             rowspan="2"
             class="border-l border-gray-100 py-2.5 pl-3 pr-5 text-right align-middle dark:border-dark-700/60"
+            :title="t('modelPlaza.table.rateColumnHint')"
           >
             {{ t('modelPlaza.table.rate') }}
           </th>
@@ -278,12 +279,28 @@
             <span v-else class="text-gray-400 dark:text-dark-500">-</span>
           </td>
 
-          <!-- 折扣倍率(分时时段行展示 生效倍率×时段倍率;生图独立倍率行展示独立倍率;专属倍率划线展示原倍率) -->
+          <!-- 折扣列优先展示「实付÷官价」(相对官价);无法计算时回退分组/专属/时段/独立媒体倍率 -->
           <td
             class="border-l border-gray-100 py-2.5 pl-3 pr-5 text-right align-middle font-mono text-xs dark:border-dark-700/60"
           >
+            <template v-if="vsOfficialRate(m, period) != null">
+              <template v-if="!period && hasCustomRate && vsOfficialGroupRate(m) != null">
+                <span class="mr-1 text-gray-400 line-through dark:text-dark-500">{{ vsOfficialGroupRate(m) }}x</span>
+                <span
+                  class="font-bold text-primary-600 dark:text-primary-400"
+                  :title="vsOfficialTitle(m, null)"
+                  >{{ vsOfficialRate(m, null) }}x</span
+                >
+              </template>
+              <span
+                v-else
+                class="font-bold text-primary-600 dark:text-primary-400"
+                :title="vsOfficialTitle(m, period)"
+                >{{ vsOfficialRate(m, period) }}x</span
+              >
+            </template>
             <span
-              v-if="period"
+              v-else-if="period"
               class="font-bold text-primary-600 dark:text-primary-400"
               :title="t('modelPlaza.table.timePricingRateHint', { rate: effectiveRate, multiplier: period.multiplier })"
               >{{ periodRate(period) }}x</span
@@ -420,6 +437,58 @@ const rows = computed<PlazaRow[]>(() =>
 /** 时段行的生效倍率 = 生效倍率 × 时段倍率(去掉浮点噪声)。 */
 function periodRate(period: PlazaTimePricingPeriod): number {
   return Math.round(effectiveRate.value * period.multiplier * 1000) / 1000
+}
+
+/** 取基础档(或平价)输入单价,用于相对官价折扣。 */
+function basePaidInput(m: PlazaModel): number | null {
+  if (billingMode(m) !== BILLING_MODE_TOKEN) return null
+  const intervals = tokenIntervals(m)
+  if (intervals.length > 0) {
+    const v = intervals[0]?.input_price
+    if (v != null) return v
+  }
+  return m.pricing?.input_price ?? null
+}
+
+function baseOfficialInput(m: PlazaModel): number | null {
+  if (billingMode(m) !== BILLING_MODE_TOKEN) return null
+  const intervals = officialIntervals(m)
+  if (intervals.length > 0) {
+    const v = intervals[0]?.input_price
+    if (v != null) return v
+  }
+  return m.official_pricing?.input_price ?? null
+}
+
+/**
+ * 相对官价折扣 = (渠道输入价 × 行生效倍率) ÷ 官方输入价。
+ * 渠道绝对定价 + 分组费率 1.0 时,此值才是用户感知的「几折」;无官价时返回 null 回退分组倍率。
+ */
+function vsOfficialWithRate(m: PlazaModel, rate: number): number | null {
+  const paid = basePaidInput(m)
+  const officialInput = baseOfficialInput(m)
+  if (paid == null || officialInput == null || !(officialInput > 0)) return null
+  const ratio = (paid * rate) / officialInput
+  if (!Number.isFinite(ratio) || ratio <= 0) return null
+  return Math.round(ratio * 1000) / 1000
+}
+
+function vsOfficialRate(m: PlazaModel, period: PlazaTimePricingPeriod | null): number | null {
+  const rate = period ? periodRate(period) : effectiveRate.value
+  return vsOfficialWithRate(m, rate)
+}
+
+/** 分组默认倍率下的相对官价(专属倍率划线对比用)。 */
+function vsOfficialGroupRate(m: PlazaModel): number | null {
+  return vsOfficialWithRate(m, props.rateMultiplier)
+}
+
+function vsOfficialTitle(m: PlazaModel, period: PlazaTimePricingPeriod | null): string {
+  const ratio = vsOfficialRate(m, period)
+  if (ratio == null) return ''
+  const zhe = Math.round(ratio * 100) / 10
+  const groupRate = period ? periodRate(period) : effectiveRate.value
+  return t('modelPlaza.table.rateVsOfficialHint', { ratio, zhe, rate: groupRate })
 }
 
 /** 实付价 = 渠道单价 × 生效倍率(时段行再乘时段倍率),按 $/1M token 展示。 */

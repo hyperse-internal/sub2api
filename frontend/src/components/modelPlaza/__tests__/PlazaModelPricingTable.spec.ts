@@ -109,8 +109,39 @@ describe('PlazaModelPricingTable', () => {
     // 缓存写 / 读(超过 2 位小数原样保留)
     expect(text).toContain('$3.75')
     expect(text).toContain('$0.30')
-    // 倍率列
+    // 倍率列(渠道价=官价 → 相对官价 1x)
     expect(text).toContain('1x')
+  })
+
+  it('渠道绝对售价时折扣列展示相对官价比例而非分组 1x', () => {
+    // gpt-6-astra: 售价 $3.06/M vs 官价 $10/M → 0.306x
+    const model = tokenModel({
+      name: 'gpt-6-astra',
+      platform: 'openai',
+      pricing: {
+        billing_mode: 'token',
+        input_price: 3.06e-6,
+        output_price: 1.53e-5,
+        cache_write_price: 3.82e-6,
+        cache_read_price: 3.06e-7,
+        image_input_price: null,
+        image_output_price: null,
+        per_request_price: null,
+        intervals: []
+      },
+      official_pricing: {
+        input_price: 1e-5,
+        output_price: 5e-5,
+        cache_write_price: 1.25e-5,
+        cache_write_1h_price: null,
+        cache_read_price: 1e-6
+      }
+    })
+    const wrapper = mountTable([model], 1)
+    const rateCell = wrapper.findAll('tbody tr td').at(-1)!
+    expect(rateCell.text()).toBe('0.306x')
+    expect(rateCell.text()).not.toBe('1x')
+    wrapper.unmount()
   })
 
   it('shows all configured reasoning multipliers in level order', () => {
