@@ -470,7 +470,8 @@ function vsOfficialWithRate(m: PlazaModel, rate: number): number | null {
   if (paid == null || officialInput == null || !(officialInput > 0)) return null
   const ratio = (paid * rate) / officialInput
   if (!Number.isFinite(ratio) || ratio <= 0) return null
-  return Math.round(ratio * 1000) / 1000
+  // 展示保留 1 位小数（四舍五入），如 0.306 → 0.3x
+  return Math.round(ratio * 10) / 10
 }
 
 function vsOfficialRate(m: PlazaModel, period: PlazaTimePricingPeriod | null): number | null {

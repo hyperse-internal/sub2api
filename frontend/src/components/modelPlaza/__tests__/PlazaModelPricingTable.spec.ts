@@ -114,7 +114,7 @@ describe('PlazaModelPricingTable', () => {
   })
 
   it('渠道绝对售价时折扣列展示相对官价比例而非分组 1x', () => {
-    // gpt-6-astra: 售价 $3.06/M vs 官价 $10/M → 0.306x
+    // gpt-6-astra: 售价 $3.06/M vs 官价 $10/M → 0.306 → 四舍五入 1 位小数 0.3x
     const model = tokenModel({
       name: 'gpt-6-astra',
       platform: 'openai',
@@ -139,9 +139,44 @@ describe('PlazaModelPricingTable', () => {
     })
     const wrapper = mountTable([model], 1)
     const rateCell = wrapper.findAll('tbody tr td').at(-1)!
-    expect(rateCell.text()).toBe('0.306x')
+    expect(rateCell.text()).toBe('0.3x')
     expect(rateCell.text()).not.toBe('1x')
     wrapper.unmount()
+  })
+
+  it('相对官价倍率四舍五入保留 1 位小数', () => {
+    // 0.244 → 0.2；0.25 → 0.3；0.611 → 0.6
+    const cases = [
+      { paid: 2.44e-7, official: 1e-6, want: '0.2x' },
+      { paid: 2.5e-7, official: 1e-6, want: '0.3x' },
+      { paid: 6.11e-7, official: 1e-6, want: '0.6x' }
+    ]
+    for (const tc of cases) {
+      const model = tokenModel({
+        name: `round-${tc.want}`,
+        pricing: {
+          billing_mode: 'token',
+          input_price: tc.paid,
+          output_price: tc.paid * 5,
+          cache_write_price: null,
+          cache_read_price: null,
+          image_input_price: null,
+          image_output_price: null,
+          per_request_price: null,
+          intervals: []
+        },
+        official_pricing: {
+          input_price: tc.official,
+          output_price: tc.official * 5,
+          cache_write_price: null,
+          cache_write_1h_price: null,
+          cache_read_price: null
+        }
+      })
+      const wrapper = mountTable([model], 1)
+      expect(wrapper.findAll('tbody tr td').at(-1)!.text()).toBe(tc.want)
+      wrapper.unmount()
+    }
   })
 
   it('shows all configured reasoning multipliers in level order', () => {
@@ -733,11 +768,11 @@ describe('PlazaModelPricingTable 分时计价', () => {
     expect(nightCells[3].text()).toContain('$1.50')
     expect(nightCells[7].text()).toContain('0.4x')
 
-    // 晚高峰行:3 × 0.8 × 1.2 = 2.88,倍率 0.96x
+    // 晚高峰行:3 × 0.8 × 1.2 = 2.88；相对官价 0.96 → 四舍五入 1 位为 1x
     const peakCells = trs[2].findAll('td')
     expect(peakCells[0].text()).toContain('18:00–22:00')
     expect(peakCells[1].text()).toContain('$2.88')
-    expect(peakCells[7].text()).toContain('0.96x')
+    expect(peakCells[7].text()).toContain('1x')
 
     // 官方列不受时段影响
     expect(nightCells[4].text()).toContain('$3.00')
