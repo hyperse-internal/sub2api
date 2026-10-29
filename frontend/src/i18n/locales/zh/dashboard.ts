@@ -119,18 +119,7 @@ export default {
     namePlaceholder: '我的 API 密钥',
     groupLabel: '分组',
     providerLabel: '厂商',
-    providers: {
-      anthropic: 'Anthropic',
-      openai: 'OpenAI',
-      domestic: '国产模型',
-      other: '其他'
-    },
-    providerHints: {
-      anthropic: '选择 Anthropic / Claude 的可用分组',
-      openai: '选择 OpenAI / GPT 的可用分组',
-      domestic: '包含 DeepSeek、Kimi、智谱 GLM、MiniMax',
-      other: '包含 Gemini、Grok、Antigravity、OpenCode 和混合分组'
-    },
+    platformHint: '选择 {platform} 下的可用分组',
     selectGroup: '选择分组',
     statusLabel: '状态',
     selectStatus: '选择状态',
@@ -158,7 +147,9 @@ export default {
       byModelHint: '该分组价格按模型配置，不等于统一官价倍率；详情见模型广场',
       groupRate: '分组费率',
       groupRateHint: '分组费率系数，乘在渠道单价上；不是相对官价折扣',
-      modelDetails: '模型明细'
+      modelDetails: '模型明细',
+      dynamicRateHint: '该分组为动态倍率，不同模型价格可能不同。',
+      viewModelPlaza: '查看模型广场'
     },
     usage: '用量',
     today: '今日',

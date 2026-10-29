@@ -119,18 +119,7 @@ export default {
     namePlaceholder: 'My API Key',
     groupLabel: 'Group',
     providerLabel: 'Provider',
-    providers: {
-      anthropic: 'Anthropic',
-      openai: 'OpenAI',
-      domestic: 'Chinese AI',
-      other: 'Other'
-    },
-    providerHints: {
-      anthropic: 'Choose an available Anthropic / Claude group',
-      openai: 'Choose an available OpenAI / GPT group',
-      domestic: 'Includes DeepSeek, Kimi, Zhipu GLM and MiniMax',
-      other: 'Includes Gemini, Grok, Antigravity, OpenCode and mixed groups'
-    },
+    platformHint: 'Choose an available group under {platform}',
     selectGroup: 'Select a group',
     statusLabel: 'Status',
     selectStatus: 'Select status',
@@ -158,7 +147,9 @@ export default {
       byModelHint: 'This group’s prices vary by model and are not a flat official rate. See Model Plaza for details',
       groupRate: 'group rate',
       groupRateHint: 'Group rate multiplier applied on channel unit prices — not the discount vs official',
-      modelDetails: 'Model details'
+      modelDetails: 'Model details',
+      dynamicRateHint: 'This group uses dynamic rates — prices can differ by model.',
+      viewModelPlaza: 'View Model Plaza'
     },
     usage: 'Usage',
     today: 'Today',

@@ -74,4 +74,25 @@ describe('GroupOptionItem pricing hints', () => {
     expect(wrapper.text()).toContain('价格按模型')
     expect(wrapper.text()).not.toContain('1x 倍率')
   })
+
+  it('modal 模式下点击模型明细触发 open-model-plaza', async () => {
+    const wrapper = mount(GroupOptionItem, {
+      props: {
+        name: 'GPT PRO',
+        platform: 'openai',
+        rateMultiplier: 1,
+        pricingHintMode: 'by_model',
+        modelPlazaHref: '/model-plaza?group=23&embedded=1',
+        modelPlazaMode: 'modal'
+      },
+      global: {
+        stubs: {
+          GroupBadge: true,
+          RouterLink: true
+        }
+      }
+    })
+    await wrapper.get('[data-test="group-option-model-plaza"]').trigger('click')
+    expect(wrapper.emitted('open-model-plaza')).toHaveLength(1)
+  })
 })

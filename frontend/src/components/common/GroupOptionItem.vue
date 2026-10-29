@@ -108,10 +108,20 @@
           {{ peakRateText }}
         </span>
 
+        <button
+          v-if="modelPlazaHref && modelPlazaMode === 'modal'"
+          type="button"
+          class="inline-flex w-full items-center justify-end px-3 text-right text-[11px] font-medium text-primary-600 hover:underline dark:text-primary-400"
+          data-test="group-option-model-plaza"
+          @click.stop="emit('open-model-plaza')"
+        >
+          {{ t('keys.pricing.modelDetails') }}
+        </button>
         <RouterLink
-          v-if="modelPlazaHref"
+          v-else-if="modelPlazaHref"
           :to="modelPlazaHref"
-          class="text-[11px] font-medium text-primary-600 hover:underline dark:text-primary-400"
+          class="inline-flex w-full items-center justify-end px-3 text-right text-[11px] font-medium text-primary-600 hover:underline dark:text-primary-400"
+          data-test="group-option-model-plaza"
           @click.stop
         >
           {{ t('keys.pricing.modelDetails') }}
@@ -165,8 +175,12 @@ interface Props {
   groupRelativeRateMin?: number
   groupRelativeRateMax?: number
   showSecondaryGroupRate?: boolean
-  /** SPA 路径，如 /model-plaza?group=23&embedded=1 */
+  /** SPA 路径，如 /model-plaza?group=23&embedded=1；有值时展示「模型明细」入口 */
   modelPlazaHref?: string
+  /**
+   * link：路由跳转；modal：由父级弹窗打开（如创建密钥，避免打断当前流程）。
+   */
+  modelPlazaMode?: 'link' | 'modal'
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -175,8 +189,13 @@ const props = withDefaults(defineProps<Props>(), {
   showCheckmark: true,
   userRateMultiplier: null,
   peakRateEnabled: false,
-  showSecondaryGroupRate: false
+  showSecondaryGroupRate: false,
+  modelPlazaMode: 'link'
 })
+
+const emit = defineEmits<{
+  'open-model-plaza': []
+}>()
 
 const isSubscription = computed(() => props.subscriptionType === 'subscription')
 

@@ -470,7 +470,7 @@
     <BaseDialog
       :show="showCreateModal || showEditModal"
       :title="showEditModal ? t('keys.editKey') : t('keys.createKey')"
-      width="normal"
+      width="wide"
       @close="closeModals"
     >
       <form id="key-form" @submit.prevent="handleSubmit" class="space-y-5">
@@ -486,43 +486,42 @@
           />
         </div>
 
-        <fieldset v-if="!showEditModal" data-tour="key-form-provider">
+        <fieldset v-if="!showEditModal" data-test="key-form-provider">
           <legend class="input-label">{{ t('keys.providerLabel') }}</legend>
-          <div class="grid grid-cols-2 gap-2 sm:grid-cols-4">
+          <div class="flex flex-wrap gap-2">
             <label
               v-for="provider in createProviderOptions"
               :key="provider.value"
-              class="relative min-w-0"
+              class="relative"
               :class="provider.count === 0 ? 'cursor-not-allowed' : 'cursor-pointer'"
             >
               <input
                 type="radio"
                 name="key-provider"
                 :value="provider.value"
-                :checked="createProvider === provider.value"
+                :checked="createPlatform === provider.value"
                 :disabled="provider.count === 0"
                 class="peer sr-only"
-                @change="selectCreateProvider(provider.value)"
+                @change="selectCreatePlatform(provider.value)"
               />
               <span
-                class="flex h-full flex-col items-center gap-2 rounded-xl border border-gray-200 bg-white px-2 py-3 text-center transition-colors peer-checked:border-primary-500 peer-checked:bg-primary-50/60 peer-checked:ring-1 peer-checked:ring-primary-500 peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-primary-500 peer-disabled:opacity-40 dark:border-dark-600 dark:bg-dark-800 dark:peer-checked:border-primary-500 dark:peer-checked:bg-primary-500/10"
+                class="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-2.5 py-2 transition-colors peer-checked:border-primary-500 peer-checked:bg-primary-50/60 peer-checked:ring-1 peer-checked:ring-primary-500 peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-primary-500 peer-disabled:opacity-40 dark:border-dark-600 dark:bg-dark-800 dark:peer-checked:border-primary-500 dark:peer-checked:bg-primary-500/10"
                 :class="provider.count > 0 && 'hover:border-primary-300 dark:hover:border-primary-700'"
               >
-                <span class="flex h-8 items-center justify-center gap-1.5" aria-hidden="true">
-                  <span
-                    v-for="platform in KEY_GROUP_PROVIDER_ICONS[provider.value]"
-                    :key="platform"
-                    class="flex h-8 w-8 items-center justify-center rounded-lg"
-                    :class="platformBadgeLightClass(platform)"
-                  >
-                    <PlatformIcon :platform="platform" size="lg" />
-                  </span>
+                <span
+                  class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg"
+                  :class="platformBadgeLightClass(provider.value)"
+                  aria-hidden="true"
+                >
+                  <PlatformIcon :platform="provider.value" size="md" />
                 </span>
-                <span class="text-sm font-semibold text-gray-800 dark:text-gray-100">{{ provider.label }}</span>
+                <span class="whitespace-nowrap text-sm font-semibold text-gray-800 dark:text-gray-100">{{
+                  provider.label
+                }}</span>
               </span>
               <span
-                v-if="createProvider === provider.value"
-                class="absolute right-1.5 top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary-500 text-white"
+                v-if="createPlatform === provider.value"
+                class="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary-500 text-white"
                 aria-hidden="true"
               >
                 <Icon name="check" size="xs" :stroke-width="3" />
@@ -530,14 +529,18 @@
             </label>
           </div>
           <p class="mt-2 text-xs leading-5 text-gray-500 dark:text-gray-400" aria-live="polite">
-            {{ groups.length === 0 ? t('common.noGroupsAvailable') : t(`keys.providerHints.${createProvider}`) }}
+            {{
+              groups.length === 0
+                ? t('common.noGroupsAvailable')
+                : t('keys.platformHint', { platform: createPlatformLabel })
+            }}
           </p>
         </fieldset>
 
         <div>
           <label class="input-label" for="key-form-group">{{ t('keys.groupLabel') }}</label>
           <Select
-            :key="showEditModal ? 'edit' : createProvider"
+            :key="showEditModal ? 'edit' : createPlatform"
             id="key-form-group"
             :aria-label="t('keys.groupLabel')"
             v-model="formData.group_id"
@@ -589,9 +592,28 @@
                 :group-relative-rate-max="(option as unknown as GroupOption).groupRelativeRateMax"
                 :show-secondary-group-rate="(option as unknown as GroupOption).showSecondaryGroupRate"
                 :model-plaza-href="(option as unknown as GroupOption).modelPlazaHref"
+                model-plaza-mode="modal"
+                @open-model-plaza="openModelPlazaModal((option as unknown as GroupOption).value)"
               />
             </template>
           </Select>
+          <div
+            v-if="selectedDynamicRateGroup"
+            class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs leading-5 text-amber-600 dark:text-amber-400"
+            data-test="key-form-dynamic-rate-hint"
+            aria-live="polite"
+          >
+            <span class="font-medium">{{ t('keys.pricing.dynamicRateHint') }}</span>
+            <button
+              v-if="selectedDynamicRateGroup.modelPlazaHref"
+              type="button"
+              class="inline-flex shrink-0 items-center font-medium text-primary-600 hover:underline dark:text-primary-400"
+              data-test="key-form-model-plaza-link"
+              @click="openModelPlazaModal(selectedDynamicRateGroup.value)"
+            >
+              {{ t('keys.pricing.viewModelPlaza') }}
+            </button>
+          </div>
         </div>
 
         <!-- Custom Key Section (only for create) -->
@@ -1039,6 +1061,25 @@
       </template>
     </BaseDialog>
 
+    <!-- 模型广场弹窗：创建/换分组时预览价格，避免路由跳转打断流程 -->
+    <BaseDialog
+      :show="showModelPlazaModal"
+      :title="t('modelPlaza.title')"
+      width="extra-wide"
+      :z-index="60"
+      data-test="keys-model-plaza-modal"
+      @close="closeModelPlazaModal"
+    >
+      <ModelPlazaContent
+        :key="modelPlazaModalKey"
+        :response="plazaResponse"
+        :loading="plazaLoading"
+        :error="plazaLoadFailed"
+        :initial-group-id="modelPlazaFocusGroupId"
+        :embedded="true"
+      />
+    </BaseDialog>
+
     <BulkEditKeysModal
       :show="showBulkEditModal"
       :selected-keys="selectedApiKeys"
@@ -1207,6 +1248,8 @@
               :group-relative-rate-max="option.groupRelativeRateMax"
               :show-secondary-group-rate="option.showSecondaryGroupRate"
               :model-plaza-href="option.modelPlazaHref"
+              model-plaza-mode="modal"
+              @open-model-plaza="openModelPlazaModal(option.value)"
             />
           </button>
           <!-- Empty state when search has no results -->
@@ -1229,7 +1272,7 @@ import { getPersistedPageSize } from '@/composables/usePersistedPageSize'
 
 const { t } = useI18n()
 	import { keysAPI, authAPI, usageAPI, userGroupsAPI } from '@/api'
-	import { getModelPlaza, type ModelPlazaGroup } from '@/api/modelPlaza'
+	import { getModelPlaza, type ModelPlazaGroup, type ModelPlazaResponse } from '@/api/modelPlaza'
 	import { buildGroupPricingHint, type PricingHintMode } from '@/utils/relativeOfficialRate'
 	import AppLayout from '@/components/layout/AppLayout.vue'
 import TablePageLayout from '@/components/layout/TablePageLayout.vue'
@@ -1246,14 +1289,18 @@ import BulkEditKeysModal from '@/components/keys/BulkEditKeysModal.vue'
 	import EndpointPopover from '@/components/keys/EndpointPopover.vue'
 	import GroupBadge from '@/components/common/GroupBadge.vue'
 	import GroupOptionItem from '@/components/common/GroupOptionItem.vue'
+	import ModelPlazaContent from '@/components/modelPlaza/ModelPlazaContent.vue'
 	import type { ApiKey, Group, PublicSettings, SubscriptionType, GroupPlatform, UpdateApiKeyRequest } from '@/types'
 import type { Column } from '@/components/common/types'
 import type { BatchApiKeyUsageStats } from '@/api/usage'
 import { formatDateTime } from '@/utils/format'
 import { maskApiKey } from '@/utils/maskApiKey'
 import PlatformIcon from '@/components/common/PlatformIcon.vue'
-import { platformBadgeLightClass } from '@/utils/platformColors'
-import { KEY_GROUP_PROVIDERS, KEY_GROUP_PROVIDER_ICONS, getKeyGroupProvider, type KeyGroupProvider } from '@/utils/keyGroupProviders'
+import { platformBadgeLightClass, platformLabel } from '@/utils/platformColors'
+import {
+  KEY_CREATE_PLATFORMS,
+  compareKeyCreatePlatforms
+} from '@/utils/keyGroupProviders'
 import {
   CC_SWITCH_USAGE_SCRIPT,
   buildCcSwitchImportDeeplink,
@@ -1415,6 +1462,12 @@ const handleBulkUpdated = (succeededIds: number[]) => {
 const groups = ref<Group[]>([])
 const plazaGroupsById = ref<Map<number, ModelPlazaGroup>>(new Map())
 const plazaAvailable = ref(false)
+const plazaResponse = ref<ModelPlazaResponse | null>(null)
+const plazaLoading = ref(false)
+const plazaLoadFailed = ref(false)
+const showModelPlazaModal = ref(false)
+const modelPlazaFocusGroupId = ref<number | null>(null)
+const modelPlazaModalKey = ref(0)
 const loading = ref(false)
 const submitting = ref(false)
 const now = ref(new Date())
@@ -1598,29 +1651,66 @@ const groupOptions = computed(() =>
   })
 )
 
-const createProvider = ref<KeyGroupProvider>('anthropic')
-const createProviderOptions = computed(() => KEY_GROUP_PROVIDERS.map((value) => ({
-  value,
-  label: t(`keys.providers.${value}`),
-  count: groups.value.filter((group) => getKeyGroupProvider(group.platform) === value).length
-})))
+const createPlatform = ref<GroupPlatform>('anthropic')
 
-const formGroupOptions = computed(() => showEditModal.value
-  ? groupOptions.value
-  : groupOptions.value.filter((group) => getKeyGroupProvider(group.platform) === createProvider.value)
+const createProviderOptions = computed(() => {
+  const counts = new Map<string, number>()
+  for (const group of groups.value) {
+    counts.set(group.platform, (counts.get(group.platform) ?? 0) + 1)
+  }
+  // 已知平台全量平铺；当前可用分组里出现的未知平台追加在末尾。
+  const platforms = new Set<string>([...KEY_CREATE_PLATFORMS, ...counts.keys()])
+  return [...platforms]
+    .sort(compareKeyCreatePlatforms)
+    .map((value) => ({
+      value: value as GroupPlatform,
+      label: t(`admin.groups.platforms.${value}`, platformLabel(value)),
+      count: counts.get(value) ?? 0
+    }))
+})
+
+const createPlatformLabel = computed(() =>
+  t(`admin.groups.platforms.${createPlatform.value}`, platformLabel(createPlatform.value))
 )
 
-const selectCreateProvider = (provider: KeyGroupProvider) => {
-  if (createProvider.value === provider) return
-  createProvider.value = provider
+const formGroupOptions = computed(() =>
+  showEditModal.value
+    ? groupOptions.value
+    : groupOptions.value.filter((group) => group.platform === createPlatform.value)
+)
+
+/** 选中分组为按模型动态计费（相对官价区间或价格按模型）时，在下拉下方提示。 */
+const selectedDynamicRateGroup = computed(() => {
+  const groupId = formData.value.group_id
+  if (groupId == null) return null
+  const selected = groupOptions.value.find((group) => group.value === groupId)
+  if (!selected) return null
+  if (selected.pricingHintMode !== 'relative' && selected.pricingHintMode !== 'by_model') {
+    return null
+  }
+  // 相对官价为单点且无区间差异时，不算「不同模型有差异」
+  if (
+    selected.pricingHintMode === 'relative' &&
+    selected.relativeRateMin != null &&
+    selected.relativeRateMax != null &&
+    selected.relativeRateMin === selected.relativeRateMax
+  ) {
+    return null
+  }
+  return selected
+})
+
+const selectCreatePlatform = (platform: GroupPlatform) => {
+  if (createPlatform.value === platform) return
+  createPlatform.value = platform
   formData.value.group_id = null
 }
 
 // Also handles groups arriving after the create dialog has already opened.
 watch([showCreateModal, createProviderOptions], ([isOpen, providers], [wasOpen]) => {
   if (!isOpen) return
-  if (!wasOpen || !providers.some((provider) => provider.value === createProvider.value && provider.count > 0)) {
-    selectCreateProvider(providers.find((provider) => provider.count > 0)?.value ?? 'anthropic')
+  if (!wasOpen || !providers.some((provider) => provider.value === createPlatform.value && provider.count > 0)) {
+    selectCreatePlatform(providers.find((provider) => provider.count > 0)?.value ?? 'anthropic')
   }
   if (!formGroupOptions.value.some((group) => group.value === formData.value.group_id)) {
     formData.value.group_id = null
@@ -1726,19 +1816,38 @@ const loadUserGroupRates = async () => {
 }
 
 const loadModelPlaza = async () => {
+  plazaLoading.value = true
+  plazaLoadFailed.value = false
   try {
     const response = await getModelPlaza()
     const map = new Map<number, ModelPlazaGroup>()
     for (const group of response.groups ?? []) {
       map.set(group.id, group)
     }
+    plazaResponse.value = response
     plazaGroupsById.value = map
     plazaAvailable.value = true
   } catch {
     // 广场关闭或 404：降级为「价格按模型」，不阻断建钥。
+    plazaResponse.value = null
     plazaGroupsById.value = new Map()
     plazaAvailable.value = false
+    plazaLoadFailed.value = true
+  } finally {
+    plazaLoading.value = false
   }
+}
+
+const openModelPlazaModal = (groupId: number | null) => {
+  if (groupId == null || !plazaAvailable.value) return
+  modelPlazaFocusGroupId.value = groupId
+  modelPlazaModalKey.value += 1
+  showModelPlazaModal.value = true
+}
+
+const closeModelPlazaModal = () => {
+  showModelPlazaModal.value = false
+  modelPlazaFocusGroupId.value = null
 }
 
 const loadPublicSettings = async () => {

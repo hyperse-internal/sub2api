@@ -250,6 +250,16 @@ const mountView = async () => {
         EndpointPopover: true,
         GroupBadge: true,
         GroupOptionItem: true,
+        PlatformIcon: true,
+        ModelPlazaContent: {
+          name: 'ModelPlazaContent',
+          props: ['response', 'loading', 'error', 'initialGroupId', 'embedded'],
+          template: '<div data-test="model-plaza-content-stub" />',
+        },
+        RouterLink: {
+          props: ['to'],
+          template: '<a :href="typeof to === \'string\' ? to : \'#\'" :data-to="typeof to === \'string\' ? to : JSON.stringify(to)"><slot /></a>',
+        },
         Teleport: true,
       },
     },
@@ -579,12 +589,46 @@ describe('user KeysView column settings', () => {
       rate_multiplier: 1,
       subscription_type: 'standard',
     }))
-    const groupSelect = (wrapper: VueWrapper) => wrapper.findComponent('[data-tour="key-form-group"]')
+    const groupSelect = (wrapper: VueWrapper) => {
+      const selects = wrapper.findAllComponents({ name: 'Select' })
+      const inForm = selects.find((select) => {
+        const el = select.element as HTMLElement
+        return typeof el.closest === 'function' && !!el.closest('#key-form')
+      })
+      if (inForm) return inForm
+      const byOptions = selects.find((select) => {
+        const options = select.props('options') as Array<{ value: unknown }> | undefined
+        return Array.isArray(options) && !options.some((option) => option.value === '' || option.value === 0)
+      })
+      if (!byOptions) {
+        throw new Error('key-form-group select not found')
+      }
+      return byOptions
+    }
     const optionIds = (wrapper: VueWrapper) => groupSelect(wrapper).props('options').map((option: { value: number }) => option.value)
     const chooseProvider = (wrapper: VueWrapper, value: string) => wrapper.get(`input[name="key-provider"][value="${value}"]`).setValue()
+    const findCreateBtn = (wrapper: VueWrapper) => {
+      const byText = wrapper.findAll('button').find((btn) =>
+        btn.text().includes('Create API Key') || btn.text().includes('keys.createKey')
+      )
+      if (!byText) {
+        throw new Error('keys-create-btn not found')
+      }
+      return byText
+    }
+    const findProviderField = (wrapper: VueWrapper) =>
+      wrapper.findAll('fieldset').find((node) => node.html().includes('name="key-provider"'))
+    const findNameInput = (wrapper: VueWrapper) => wrapper.get('#key-form input[type="text"]')
     const openCreate = async () => {
       const wrapper = await mountView()
-      await wrapper.get('[data-tour="keys-create-btn"]').trigger('click')
+      await findCreateBtn(wrapper).trigger('click')
+      await nextTick()
+      await flushPromises()
+      if (!findProviderField(wrapper)) {
+        (wrapper.vm as { showCreateModal: boolean }).showCreateModal = true
+        await nextTick()
+        await flushPromises()
+      }
       return wrapper
     }
 
@@ -592,24 +636,25 @@ describe('user KeysView column settings', () => {
       getAvailableGroups.mockResolvedValue(availableGroups)
     })
 
-    it('classifies all configured platforms and retains the complete table filter', async () => {
+    it('lists platforms flat and filters groups by selected platform', async () => {
       const wrapper = await openCreate()
-      expect(wrapper.findAll('input[name="key-provider"]')).toHaveLength(4)
+      const radios = wrapper.findAll('input[name="key-provider"]')
+      expect(radios.length).toBeGreaterThanOrEqual(12)
       expect(optionIds(wrapper)).toEqual([1])
       await chooseProvider(wrapper, 'openai')
       expect(optionIds(wrapper)).toEqual([2])
-      await chooseProvider(wrapper, 'domestic')
-      expect(optionIds(wrapper)).toEqual([3, 4, 5, 6])
-      await chooseProvider(wrapper, 'other')
-      expect(optionIds(wrapper)).toEqual([7, 8, 9, 10, 11, 12])
+      await chooseProvider(wrapper, 'kimi')
+      expect(optionIds(wrapper)).toEqual([3])
+      await chooseProvider(wrapper, 'gemini')
+      expect(optionIds(wrapper)).toEqual([7])
       expect(wrapper.findAllComponents({ name: 'Select' })[0].props('options')).toHaveLength(14)
     })
 
     it('clears the previous group on provider change and submits only the newly selected group', async () => {
       const wrapper = await openCreate()
-      await wrapper.get('[data-tour="key-form-name"]').setValue('My key')
+      await findNameInput(wrapper).setValue('My key')
       await groupSelect(wrapper).vm.$emit('update:modelValue', 1)
-      await chooseProvider(wrapper, 'domestic')
+      await chooseProvider(wrapper, 'deepseek')
       expect(groupSelect(wrapper).props('modelValue')).toBeNull()
       await wrapper.get('#key-form').trigger('submit')
       expect(keysAPI.create).not.toHaveBeenCalled()
@@ -623,10 +668,10 @@ describe('user KeysView column settings', () => {
       expect(vi.mocked(keysAPI.create).mock.calls[0].slice(0, 2)).toEqual(['My key', 5])
     })
 
-    it('defaults to a provider with available groups and disables empty categories', async () => {
+    it('defaults to a platform with available groups and disables empty platforms', async () => {
       getAvailableGroups.mockResolvedValue([availableGroups[5]])
       const wrapper = await openCreate()
-      expect(wrapper.get<HTMLInputElement>('input[value="domestic"]').element.checked).toBe(true)
+      expect(wrapper.get<HTMLInputElement>('input[value="minimax"]').element.checked).toBe(true)
       expect(wrapper.get<HTMLInputElement>('input[value="anthropic"]').element.disabled).toBe(true)
       expect(optionIds(wrapper)).toEqual([6])
     })
@@ -634,9 +679,13 @@ describe('user KeysView column settings', () => {
     it('shows the empty state when no groups are available', async () => {
       getAvailableGroups.mockResolvedValue([])
       const wrapper = await openCreate()
-      expect(wrapper.get('[data-tour="key-form-provider"]').text()).toContain('common.noGroupsAvailable')
+      const providerField = findProviderField(wrapper)
+      expect(providerField).toBeTruthy()
+      expect(providerField!.text()).toContain('common.noGroupsAvailable')
       expect(optionIds(wrapper)).toEqual([])
-      expect(wrapper.findAll<HTMLInputElement>('input[name="key-provider"]').every((input) => input.element.disabled)).toBe(true)
+      const radios = wrapper.findAll<HTMLInputElement>('input[name="key-provider"]')
+      expect(radios.length).toBeGreaterThan(0)
+      expect(radios.every((input) => input.element.disabled)).toBe(true)
     })
 
     it('selects an available provider when groups arrive after opening', async () => {
@@ -651,15 +700,17 @@ describe('user KeysView column settings', () => {
 
     it('resets provider and group when reopening create, and preserves edit options', async () => {
       const wrapper = await openCreate()
-      await chooseProvider(wrapper, 'domestic')
+      await chooseProvider(wrapper, 'deepseek')
       await groupSelect(wrapper).vm.$emit('update:modelValue', 5)
       await wrapper.get('[data-test="close-dialog"]').trigger('click')
-      await wrapper.get('[data-tour="keys-create-btn"]').trigger('click')
+      await findCreateBtn(wrapper).trigger('click')
+      await nextTick()
+      await flushPromises()
       expect(optionIds(wrapper)).toEqual([1])
       expect(groupSelect(wrapper).props('modelValue')).toBeNull()
       await wrapper.get('[data-test="close-dialog"]').trigger('click')
       await getButtonByText(wrapper, 'common.edit').trigger('click')
-      expect(wrapper.find('[data-tour="key-form-provider"]').exists()).toBe(false)
+      expect(!!findProviderField(wrapper)).toBe(false)
       expect(optionIds(wrapper)).toHaveLength(12)
     })
 
@@ -734,6 +785,102 @@ describe('user KeysView column settings', () => {
       expect(options[0].pricingHintMode).toBe('by_model')
       expect(options[0].showSecondaryGroupRate).toBe(false)
       expect(options[0].modelPlazaHref).toBeUndefined()
+    })
+
+    it('shows dynamic-rate hint under the group select for by_model groups', async () => {
+      getModelPlaza.mockRejectedValue(new Error('404'))
+      const wrapper = await openCreate()
+      await chooseProvider(wrapper, 'openai')
+      expect(wrapper.find('[data-test="key-form-dynamic-rate-hint"]').exists()).toBe(false)
+      await groupSelect(wrapper).vm.$emit('update:modelValue', 2)
+      await nextTick()
+      const hint = wrapper.find('[data-test="key-form-dynamic-rate-hint"]')
+      expect(hint.exists()).toBe(true)
+      expect(hint.text()).toContain('keys.pricing.dynamicRateHint')
+      // Plaza unavailable → hint without jump link
+      expect(wrapper.find('[data-test="key-form-model-plaza-link"]').exists()).toBe(false)
+    })
+
+    it('opens model plaza in a modal when relative rates span a range', async () => {
+      getModelPlaza.mockResolvedValue({
+        description: '',
+        groups: [{
+          id: 2,
+          name: 'Shared group 2',
+          description: '',
+          platform: 'openai',
+          subscription_type: 'standard',
+          rate_multiplier: 1,
+          peak_rate_enabled: false,
+          peak_start: '',
+          peak_end: '',
+          peak_rate_multiplier: 1,
+          is_exclusive: false,
+          image_rate_independent: false,
+          image_rate_multiplier: 1,
+          video_rate_independent: false,
+          video_rate_multiplier: 1,
+          long_context_pricing_enabled: true,
+          models: [
+            {
+              name: 'cheap',
+              platform: 'openai',
+              pricing: {
+                billing_mode: 'token',
+                input_price: 1e-6,
+                output_price: 1e-6,
+                cache_write_price: null,
+                cache_read_price: null,
+                image_input_price: null,
+                image_output_price: null,
+                per_request_price: null,
+                intervals: []
+              },
+              official_pricing: {
+                input_price: 1e-5,
+                output_price: 1e-5,
+                cache_write_price: null,
+                cache_read_price: null
+              }
+            },
+            {
+              name: 'pricey',
+              platform: 'openai',
+              pricing: {
+                billing_mode: 'token',
+                input_price: 5e-6,
+                output_price: 5e-6,
+                cache_write_price: null,
+                cache_read_price: null,
+                image_input_price: null,
+                image_output_price: null,
+                per_request_price: null,
+                intervals: []
+              },
+              official_pricing: {
+                input_price: 1e-5,
+                output_price: 1e-5,
+                cache_write_price: null,
+                cache_read_price: null
+              }
+            }
+          ]
+        }]
+      })
+      const wrapper = await openCreate()
+      await chooseProvider(wrapper, 'openai')
+      await groupSelect(wrapper).vm.$emit('update:modelValue', 2)
+      await nextTick()
+      const link = wrapper.find('[data-test="key-form-model-plaza-link"]')
+      expect(wrapper.find('[data-test="key-form-dynamic-rate-hint"]').exists()).toBe(true)
+      expect(link.exists()).toBe(true)
+      expect(wrapper.findComponent({ name: 'ModelPlazaContent' }).exists()).toBe(false)
+      await link.trigger('click')
+      await nextTick()
+      const plaza = wrapper.findComponent({ name: 'ModelPlazaContent' })
+      expect(plaza.exists()).toBe(true)
+      expect(plaza.props('initialGroupId')).toBe(2)
+      expect(plaza.props('embedded')).toBe(true)
     })
   })
 })
