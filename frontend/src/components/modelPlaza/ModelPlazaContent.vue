@@ -63,7 +63,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { marked } from 'marked'
 import DOMPurify from 'dompurify'
@@ -79,6 +79,8 @@ const props = defineProps<{
   error?: boolean
   /** 后台内嵌形态(AppLayout 内):隐藏页头。 */
   embedded?: boolean
+  /** 深链定位分组（来自 ?group=id）。 */
+  initialGroupId?: number | null
 }>()
 
 const { t } = useI18n()
@@ -89,6 +91,7 @@ const selectedPlatform = ref<string>('all')
 const selectedGroupId = ref<number | 'all'>('all')
 const selectedRate = ref<number | 'all'>('all')
 const searchQuery = ref('')
+const appliedInitialGroupId = ref<number | null>(null)
 
 const searchActive = computed(() => searchQuery.value.trim() !== '')
 
@@ -127,6 +130,25 @@ watch(rates, (list) => {
     selectedRate.value = 'all'
   }
 })
+
+/** 深链 ?group=id：筛选到该分组并滚到对应卡片。 */
+watch(
+  () => [props.loading, props.response, props.initialGroupId] as const,
+  async ([loading, response, initialGroupId]) => {
+    if (loading || !response || initialGroupId == null) return
+    if (appliedInitialGroupId.value === initialGroupId) return
+    const exists = response.groups.some((g) => g.id === initialGroupId)
+    if (!exists) return
+    selectedGroupId.value = initialGroupId
+    appliedInitialGroupId.value = initialGroupId
+    await nextTick()
+    document.getElementById(`plaza-group-${initialGroupId}`)?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start'
+    })
+  },
+  { immediate: true }
+)
 
 const filteredGroups = computed(() => {
   let groups = props.response?.groups ?? []

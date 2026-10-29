@@ -173,6 +173,7 @@
                   :peak-start="row.group.peak_start"
                   :peak-end="row.group.peak_end"
                   :peak-rate-multiplier="row.group.peak_rate_multiplier"
+                  v-bind="pricingDisplayForGroup(row.group.id, row.group.rate_multiplier, userGroupRates[row.group.id] ?? null)"
                 />
                 <span v-else class="text-sm text-gray-400 dark:text-dark-500">{{
                   t('keys.noGroup')
@@ -559,6 +560,12 @@
                 :peak-start="(option as unknown as GroupOption).peakStart"
                 :peak-end="(option as unknown as GroupOption).peakEnd"
                 :peak-rate-multiplier="(option as unknown as GroupOption).peakRateMultiplier"
+                :pricing-hint-mode="(option as unknown as GroupOption).pricingHintMode"
+                :relative-rate-min="(option as unknown as GroupOption).relativeRateMin"
+                :relative-rate-max="(option as unknown as GroupOption).relativeRateMax"
+                :group-relative-rate-min="(option as unknown as GroupOption).groupRelativeRateMin"
+                :group-relative-rate-max="(option as unknown as GroupOption).groupRelativeRateMax"
+                :show-secondary-group-rate="(option as unknown as GroupOption).showSecondaryGroupRate"
               />
               <span v-else class="text-gray-400">{{ t('keys.selectGroup') }}</span>
             </template>
@@ -575,6 +582,13 @@
                 :peak-rate-multiplier="(option as unknown as GroupOption).peakRateMultiplier"
                 :description="(option as unknown as GroupOption).description"
                 :selected="selected"
+                :pricing-hint-mode="(option as unknown as GroupOption).pricingHintMode"
+                :relative-rate-min="(option as unknown as GroupOption).relativeRateMin"
+                :relative-rate-max="(option as unknown as GroupOption).relativeRateMax"
+                :group-relative-rate-min="(option as unknown as GroupOption).groupRelativeRateMin"
+                :group-relative-rate-max="(option as unknown as GroupOption).groupRelativeRateMax"
+                :show-secondary-group-rate="(option as unknown as GroupOption).showSecondaryGroupRate"
+                :model-plaza-href="(option as unknown as GroupOption).modelPlazaHref"
               />
             </template>
           </Select>
@@ -1186,6 +1200,13 @@
                 selectedKeyForGroup?.group_id === option.value ||
                 (!selectedKeyForGroup?.group_id && option.value === null)
               "
+              :pricing-hint-mode="option.pricingHintMode"
+              :relative-rate-min="option.relativeRateMin"
+              :relative-rate-max="option.relativeRateMax"
+              :group-relative-rate-min="option.groupRelativeRateMin"
+              :group-relative-rate-max="option.groupRelativeRateMax"
+              :show-secondary-group-rate="option.showSecondaryGroupRate"
+              :model-plaza-href="option.modelPlazaHref"
             />
           </button>
           <!-- Empty state when search has no results -->
@@ -1207,8 +1228,10 @@
 import { getPersistedPageSize } from '@/composables/usePersistedPageSize'
 
 const { t } = useI18n()
-import { keysAPI, authAPI, usageAPI, userGroupsAPI } from '@/api'
-import AppLayout from '@/components/layout/AppLayout.vue'
+	import { keysAPI, authAPI, usageAPI, userGroupsAPI } from '@/api'
+	import { getModelPlaza, type ModelPlazaGroup } from '@/api/modelPlaza'
+	import { buildGroupPricingHint, type PricingHintMode } from '@/utils/relativeOfficialRate'
+	import AppLayout from '@/components/layout/AppLayout.vue'
 import TablePageLayout from '@/components/layout/TablePageLayout.vue'
 import BulkEditKeysModal from '@/components/keys/BulkEditKeysModal.vue'
 	import DataTable from '@/components/common/DataTable.vue'
@@ -1244,6 +1267,16 @@ const formatDateTimeLocal = (isoDate: string): string => {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`
 }
 
+interface GroupPricingDisplay {
+  pricingHintMode: PricingHintMode
+  relativeRateMin?: number
+  relativeRateMax?: number
+  groupRelativeRateMin?: number
+  groupRelativeRateMax?: number
+  showSecondaryGroupRate: boolean
+  modelPlazaHref?: string
+}
+
 interface GroupOption {
   value: number
   label: string
@@ -1256,6 +1289,13 @@ interface GroupOption {
   peakRateMultiplier: number
   subscriptionType: SubscriptionType
   platform: GroupPlatform
+  pricingHintMode: PricingHintMode
+  relativeRateMin?: number
+  relativeRateMax?: number
+  groupRelativeRateMin?: number
+  groupRelativeRateMax?: number
+  showSecondaryGroupRate: boolean
+  modelPlazaHref?: string
 }
 
 const appStore = useAppStore()
@@ -1373,6 +1413,8 @@ const handleBulkUpdated = (succeededIds: number[]) => {
 }
 
 const groups = ref<Group[]>([])
+const plazaGroupsById = ref<Map<number, ModelPlazaGroup>>(new Map())
+const plazaAvailable = ref(false)
 const loading = ref(false)
 const submitting = ref(false)
 const now = ref(new Date())
@@ -1510,21 +1552,50 @@ const onStatusFilterChange = (value: string | number | boolean | null) => {
   onFilterChange()
 }
 
+function pricingDisplayForGroup(
+  groupId: number,
+  rateMultiplier: number,
+  userRate: number | null
+): GroupPricingDisplay {
+  const plazaGroup = plazaGroupsById.value.get(groupId)
+  const hint = buildGroupPricingHint({
+    models: plazaAvailable.value ? (plazaGroup?.models ?? []) : null,
+    rateMultiplier,
+    userRateMultiplier: userRate
+  })
+  return {
+    pricingHintMode: hint.mode,
+    relativeRateMin: hint.relativeRange?.min,
+    relativeRateMax: hint.relativeRange?.max,
+    groupRelativeRateMin: hint.groupRelativeRange?.min,
+    groupRelativeRateMax: hint.groupRelativeRange?.max,
+    showSecondaryGroupRate: hint.showSecondaryGroupRate,
+    modelPlazaHref: plazaAvailable.value
+      ? `/model-plaza?group=${groupId}&embedded=1`
+      : undefined
+  }
+}
+
 // Convert groups to Select options format with rate multiplier and subscription type
 const groupOptions = computed(() =>
-  groups.value.map((group) => ({
-    value: group.id,
-    label: group.name,
-    description: group.description,
-    rate: group.rate_multiplier,
-    userRate: userGroupRates.value[group.id] ?? null,
-    peakRateEnabled: group.peak_rate_enabled,
-    peakStart: group.peak_start,
-    peakEnd: group.peak_end,
-    peakRateMultiplier: group.peak_rate_multiplier,
-    subscriptionType: group.subscription_type,
-    platform: group.platform
-  }))
+  groups.value.map((group) => {
+    const userRate = userGroupRates.value[group.id] ?? null
+    const pricing = pricingDisplayForGroup(group.id, group.rate_multiplier, userRate)
+    return {
+      value: group.id,
+      label: group.name,
+      description: group.description,
+      rate: group.rate_multiplier,
+      userRate,
+      peakRateEnabled: group.peak_rate_enabled,
+      peakStart: group.peak_start,
+      peakEnd: group.peak_end,
+      peakRateMultiplier: group.peak_rate_multiplier,
+      subscriptionType: group.subscription_type,
+      platform: group.platform,
+      ...pricing
+    } satisfies GroupOption
+  })
 )
 
 const createProvider = ref<KeyGroupProvider>('anthropic')
@@ -1651,6 +1722,22 @@ const loadUserGroupRates = async () => {
     userGroupRates.value = await userGroupsAPI.getUserGroupRates()
   } catch (error) {
     console.error('Failed to load user group rates:', error)
+  }
+}
+
+const loadModelPlaza = async () => {
+  try {
+    const response = await getModelPlaza()
+    const map = new Map<number, ModelPlazaGroup>()
+    for (const group of response.groups ?? []) {
+      map.set(group.id, group)
+    }
+    plazaGroupsById.value = map
+    plazaAvailable.value = true
+  } catch {
+    // 广场关闭或 404：降级为「价格按模型」，不阻断建钥。
+    plazaGroupsById.value = new Map()
+    plazaAvailable.value = false
   }
 }
 
@@ -2083,6 +2170,7 @@ onMounted(() => {
   loadApiKeys()
   loadGroups()
   loadUserGroupRates()
+  loadModelPlaza()
   loadPublicSettings()
   document.addEventListener('click', closeGroupSelector)
   resetTimer = setInterval(() => { now.value = new Date() }, 60000)

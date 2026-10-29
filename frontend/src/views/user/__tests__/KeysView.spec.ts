@@ -13,6 +13,7 @@ const {
   getDashboardApiKeysUsage,
   getAvailableGroups,
   getUserGroupRates,
+  getModelPlaza,
   showError,
   showSuccess,
   copyToClipboard,
@@ -25,6 +26,7 @@ const {
   getDashboardApiKeysUsage: vi.fn(),
   getAvailableGroups: vi.fn(),
   getUserGroupRates: vi.fn(),
+  getModelPlaza: vi.fn(),
   showError: vi.fn(),
   showSuccess: vi.fn(),
   copyToClipboard: vi.fn(),
@@ -76,6 +78,11 @@ vi.mock('@/api', () => ({
     getAvailable: getAvailableGroups,
     getUserGroupRates,
   },
+}))
+
+vi.mock('@/api/modelPlaza', () => ({
+  getModelPlaza,
+  modelPlazaAPI: { getModelPlaza },
 }))
 
 vi.mock('@/stores/app', () => ({
@@ -277,6 +284,7 @@ describe('user KeysView column settings', () => {
     getDashboardApiKeysUsage.mockReset()
     getAvailableGroups.mockReset()
     getUserGroupRates.mockReset()
+    getModelPlaza.mockReset()
     showError.mockReset()
     showSuccess.mockReset()
     copyToClipboard.mockReset()
@@ -294,6 +302,7 @@ describe('user KeysView column settings', () => {
     getDashboardApiKeysUsage.mockResolvedValue({ stats: {} })
     getAvailableGroups.mockResolvedValue([])
     getUserGroupRates.mockResolvedValue({})
+    getModelPlaza.mockResolvedValue({ description: '', groups: [] })
     isCurrentStep.mockReturnValue(false)
   })
 
@@ -652,6 +661,79 @@ describe('user KeysView column settings', () => {
       await getButtonByText(wrapper, 'common.edit').trigger('click')
       expect(wrapper.find('[data-tour="key-form-provider"]').exists()).toBe(false)
       expect(optionIds(wrapper)).toHaveLength(12)
+    })
+
+    it('attaches relative official pricing hints when model plaza loads', async () => {
+      getModelPlaza.mockResolvedValue({
+        description: '',
+        groups: [{
+          id: 2,
+          name: 'Shared group 2',
+          description: '',
+          platform: 'openai',
+          subscription_type: 'standard',
+          rate_multiplier: 1,
+          peak_rate_enabled: false,
+          peak_start: '',
+          peak_end: '',
+          peak_rate_multiplier: 1,
+          is_exclusive: false,
+          image_rate_independent: false,
+          image_rate_multiplier: 1,
+          video_rate_independent: false,
+          video_rate_multiplier: 1,
+          long_context_pricing_enabled: true,
+          models: [{
+            name: 'gpt-6-astra',
+            platform: 'openai',
+            pricing: {
+              billing_mode: 'token',
+              input_price: 3.06e-6,
+              output_price: 1.53e-5,
+              cache_write_price: null,
+              cache_read_price: null,
+              image_input_price: null,
+              image_output_price: null,
+              per_request_price: null,
+              intervals: []
+            },
+            official_pricing: {
+              input_price: 1e-5,
+              output_price: 5e-5,
+              cache_write_price: null,
+              cache_read_price: null
+            }
+          }]
+        }]
+      })
+      const wrapper = await openCreate()
+      await chooseProvider(wrapper, 'openai')
+      const options = groupSelect(wrapper).props('options') as Array<{
+        value: number
+        pricingHintMode: string
+        relativeRateMin?: number
+        relativeRateMax?: number
+        modelPlazaHref?: string
+      }>
+      expect(options).toHaveLength(1)
+      expect(options[0].pricingHintMode).toBe('relative')
+      expect(options[0].relativeRateMin).toBe(0.3)
+      expect(options[0].relativeRateMax).toBe(0.3)
+      expect(options[0].modelPlazaHref).toBe('/model-plaza?group=2&embedded=1')
+    })
+
+    it('falls back to by_model when model plaza is unavailable', async () => {
+      getModelPlaza.mockRejectedValue(new Error('404'))
+      const wrapper = await openCreate()
+      await chooseProvider(wrapper, 'openai')
+      const options = groupSelect(wrapper).props('options') as Array<{
+        pricingHintMode: string
+        showSecondaryGroupRate: boolean
+        modelPlazaHref?: string
+      }>
+      expect(options[0].pricingHintMode).toBe('by_model')
+      expect(options[0].showSecondaryGroupRate).toBe(false)
+      expect(options[0].modelPlazaHref).toBeUndefined()
     })
   })
 })

@@ -1,5 +1,6 @@
 <template>
   <section
+    :id="`plaza-group-${group.id}`"
     class="overflow-hidden rounded-2xl border bg-white shadow-card dark:bg-dark-800/50"
     :class="[platformBorderStrongClass(group.platform)]"
   >

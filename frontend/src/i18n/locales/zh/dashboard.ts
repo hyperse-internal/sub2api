@@ -150,6 +150,16 @@ export default {
     groupChangedSuccess: '分组更换成功',
     failedToChangeGroup: '更换分组失败',
     groupRequired: '请选择分组',
+    pricing: {
+      relativeOfficial: '相对官价',
+      relativeOfficialHint:
+        '相对官价 {range}：按基础档输入价（渠道价 × 生效分组/专属倍率）÷ 官价；分时/高峰等详见模型广场',
+      byModel: '价格按模型',
+      byModelHint: '该分组价格按模型配置，不等于统一官价倍率；详情见模型广场',
+      groupRate: '分组费率',
+      groupRateHint: '分组费率系数，乘在渠道单价上；不是相对官价折扣',
+      modelDetails: '模型明细'
+    },
     usage: '用量',
     today: '今日',
     total: '近30天',

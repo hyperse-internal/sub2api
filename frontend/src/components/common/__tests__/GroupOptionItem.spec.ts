@@ -27,6 +27,7 @@ describe('GroupOptionItem description layout', () => {
       global: {
         stubs: {
           GroupBadge: true,
+          RouterLink: true,
         },
       },
     })

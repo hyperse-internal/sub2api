@@ -10,15 +10,51 @@
     <!-- Group name -->
     <span :class="truncate ? 'truncate' : 'min-w-0 whitespace-normal [overflow-wrap:anywhere]'">{{ name }}</span>
     <!-- Right side label -->
-    <span v-if="showLabel" :class="labelClass">
-      <template v-if="hasCustomRate">
-        <!-- 原倍率删除线 + 专属倍率高亮 -->
+    <span v-if="showLabel" :class="labelClass" :title="primaryTitle || undefined">
+      <template v-if="isSubscription && !alwaysShowRate">
+        {{ subscriptionLabelText }}
+      </template>
+      <template v-else-if="pricingHintMode === 'relative' && relativeLabel">
+        <template v-if="groupRelativeLabel && groupRelativeLabel !== relativeLabel">
+          <span class="line-through opacity-50 mr-0.5">{{ groupRelativeLabel }}</span>
+          <span class="font-bold">{{ relativeLabel }}</span>
+        </template>
+        <template v-else>
+          {{ relativeLabel }}
+        </template>
+      </template>
+      <template v-else-if="pricingHintMode === 'by_model'">
+        {{ t('keys.pricing.byModel') }}
+      </template>
+      <template v-else-if="hasCustomRate">
+        <!-- 原倍率删除线 + 专属倍率高亮（legacy group_rate） -->
         <span class="line-through opacity-50 mr-0.5">{{ rateMultiplier }}x</span>
         <span class="font-bold">{{ userRateMultiplier }}x</span>
       </template>
       <template v-else>
-        {{ labelText }}
+        {{ legacyRateLabel }}
       </template>
+    </span>
+    <!-- 订阅主标签下的相对官价次要行 -->
+    <span
+      v-if="showSubscriptionRelative"
+      :class="secondaryLabelClass"
+      :title="relativeTitle || undefined"
+    >
+      {{ relativeLabel }}
+    </span>
+    <!-- by_model 时有信息量的分组费率 -->
+    <span
+      v-if="showSecondaryGroupRatePill"
+      :class="secondaryLabelClass"
+      :title="t('keys.pricing.groupRateHint')"
+    >
+      <template v-if="hasCustomRate">
+        <span class="line-through opacity-50 mr-0.5">{{ rateMultiplier }}x</span>
+        <span class="font-bold">{{ userRateMultiplier }}x</span>
+      </template>
+      <template v-else>{{ rateMultiplier }}x</template>
+      {{ t('keys.pricing.groupRate') }}
     </span>
     <span v-if="hasPeakRate" :class="peakRateClass" :title="peakRateTitle">
       {{ peakRateText }}
@@ -32,6 +68,10 @@ import { useI18n } from 'vue-i18n'
 import type { SubscriptionType, GroupPlatform } from '@/types'
 import { useAppStore } from '@/stores/app'
 import { formatPeakRateWindow, serverTimezoneLabel } from '@/utils/peak-rate'
+import {
+  formatRelativeRateRange,
+  type PricingHintMode
+} from '@/utils/relativeOfficialRate'
 import PlatformIcon from './PlatformIcon.vue'
 
 interface Props {
@@ -54,6 +94,18 @@ interface Props {
    * 只关心费率、不关心有效期的场景）。
    */
   alwaysShowRate?: boolean
+  /**
+   * 密钥页定价提示模式。未传时保持旧「分组费率 Nx」行为。
+   * relative：相对官价区间；by_model：价格按模型；group_rate：显式分组费率。
+   */
+  pricingHintMode?: PricingHintMode
+  relativeRateMin?: number
+  relativeRateMax?: number
+  /** 有专属倍率时，分组默认相对官价（划线）。 */
+  groupRelativeRateMin?: number
+  groupRelativeRateMax?: number
+  /** by_model 时是否次要展示分组费率。 */
+  showSecondaryGroupRate?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -63,7 +115,8 @@ const props = withDefaults(defineProps<Props>(), {
   daysRemaining: null,
   userRateMultiplier: null,
   peakRateEnabled: false,
-  alwaysShowRate: false
+  alwaysShowRate: false,
+  showSecondaryGroupRate: false
 })
 
 const { t } = useI18n()
@@ -102,54 +155,98 @@ const peakRateTitle = computed(() => {
   return t('common.peakRateTooltip', { window: peakRateText.value })
 })
 
+const relativeLabel = computed(() => {
+  if (props.relativeRateMin == null || props.relativeRateMax == null) return ''
+  return formatRelativeRateRange({ min: props.relativeRateMin, max: props.relativeRateMax })
+})
+
+const groupRelativeLabel = computed(() => {
+  if (props.groupRelativeRateMin == null || props.groupRelativeRateMax == null) return ''
+  return formatRelativeRateRange({
+    min: props.groupRelativeRateMin,
+    max: props.groupRelativeRateMax
+  })
+})
+
+const relativeTitle = computed(() => {
+  if (!relativeLabel.value) return ''
+  return t('keys.pricing.relativeOfficialHint', { range: relativeLabel.value })
+})
+
+const primaryTitle = computed(() => {
+  if (props.pricingHintMode === 'relative') return relativeTitle.value
+  if (props.pricingHintMode === 'by_model') return t('keys.pricing.byModelHint')
+  return ''
+})
+
+const showSubscriptionRelative = computed(() => {
+  return (
+    props.showRate &&
+    isSubscription.value &&
+    !props.alwaysShowRate &&
+    props.pricingHintMode === 'relative' &&
+    Boolean(relativeLabel.value)
+  )
+})
+
+const showSecondaryGroupRatePill = computed(() => {
+  return (
+    props.showRate &&
+    props.pricingHintMode === 'by_model' &&
+    props.showSecondaryGroupRate &&
+    props.rateMultiplier !== undefined
+  )
+})
+
 // 是否显示右侧标签
 const showLabel = computed(() => {
   if (!props.showRate) return false
   // 订阅类型：显示天数或"订阅"
-  if (isSubscription.value) return true
+  if (isSubscription.value && !props.alwaysShowRate) return true
+  if (props.pricingHintMode === 'relative') return Boolean(relativeLabel.value)
+  if (props.pricingHintMode === 'by_model') return true
   // 标准类型：显示倍率（包括专属倍率）
   return props.rateMultiplier !== undefined || hasCustomRate.value
 })
 
-// Label text
-const labelText = computed(() => {
-  const rateLabel = props.rateMultiplier !== undefined ? `${props.rateMultiplier}x` : ''
-  if (isSubscription.value && !props.alwaysShowRate) {
-    // 如果有剩余天数，显示天数
-    if (props.daysRemaining !== null && props.daysRemaining !== undefined) {
-      if (props.daysRemaining <= 0) {
-        return t('admin.users.expired')
-      }
-      return t('admin.users.daysRemaining', { days: props.daysRemaining })
+const subscriptionLabelText = computed(() => {
+  if (props.daysRemaining !== null && props.daysRemaining !== undefined) {
+    if (props.daysRemaining <= 0) {
+      return t('admin.users.expired')
     }
-    // 否则显示"订阅"
-    return t('groups.subscription')
+    return t('admin.users.daysRemaining', { days: props.daysRemaining })
   }
-  return rateLabel
+  return t('groups.subscription')
+})
+
+const legacyRateLabel = computed(() => {
+  return props.rateMultiplier !== undefined ? `${props.rateMultiplier}x` : ''
+})
+
+const secondaryLabelClass = computed(() => {
+  return 'px-1.5 py-0.5 rounded text-[10px] font-semibold bg-black/10 dark:bg-white/10'
 })
 
 // Label style based on type and days remaining
 const labelClass = computed(() => {
   const base = 'px-1.5 py-0.5 rounded text-[10px] font-semibold'
+  const subtle = `${base} bg-black/10 dark:bg-white/10`
 
-  if (!isSubscription.value) {
-    // Standard: subtle background (不再为专属倍率使用不同的背景色)
-    return `${base} bg-black/10 dark:bg-white/10`
+  // 标准分组、或订阅但强制展示费率/定价提示作为主标签时，用中性底
+  if (!isSubscription.value || props.alwaysShowRate) {
+    return subtle
   }
 
-  // 订阅类型：根据剩余天数显示不同颜色
+  // 订阅类型主标签：根据剩余天数显示不同颜色
   if (props.daysRemaining !== null && props.daysRemaining !== undefined) {
     if (props.daysRemaining <= 0 || props.daysRemaining <= 3) {
-      // 已过期或紧急（<=3天）：红色
       return `${base} bg-red-200/80 text-red-800 dark:bg-red-800/50 dark:text-red-300`
     }
     if (props.daysRemaining <= 7) {
-      // 警告（<=7天）：橙色
       return `${base} bg-amber-200/80 text-amber-800 dark:bg-amber-800/50 dark:text-amber-300`
     }
   }
 
-  // 正常状态或无天数：根据平台显示主题色
   if (props.platform === 'anthropic') {
     return `${base} bg-orange-200/60 text-orange-800 dark:bg-orange-800/40 dark:text-orange-300`
   }
@@ -190,12 +287,10 @@ const peakRateClass = computed(() => {
 // Badge color based on platform and subscription type
 const badgeClass = computed(() => {
   if (props.platform === 'anthropic') {
-    // Claude: orange theme
     return isSubscription.value
       ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400'
       : 'bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400'
   } else if (props.platform === 'openai') {
-    // OpenAI: green theme
     return isSubscription.value
       ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
       : 'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400'
@@ -240,7 +335,6 @@ const badgeClass = computed(() => {
       ? 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-300'
       : 'bg-cyan-50 text-cyan-800 dark:bg-cyan-900/20 dark:text-cyan-300'
   }
-  // Fallback: original colors
   return isSubscription.value
     ? 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400'
     : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'

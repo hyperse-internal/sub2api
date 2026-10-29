@@ -150,6 +150,16 @@ export default {
     groupChangedSuccess: 'Group changed successfully',
     failedToChangeGroup: 'Failed to change group',
     groupRequired: 'Please select a group',
+    pricing: {
+      relativeOfficial: 'vs official',
+      relativeOfficialHint:
+        'Relative to official {range}: (channel base input × effective group/user rate) ÷ official input. Time/peak factors: see Model Plaza',
+      byModel: 'Priced by model',
+      byModelHint: 'This group’s prices vary by model and are not a flat official rate. See Model Plaza for details',
+      groupRate: 'group rate',
+      groupRateHint: 'Group rate multiplier applied on channel unit prices — not the discount vs official',
+      modelDetails: 'Model details'
+    },
     usage: 'Usage',
     today: 'Today',
     total: 'Last 30d',

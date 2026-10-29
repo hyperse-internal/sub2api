@@ -326,6 +326,7 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { formatScaled, resolveIntervalPrices } from '@/utils/pricing'
+import { vsOfficialWithRate } from '@/utils/relativeOfficialRate'
 import { platformAccentColor, platformBadgeLightClass, platformLabel } from '@/utils/platformColors'
 import {
   BILLING_MODE_TOKEN,
@@ -437,41 +438,6 @@ const rows = computed<PlazaRow[]>(() =>
 /** 时段行的生效倍率 = 生效倍率 × 时段倍率(去掉浮点噪声)。 */
 function periodRate(period: PlazaTimePricingPeriod): number {
   return Math.round(effectiveRate.value * period.multiplier * 1000) / 1000
-}
-
-/** 取基础档(或平价)输入单价,用于相对官价折扣。 */
-function basePaidInput(m: PlazaModel): number | null {
-  if (billingMode(m) !== BILLING_MODE_TOKEN) return null
-  const intervals = tokenIntervals(m)
-  if (intervals.length > 0) {
-    const v = intervals[0]?.input_price
-    if (v != null) return v
-  }
-  return m.pricing?.input_price ?? null
-}
-
-function baseOfficialInput(m: PlazaModel): number | null {
-  if (billingMode(m) !== BILLING_MODE_TOKEN) return null
-  const intervals = officialIntervals(m)
-  if (intervals.length > 0) {
-    const v = intervals[0]?.input_price
-    if (v != null) return v
-  }
-  return m.official_pricing?.input_price ?? null
-}
-
-/**
- * 相对官价折扣 = (渠道输入价 × 行生效倍率) ÷ 官方输入价。
- * 渠道绝对定价 + 分组费率 1.0 时,此值才是用户感知的「几折」;无官价时返回 null 回退分组倍率。
- */
-function vsOfficialWithRate(m: PlazaModel, rate: number): number | null {
-  const paid = basePaidInput(m)
-  const officialInput = baseOfficialInput(m)
-  if (paid == null || officialInput == null || !(officialInput > 0)) return null
-  const ratio = (paid * rate) / officialInput
-  if (!Number.isFinite(ratio) || ratio <= 0) return null
-  // 展示保留 1 位小数（四舍五入），如 0.306 → 0.3x
-  return Math.round(ratio * 10) / 10
 }
 
 function vsOfficialRate(m: PlazaModel, period: PlazaTimePricingPeriod | null): number | null {
