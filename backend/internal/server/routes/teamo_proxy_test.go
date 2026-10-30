@@ -30,7 +30,8 @@ func TestApplyTeamoEmbedHeaders(t *testing.T) {
 	require.Equal(t, "frame-ancestors 'self'", w.Header().Get("Content-Security-Policy"))
 }
 
-func TestTeamoUpstreamProxyFallsBackToLocal(t *testing.T) {
+func TestTeamoUpstreamProxyDefaultsToDirect(t *testing.T) {
+	t.Setenv(teamoHTTPProxyEnv, "")
 	t.Setenv("HTTP_PROXY", "")
 	t.Setenv("HTTPS_PROXY", "")
 	t.Setenv("ALL_PROXY", "")
@@ -44,8 +45,30 @@ func TestTeamoUpstreamProxyFallsBackToLocal(t *testing.T) {
 	require.NoError(t, err)
 	u, err := teamoUpstreamProxy(req)
 	require.NoError(t, err)
+	require.Nil(t, u)
+}
+
+func TestTeamoUpstreamProxyUsesTeamoEnv(t *testing.T) {
+	t.Setenv(teamoHTTPProxyEnv, "http://127.0.0.1:7890")
+	t.Setenv("HTTPS_PROXY", "http://127.0.0.1:9999")
+
+	req, err := http.NewRequest(http.MethodGet, "https://teamorouter.com/api/v1/pelican-benchmark", nil)
+	require.NoError(t, err)
+	u, err := teamoUpstreamProxy(req)
+	require.NoError(t, err)
 	require.NotNil(t, u)
 	require.Equal(t, "http://127.0.0.1:7890", u.String())
+}
+
+func TestFilterProxyEnv(t *testing.T) {
+	out := filterProxyEnv([]string{
+		"PATH=/usr/bin",
+		"HTTPS_PROXY=http://127.0.0.1:7890",
+		"http_proxy=http://127.0.0.1:7890",
+		"TEAMO_HTTP_PROXY=http://127.0.0.1:7890",
+		"HOME=/root",
+	})
+	require.Equal(t, []string{"PATH=/usr/bin", "HOME=/root"}, out)
 }
 
 func TestRegisterTeamoProxyRoutesRejectsForeignPath(t *testing.T) {

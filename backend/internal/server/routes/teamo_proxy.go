@@ -23,16 +23,16 @@ const (
 	teamoUpstream    = "https://teamorouter.com"
 	// 只转发鹈鹕测智公开接口，避免开放式反代被滥用
 	teamoAllowedAPIPrefix = "/api/v1/pelican-benchmark"
-	// 本机 ClashX 等常见 HTTP 代理；环境变量未设时回退到这里（直连 teamorouter 会 TLS/超时失败）
-	teamoLocalHTTPProxy = "http://127.0.0.1:7890"
+	// 可选：开发机 Clash 等。生产机通常能直连 teamorouter，勿硬编码 7890。
+	teamoHTTPProxyEnv = "TEAMO_HTTP_PROXY"
 )
 
-// teamoUpstreamProxy 优先 HTTPS_PROXY/HTTP_PROXY/ALL_PROXY，否则走本机 7890。
+// teamoUpstreamProxy 解析上游出口代理：TEAMO_HTTP_PROXY → 标准 HTTP(S)_PROXY → 直连（nil）。
 func teamoUpstreamProxy(req *http.Request) (*url.URL, error) {
-	if u, err := http.ProxyFromEnvironment(req); err == nil && u != nil {
-		return u, nil
+	if raw := strings.TrimSpace(os.Getenv(teamoHTTPProxyEnv)); raw != "" {
+		return url.Parse(raw)
 	}
-	return url.Parse(teamoLocalHTTPProxy)
+	return http.ProxyFromEnvironment(req)
 }
 
 // RegisterTeamoProxyRoutes 将 /teamo/* 转发到 TeamoRouter，供前端同源嵌入测智作品。
@@ -155,19 +155,19 @@ with urllib.request.urlopen(req, timeout=45) as r:
     sys.stdout.buffer.write(body)
 `
 	cmd := exec.CommandContext(ctx, "python3", "-c", script, upstreamURL, accept)
-	// 与 Go 客户端对齐：子进程也强制走同一代理（Python 不一定继承到 macOS 系统代理）
-	proxyURL := teamoLocalHTTPProxy
+	// 与 Go 客户端对齐：有配置代理时再注入；无代理则清掉继承的代理变量，避免误走本机 Clash。
+	cmd.Env = filterProxyEnv(os.Environ())
 	if reqURL, err := url.Parse(upstreamURL); err == nil {
 		if u, err := teamoUpstreamProxy(&http.Request{URL: reqURL}); err == nil && u != nil {
-			proxyURL = u.String()
+			proxyURL := u.String()
+			cmd.Env = append(cmd.Env,
+				"HTTP_PROXY="+proxyURL,
+				"HTTPS_PROXY="+proxyURL,
+				"http_proxy="+proxyURL,
+				"https_proxy="+proxyURL,
+			)
 		}
 	}
-	cmd.Env = append(os.Environ(),
-		"HTTP_PROXY="+proxyURL,
-		"HTTPS_PROXY="+proxyURL,
-		"http_proxy="+proxyURL,
-		"https_proxy="+proxyURL,
-	)
 	var stdout, stderr bytes.Buffer
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
@@ -202,6 +202,20 @@ func isAllowedTeamoProxyPath(path string) bool {
 		return true
 	}
 	return strings.HasPrefix(path, teamoAllowedAPIPrefix+"/")
+}
+
+func filterProxyEnv(environ []string) []string {
+	out := make([]string, 0, len(environ))
+	for _, kv := range environ {
+		key, _, _ := strings.Cut(kv, "=")
+		switch strings.ToUpper(key) {
+		case "HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY", "NO_PROXY",
+			teamoHTTPProxyEnv:
+			continue
+		}
+		out = append(out, kv)
+	}
+	return out
 }
 
 // applyTeamoEmbedHeaders 允许本站同源 iframe 嵌入 /teamo 文档。
