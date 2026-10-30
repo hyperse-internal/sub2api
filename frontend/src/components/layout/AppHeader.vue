@@ -49,6 +49,19 @@
           <span class="hidden sm:inline">{{ t('nav.modelPlaza') }}</span>
         </router-link>
 
+        <!-- Pelican Benchmark (测智) — right of Model Plaza -->
+        <router-link
+          v-if="user"
+          to="/pelican-benchmark"
+          :title="t('nav.pelicanBenchmark')"
+          :aria-label="t('nav.pelicanBenchmark')"
+          data-test="header-pelican-benchmark"
+          class="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900 dark:text-dark-400 dark:hover:bg-dark-800 dark:hover:text-white"
+        >
+          <Icon name="lightbulb" size="sm" />
+          <span class="hidden sm:inline">{{ t('nav.pelicanBenchmark') }}</span>
+        </router-link>
+
         <!-- Language Switcher -->
         <LocaleSwitcher />
 

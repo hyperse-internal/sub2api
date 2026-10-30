@@ -197,6 +197,18 @@ const routes: RouteRecordRaw[] = [
       titleKey: 'modelPlaza.title'
     }
   },
+  {
+    path: '/pelican-benchmark',
+    name: 'PelicanBenchmark',
+    component: () => import('@/features/pelican-benchmark/PelicanBenchmarkView.vue'),
+    meta: {
+      requiresAuth: true,
+      requiresAdmin: false,
+      title: 'Pelican Benchmark',
+      titleKey: 'pelicanBenchmark.title',
+      descriptionKey: 'pelicanBenchmark.shortPrompt'
+    }
+  },
 
   // ==================== User Routes ====================
   {

@@ -707,6 +707,14 @@ func TestEmbeddedFrontendBypassesBareAPIAliases(t *testing.T) {
 	} {
 		require.False(t, shouldBypassEmbeddedFrontend(path), "path=%s", path)
 	}
+
+	for _, path := range []string{
+		"/teamo",
+		"/teamo/api/v1/pelican-benchmark",
+		"/teamo/api/v1/pelican-benchmark/abc/document.html",
+	} {
+		require.True(t, shouldBypassEmbeddedFrontend(path), "path=%s", path)
+	}
 }
 
 func TestNewFrontendServer(t *testing.T) {

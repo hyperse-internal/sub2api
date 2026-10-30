@@ -7,6 +7,7 @@ import batchImage from './batchImage'
 import imageStudio from './imageStudio'
 import quantModels from './quantModels'
 import aboutAlphaio from './aboutAlphaio'
+import pelicanBenchmark from './pelicanBenchmark'
 import admin from './admin'
 import misc from './misc'
 
@@ -20,6 +21,7 @@ export default {
   ...imageStudio,
   ...quantModels,
   ...aboutAlphaio,
+  ...pelicanBenchmark,
   admin,
   ...misc,
 }

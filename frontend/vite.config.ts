@@ -151,6 +151,11 @@ export default defineConfig(({ mode }) => {
         '/setup': {
           target: backendUrl,
           changeOrigin: true
+        },
+        // 鹈鹕测智：转发到本后端 /teamo 反代（勿在前端直连 teamorouter）
+        '/teamo': {
+          target: backendUrl,
+          changeOrigin: true
         }
       }
     }
