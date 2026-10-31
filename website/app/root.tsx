@@ -14,7 +14,7 @@ import { RootProvider } from 'fumadocs-ui/provider/react-router';
 import { i18n } from '~/i18n';
 
 export const links: Route.LinksFunction = () => [
-  { rel: 'icon', href: '/favicon.ico', type: 'image/x-icon' },
+  { rel: 'icon', href: '/favicon.svg', type: 'image/x-icon' },
   { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
   {
     rel: 'preconnect',

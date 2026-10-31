@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320" role="img" aria-labelledby="title desc">
+  <title id="title">AlphaIO A favicon</title>
+  <desc id="desc">A compact AlphaIO favicon with an orbital dot and cyan crossbar.</desc>
+  <style>
+    svg {
+      color-scheme: light dark;
+      --logo-primary: #061a46;
+      --logo-accent: #16cddd;
+    }
+    @media (prefers-color-scheme: dark) {
+      svg:not([data-theme]) {
+        --logo-primary: #ffffff;
+        --logo-accent: #20e2ec;
+      }
+    }
+    svg[data-theme="light"] {
+      --logo-primary: #061a46;
+      --logo-accent: #16cddd;
+    }
+    svg[data-theme="dark"] {
+      --logo-primary: #ffffff;
+      --logo-accent: #20e2ec;
+    }
+    .primary-fill { fill: var(--logo-primary); }
+    .accent-fill { fill: var(--logo-accent); }
+    .accent-stroke { fill: none; stroke: var(--logo-accent); }
+  </style>
+
+  <g transform="translate(12)">
+    <g transform="translate(0 -7.6) scale(1 1.1)">
+      <path class="primary-fill" fill="#061a46" fill-rule="evenodd" d="M38 278 123 76h50l85 202h-53l-20-51h-76l-20 51Zm88-94h42l-21-57Z"/>
+      <path class="accent-stroke" stroke="#16cddd" stroke-width="22" stroke-linecap="round" d="M71 211h105"/>
+    </g>
+    <circle class="accent-fill" fill="#16cddd" cx="148" cy="39" r="22"/>
+  </g>
+</svg>
