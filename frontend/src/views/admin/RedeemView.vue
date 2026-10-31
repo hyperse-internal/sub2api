@@ -42,11 +42,21 @@
             <button
               data-test="batch-update-open"
               @click="openBatchUpdateDialog"
-              :disabled="selectedCount === 0 || batchUpdating"
+              :disabled="selectedCount === 0 || batchUpdating || batchDeleting"
               class="btn btn-secondary"
             >
               <Icon name="edit" size="md" class="mr-2" />
               {{ t('admin.redeem.batchUpdate') }}
+            </button>
+            <button
+              data-test="batch-delete-open"
+              type="button"
+              @click="openBatchDeleteDialog"
+              :disabled="selectedCount === 0 || batchDeleting || batchUpdating"
+              class="btn btn-danger"
+            >
+              <Icon name="trash" size="md" class="mr-2" />
+              {{ t('admin.redeem.batchDelete') }}
             </button>
             <button @click="showGenerateDialog = true" class="btn btn-primary">
               {{ t('admin.redeem.generateCodes') }}
@@ -222,7 +232,18 @@
             </button>
             <button
               type="button"
+              data-test="selection-batch-delete"
+              class="btn btn-danger btn-sm"
+              :disabled="batchDeleting || batchUpdating"
+              @click="openBatchDeleteDialog"
+            >
+              {{ t('admin.redeem.batchDelete') }}
+            </button>
+            <button
+              type="button"
+              data-test="selection-batch-update"
               class="btn btn-primary btn-sm"
+              :disabled="batchDeleting || batchUpdating"
               @click="openBatchUpdateDialog"
             >
               {{ t('admin.redeem.batchUpdate') }}
@@ -270,6 +291,19 @@
       danger
       @confirm="confirmDeleteUnused"
       @cancel="showDeleteUnusedDialog = false"
+    />
+
+    <!-- Delete Selected Codes Dialog -->
+    <ConfirmDialog
+      :show="showBatchDeleteDialog"
+      :title="t('admin.redeem.batchDelete')"
+      :message="t('admin.redeem.deleteSelectedConfirm', { count: selectedCount })"
+      :confirm-text="t('common.delete')"
+      :cancel-text="t('common.cancel')"
+      danger
+      data-test="batch-delete-confirm"
+      @confirm="confirmDeleteSelected"
+      @cancel="closeBatchDeleteDialog"
     />
 
     <!-- Generate Codes Dialog -->
@@ -796,8 +830,10 @@ let abortController: AbortController | null = null
 
 const showDeleteDialog = ref(false)
 const showDeleteUnusedDialog = ref(false)
+const showBatchDeleteDialog = ref(false)
 const showBatchUpdateDialog = ref(false)
 const deletingCode = ref<RedeemCode | null>(null)
+const batchDeleting = ref(false)
 const copiedCode = ref<string | null>(null)
 
 const {
@@ -806,12 +842,59 @@ const {
   allVisibleSelected,
   select,
   deselect,
-  clear: clearSelectedCodes,
+  clear: clearSelectedCodesBase,
   toggleVisible
 } = useTableSelection<RedeemCode>({
   rows: codes,
   getId: (code) => code.id
 })
+
+/** 跨页勾选时保留状态，打开删除弹窗前用于拦截非 unused */
+const selectedCodeStatusById = ref(new Map<number, RedeemCode['status']>())
+
+const setSelectedCodeStatus = (id: number, status: RedeemCode['status']) => {
+  const next = new Map(selectedCodeStatusById.value)
+  next.set(id, status)
+  selectedCodeStatusById.value = next
+}
+
+const removeSelectedCodeStatus = (id: number) => {
+  if (!selectedCodeStatusById.value.has(id)) {
+    return
+  }
+  const next = new Map(selectedCodeStatusById.value)
+  next.delete(id)
+  selectedCodeStatusById.value = next
+}
+
+const clearSelectedCodes = () => {
+  clearSelectedCodesBase()
+  selectedCodeStatusById.value = new Map()
+}
+
+const syncSelectedCodeStatusesFromRows = (rows: RedeemCode[]) => {
+  if (selectedCodeIds.value.size === 0) {
+    return
+  }
+  const next = new Map(selectedCodeStatusById.value)
+  for (const row of rows) {
+    if (selectedCodeIds.value.has(row.id)) {
+      next.set(row.id, row.status)
+    }
+  }
+  selectedCodeStatusById.value = next
+}
+
+const getNonUnusedSelectedCount = () => {
+  let nonUnused = 0
+  for (const id of selectedCodeIds.value) {
+    const status = selectedCodeStatusById.value.get(id)
+    if (status !== 'unused') {
+      nonUnused += 1
+    }
+  }
+  return nonUnused
+}
 
 const batchUpdateForm = reactive({
   update_status: false,
@@ -887,6 +970,7 @@ const loadCodes = async () => {
     codes.value = response.items
     pagination.total = response.total
     pagination.pages = response.pages
+    syncSelectedCodeStatusesFromRows(response.items)
   } catch (error: any) {
     if (
       currentController.signal.aborted ||
@@ -936,14 +1020,28 @@ const toggleSelectRow = (id: number, event: Event) => {
   const target = event.target as HTMLInputElement
   if (target.checked) {
     select(id)
+    const row = codes.value.find((code) => code.id === id)
+    if (row) {
+      setSelectedCodeStatus(id, row.status)
+    }
     return
   }
   deselect(id)
+  removeSelectedCodeStatus(id)
 }
 
 const toggleSelectAllVisible = (event: Event) => {
   const target = event.target as HTMLInputElement
   toggleVisible(target.checked)
+  if (target.checked) {
+    for (const row of codes.value) {
+      setSelectedCodeStatus(row.id, row.status)
+    }
+    return
+  }
+  for (const row of codes.value) {
+    removeSelectedCodeStatus(row.id)
+  }
 }
 
 const getRedeemCodeExpiresInDays = () => {
@@ -994,6 +1092,68 @@ const openBatchUpdateDialog = () => {
 
 const closeBatchUpdateDialog = () => {
   showBatchUpdateDialog.value = false
+}
+
+const openBatchDeleteDialog = () => {
+  if (selectedCount.value === 0) {
+    appStore.showInfo(t('admin.redeem.selectCodesFirst'))
+    return
+  }
+  syncSelectedCodeStatusesFromRows(codes.value)
+  const nonUnused = getNonUnusedSelectedCount()
+  if (nonUnused > 0) {
+    appStore.showError(
+      t('admin.redeem.deleteOnlyUnusedSelected', {
+        count: nonUnused,
+        total: selectedCount.value
+      })
+    )
+    return
+  }
+  showBatchDeleteDialog.value = true
+}
+
+const closeBatchDeleteDialog = () => {
+  if (batchDeleting.value) {
+    return
+  }
+  showBatchDeleteDialog.value = false
+}
+
+const confirmDeleteSelected = async () => {
+  const ids = Array.from(selectedCodeIds.value)
+  if (ids.length === 0) {
+    appStore.showInfo(t('admin.redeem.selectCodesFirst'))
+    showBatchDeleteDialog.value = false
+    return
+  }
+
+  syncSelectedCodeStatusesFromRows(codes.value)
+  const nonUnused = getNonUnusedSelectedCount()
+  if (nonUnused > 0) {
+    appStore.showError(
+      t('admin.redeem.deleteOnlyUnusedSelected', {
+        count: nonUnused,
+        total: selectedCount.value
+      })
+    )
+    showBatchDeleteDialog.value = false
+    return
+  }
+
+  batchDeleting.value = true
+  try {
+    const result = await adminAPI.redeem.batchDelete(ids)
+    appStore.showSuccess(t('admin.redeem.selectedCodesDeleted', { count: result.deleted }))
+    showBatchDeleteDialog.value = false
+    clearSelectedCodes()
+    loadCodes()
+  } catch (error: any) {
+    appStore.showError(error.response?.data?.detail || t('admin.redeem.failedToDeleteSelected'))
+    console.error('Error deleting selected codes:', error)
+  } finally {
+    batchDeleting.value = false
+  }
 }
 
 const buildBatchUpdateFields = (): BatchUpdateRedeemCodeFields | null => {

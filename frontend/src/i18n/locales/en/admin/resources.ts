@@ -267,10 +267,17 @@ export default {
       userPrefix: 'User #{id}',
       exportCsv: 'Export CSV',
       batchUpdate: 'Batch Update',
+      batchDelete: 'Batch Delete',
       batchUpdateTitle: 'Batch Update Redeem Codes',
       selectedCount: '{count} redeem code(s) selected',
       clearSelection: 'Clear selection',
       selectCodesFirst: 'Select redeem codes first',
+      deleteSelectedConfirm:
+        'Are you sure you want to delete the selected {count} redeem code(s)? This action cannot be undone.',
+      deleteOnlyUnusedSelected:
+        'Only unused redeem codes can be deleted. {count} of {total} selected code(s) are not unused. Unselect them and try again.',
+      selectedCodesDeleted: 'Successfully deleted {count} redeem code(s)',
+      failedToDeleteSelected: 'Failed to delete selected redeem codes',
       noBatchFieldsSelected: 'Select at least one field to update',
       batchUpdateSuccess: 'Updated {count} redeem code(s)',
       failedToBatchUpdate: 'Failed to batch update redeem codes',
