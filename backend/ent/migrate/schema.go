@@ -1599,6 +1599,104 @@ var (
 		Columns:    TLSFingerprintProfilesColumns,
 		PrimaryKey: []*schema.Column{TLSFingerprintProfilesColumns[0]},
 	}
+	// UpstreamPriceMonitorConfigsColumns holds the columns for the "upstream_price_monitor_configs" table.
+	UpstreamPriceMonitorConfigsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt64, Increment: true},
+		{Name: "created_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamptz"}},
+		{Name: "updated_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamptz"}},
+		{Name: "enabled", Type: field.TypeBool, Default: false},
+		{Name: "interval_seconds", Type: field.TypeInt, Default: 43200},
+		{Name: "channel_ids", Type: field.TypeJSON},
+		{Name: "notify_emails", Type: field.TypeJSON},
+		{Name: "profit_min", Type: field.TypeFloat64, Default: 0.25},
+		{Name: "profit_max", Type: field.TypeFloat64, Default: 0.35},
+		{Name: "target_profit", Type: field.TypeFloat64, Nullable: true},
+		{Name: "last_run_at", Type: field.TypeTime, Nullable: true, SchemaType: map[string]string{"postgres": "timestamptz"}},
+		{Name: "updated_by", Type: field.TypeInt64, Nullable: true},
+	}
+	// UpstreamPriceMonitorConfigsTable holds the schema information for the "upstream_price_monitor_configs" table.
+	UpstreamPriceMonitorConfigsTable = &schema.Table{
+		Name:       "upstream_price_monitor_configs",
+		Columns:    UpstreamPriceMonitorConfigsColumns,
+		PrimaryKey: []*schema.Column{UpstreamPriceMonitorConfigsColumns[0]},
+	}
+	// UpstreamPriceMonitorRunsColumns holds the columns for the "upstream_price_monitor_runs" table.
+	UpstreamPriceMonitorRunsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt64, Increment: true},
+		{Name: "created_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamptz"}},
+		{Name: "updated_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamptz"}},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"running", "passed", "failed", "error"}},
+		{Name: "started_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamptz"}},
+		{Name: "finished_at", Type: field.TypeTime, Nullable: true, SchemaType: map[string]string{"postgres": "timestamptz"}},
+		{Name: "upstream_fetched_at", Type: field.TypeTime, Nullable: true, SchemaType: map[string]string{"postgres": "timestamptz"}},
+		{Name: "model_count", Type: field.TypeInt, Default: 0},
+		{Name: "matched_count", Type: field.TypeInt, Default: 0},
+		{Name: "out_of_range_count", Type: field.TypeInt, Default: 0},
+		{Name: "summary", Type: field.TypeString, Size: 2147483647, Default: ""},
+		{Name: "error_message", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "channel_ids", Type: field.TypeJSON},
+		{Name: "profit_min", Type: field.TypeFloat64, Default: 0},
+		{Name: "profit_max", Type: field.TypeFloat64, Default: 0},
+		{Name: "target_profit", Type: field.TypeFloat64, Nullable: true},
+	}
+	// UpstreamPriceMonitorRunsTable holds the schema information for the "upstream_price_monitor_runs" table.
+	UpstreamPriceMonitorRunsTable = &schema.Table{
+		Name:       "upstream_price_monitor_runs",
+		Columns:    UpstreamPriceMonitorRunsColumns,
+		PrimaryKey: []*schema.Column{UpstreamPriceMonitorRunsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "upstreampricemonitorrun_started_at",
+				Unique:  false,
+				Columns: []*schema.Column{UpstreamPriceMonitorRunsColumns[4]},
+			},
+		},
+	}
+	// UpstreamPriceMonitorRunItemsColumns holds the columns for the "upstream_price_monitor_run_items" table.
+	UpstreamPriceMonitorRunItemsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt64, Increment: true},
+		{Name: "channel_id", Type: field.TypeInt64},
+		{Name: "channel_name", Type: field.TypeString, Size: 200, Default: ""},
+		{Name: "model", Type: field.TypeString, Size: 200},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"pass", "fail", "unmatched_upstream", "unmatched_local", "skipped"}},
+		{Name: "upstream_input", Type: field.TypeFloat64, Nullable: true},
+		{Name: "upstream_output", Type: field.TypeFloat64, Nullable: true},
+		{Name: "upstream_cache_read", Type: field.TypeFloat64, Nullable: true},
+		{Name: "upstream_cache_write", Type: field.TypeFloat64, Nullable: true},
+		{Name: "local_input", Type: field.TypeFloat64, Nullable: true},
+		{Name: "local_output", Type: field.TypeFloat64, Nullable: true},
+		{Name: "local_cache_read", Type: field.TypeFloat64, Nullable: true},
+		{Name: "local_cache_write", Type: field.TypeFloat64, Nullable: true},
+		{Name: "suggested_input", Type: field.TypeFloat64, Nullable: true},
+		{Name: "suggested_output", Type: field.TypeFloat64, Nullable: true},
+		{Name: "suggested_cache_read", Type: field.TypeFloat64, Nullable: true},
+		{Name: "suggested_cache_write", Type: field.TypeFloat64, Nullable: true},
+		{Name: "margin_input", Type: field.TypeFloat64, Nullable: true},
+		{Name: "message", Type: field.TypeString, Size: 500, Default: ""},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "run_id", Type: field.TypeInt64},
+	}
+	// UpstreamPriceMonitorRunItemsTable holds the schema information for the "upstream_price_monitor_run_items" table.
+	UpstreamPriceMonitorRunItemsTable = &schema.Table{
+		Name:       "upstream_price_monitor_run_items",
+		Columns:    UpstreamPriceMonitorRunItemsColumns,
+		PrimaryKey: []*schema.Column{UpstreamPriceMonitorRunItemsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "upstream_price_monitor_run_items_upstream_price_monitor_runs_items",
+				Columns:    []*schema.Column{UpstreamPriceMonitorRunItemsColumns[20]},
+				RefColumns: []*schema.Column{UpstreamPriceMonitorRunsColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "upstreampricemonitorrunitem_run_id",
+				Unique:  false,
+				Columns: []*schema.Column{UpstreamPriceMonitorRunItemsColumns[20]},
+			},
+		},
+	}
 	// UsageCleanupTasksColumns holds the columns for the "usage_cleanup_tasks" table.
 	UsageCleanupTasksColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt64, Increment: true},
@@ -2123,6 +2221,9 @@ var (
 		SettingsTable,
 		SubscriptionPlansTable,
 		TLSFingerprintProfilesTable,
+		UpstreamPriceMonitorConfigsTable,
+		UpstreamPriceMonitorRunsTable,
+		UpstreamPriceMonitorRunItemsTable,
 		UsageCleanupTasksTable,
 		UsageLogsTable,
 		UsersTable,
@@ -2250,6 +2351,16 @@ func init() {
 	}
 	TLSFingerprintProfilesTable.Annotation = &entsql.Annotation{
 		Table: "tls_fingerprint_profiles",
+	}
+	UpstreamPriceMonitorConfigsTable.Annotation = &entsql.Annotation{
+		Table: "upstream_price_monitor_configs",
+	}
+	UpstreamPriceMonitorRunsTable.Annotation = &entsql.Annotation{
+		Table: "upstream_price_monitor_runs",
+	}
+	UpstreamPriceMonitorRunItemsTable.ForeignKeys[0].RefTable = UpstreamPriceMonitorRunsTable
+	UpstreamPriceMonitorRunItemsTable.Annotation = &entsql.Annotation{
+		Table: "upstream_price_monitor_run_items",
 	}
 	UsageCleanupTasksTable.Annotation = &entsql.Annotation{
 		Table: "usage_cleanup_tasks",

@@ -8,6 +8,7 @@ import imageStudio from './imageStudio'
 import quantModels from './quantModels'
 import aboutAlphaio from './aboutAlphaio'
 import pelicanBenchmark from './pelicanBenchmark'
+import upstreamPriceMonitor from './upstreamPriceMonitor'
 import admin from './admin'
 import misc from './misc'
 
@@ -22,6 +23,7 @@ export default {
   ...quantModels,
   ...aboutAlphaio,
   ...pelicanBenchmark,
+  ...upstreamPriceMonitor,
   admin,
   ...misc,
 }

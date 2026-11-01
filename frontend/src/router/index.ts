@@ -551,6 +551,19 @@ const routes: RouteRecordRaw[] = [
     }
   },
   {
+    path: '/admin/channels/upstream-price-monitor',
+    name: 'AdminUpstreamPriceMonitor',
+    component: () =>
+      import('@/features/upstream-price-monitor/UpstreamPriceMonitorView.vue'),
+    meta: {
+      requiresAuth: true,
+      requiresAdmin: true,
+      title: 'Upstream Price Monitor',
+      titleKey: 'upstreamPriceMonitor.title',
+      descriptionKey: 'upstreamPriceMonitor.description'
+    }
+  },
+  {
     path: '/monitor',
     name: 'ChannelStatus',
     component: () => import('@/views/user/ChannelStatusView.vue'),

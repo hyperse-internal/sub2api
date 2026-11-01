@@ -44,6 +44,9 @@ import (
 	"github.com/Wei-Shaw/sub2api/ent/setting"
 	"github.com/Wei-Shaw/sub2api/ent/subscriptionplan"
 	"github.com/Wei-Shaw/sub2api/ent/tlsfingerprintprofile"
+	"github.com/Wei-Shaw/sub2api/ent/upstreampricemonitorconfig"
+	"github.com/Wei-Shaw/sub2api/ent/upstreampricemonitorrun"
+	"github.com/Wei-Shaw/sub2api/ent/upstreampricemonitorrunitem"
 	"github.com/Wei-Shaw/sub2api/ent/usagecleanuptask"
 	"github.com/Wei-Shaw/sub2api/ent/usagelog"
 	"github.com/Wei-Shaw/sub2api/ent/user"
@@ -95,6 +98,9 @@ const (
 	TypeSetting                       = "Setting"
 	TypeSubscriptionPlan              = "SubscriptionPlan"
 	TypeTLSFingerprintProfile         = "TLSFingerprintProfile"
+	TypeUpstreamPriceMonitorConfig    = "UpstreamPriceMonitorConfig"
+	TypeUpstreamPriceMonitorRun       = "UpstreamPriceMonitorRun"
+	TypeUpstreamPriceMonitorRunItem   = "UpstreamPriceMonitorRunItem"
 	TypeUsageCleanupTask              = "UsageCleanupTask"
 	TypeUsageLog                      = "UsageLog"
 	TypeUser                          = "User"
@@ -43688,6 +43694,4740 @@ func (m *TLSFingerprintProfileMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *TLSFingerprintProfileMutation) ResetEdge(name string) error {
 	return fmt.Errorf("unknown TLSFingerprintProfile edge %s", name)
+}
+
+// UpstreamPriceMonitorConfigMutation represents an operation that mutates the UpstreamPriceMonitorConfig nodes in the graph.
+type UpstreamPriceMonitorConfigMutation struct {
+	config
+	op                  Op
+	typ                 string
+	id                  *int64
+	created_at          *time.Time
+	updated_at          *time.Time
+	enabled             *bool
+	interval_seconds    *int
+	addinterval_seconds *int
+	channel_ids         *[]int64
+	appendchannel_ids   []int64
+	notify_emails       *[]string
+	appendnotify_emails []string
+	profit_min          *float64
+	addprofit_min       *float64
+	profit_max          *float64
+	addprofit_max       *float64
+	target_profit       *float64
+	addtarget_profit    *float64
+	last_run_at         *time.Time
+	updated_by          *int64
+	addupdated_by       *int64
+	clearedFields       map[string]struct{}
+	done                bool
+	oldValue            func(context.Context) (*UpstreamPriceMonitorConfig, error)
+	predicates          []predicate.UpstreamPriceMonitorConfig
+}
+
+var _ ent.Mutation = (*UpstreamPriceMonitorConfigMutation)(nil)
+
+// upstreampricemonitorconfigOption allows management of the mutation configuration using functional options.
+type upstreampricemonitorconfigOption func(*UpstreamPriceMonitorConfigMutation)
+
+// newUpstreamPriceMonitorConfigMutation creates new mutation for the UpstreamPriceMonitorConfig entity.
+func newUpstreamPriceMonitorConfigMutation(c config, op Op, opts ...upstreampricemonitorconfigOption) *UpstreamPriceMonitorConfigMutation {
+	m := &UpstreamPriceMonitorConfigMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeUpstreamPriceMonitorConfig,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withUpstreamPriceMonitorConfigID sets the ID field of the mutation.
+func withUpstreamPriceMonitorConfigID(id int64) upstreampricemonitorconfigOption {
+	return func(m *UpstreamPriceMonitorConfigMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *UpstreamPriceMonitorConfig
+		)
+		m.oldValue = func(ctx context.Context) (*UpstreamPriceMonitorConfig, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().UpstreamPriceMonitorConfig.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withUpstreamPriceMonitorConfig sets the old UpstreamPriceMonitorConfig of the mutation.
+func withUpstreamPriceMonitorConfig(node *UpstreamPriceMonitorConfig) upstreampricemonitorconfigOption {
+	return func(m *UpstreamPriceMonitorConfigMutation) {
+		m.oldValue = func(context.Context) (*UpstreamPriceMonitorConfig, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m UpstreamPriceMonitorConfigMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m UpstreamPriceMonitorConfigMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *UpstreamPriceMonitorConfigMutation) ID() (id int64, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *UpstreamPriceMonitorConfigMutation) IDs(ctx context.Context) ([]int64, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []int64{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().UpstreamPriceMonitorConfig.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *UpstreamPriceMonitorConfigMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *UpstreamPriceMonitorConfigMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the UpstreamPriceMonitorConfig entity.
+// If the UpstreamPriceMonitorConfig object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UpstreamPriceMonitorConfigMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *UpstreamPriceMonitorConfigMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (m *UpstreamPriceMonitorConfigMutation) SetUpdatedAt(t time.Time) {
+	m.updated_at = &t
+}
+
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *UpstreamPriceMonitorConfigMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updated_at" field's value of the UpstreamPriceMonitorConfig entity.
+// If the UpstreamPriceMonitorConfig object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UpstreamPriceMonitorConfigMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *UpstreamPriceMonitorConfigMutation) ResetUpdatedAt() {
+	m.updated_at = nil
+}
+
+// SetEnabled sets the "enabled" field.
+func (m *UpstreamPriceMonitorConfigMutation) SetEnabled(b bool) {
+	m.enabled = &b
+}
+
+// Enabled returns the value of the "enabled" field in the mutation.
+func (m *UpstreamPriceMonitorConfigMutation) Enabled() (r bool, exists bool) {
+	v := m.enabled
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldEnabled returns the old "enabled" field's value of the UpstreamPriceMonitorConfig entity.
+// If the UpstreamPriceMonitorConfig object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UpstreamPriceMonitorConfigMutation) OldEnabled(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldEnabled is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldEnabled requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldEnabled: %w", err)
+	}
+	return oldValue.Enabled, nil
+}
+
+// ResetEnabled resets all changes to the "enabled" field.
+func (m *UpstreamPriceMonitorConfigMutation) ResetEnabled() {
+	m.enabled = nil
+}
+
+// SetIntervalSeconds sets the "interval_seconds" field.
+func (m *UpstreamPriceMonitorConfigMutation) SetIntervalSeconds(i int) {
+	m.interval_seconds = &i
+	m.addinterval_seconds = nil
+}
+
+// IntervalSeconds returns the value of the "interval_seconds" field in the mutation.
+func (m *UpstreamPriceMonitorConfigMutation) IntervalSeconds() (r int, exists bool) {
+	v := m.interval_seconds
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldIntervalSeconds returns the old "interval_seconds" field's value of the UpstreamPriceMonitorConfig entity.
+// If the UpstreamPriceMonitorConfig object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UpstreamPriceMonitorConfigMutation) OldIntervalSeconds(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldIntervalSeconds is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldIntervalSeconds requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldIntervalSeconds: %w", err)
+	}
+	return oldValue.IntervalSeconds, nil
+}
+
+// AddIntervalSeconds adds i to the "interval_seconds" field.
+func (m *UpstreamPriceMonitorConfigMutation) AddIntervalSeconds(i int) {
+	if m.addinterval_seconds != nil {
+		*m.addinterval_seconds += i
+	} else {
+		m.addinterval_seconds = &i
+	}
+}
+
+// AddedIntervalSeconds returns the value that was added to the "interval_seconds" field in this mutation.
+func (m *UpstreamPriceMonitorConfigMutation) AddedIntervalSeconds() (r int, exists bool) {
+	v := m.addinterval_seconds
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetIntervalSeconds resets all changes to the "interval_seconds" field.
+func (m *UpstreamPriceMonitorConfigMutation) ResetIntervalSeconds() {
+	m.interval_seconds = nil
+	m.addinterval_seconds = nil
+}
+
+// SetChannelIds sets the "channel_ids" field.
+func (m *UpstreamPriceMonitorConfigMutation) SetChannelIds(i []int64) {
+	m.channel_ids = &i
+	m.appendchannel_ids = nil
+}
+
+// ChannelIds returns the value of the "channel_ids" field in the mutation.
+func (m *UpstreamPriceMonitorConfigMutation) ChannelIds() (r []int64, exists bool) {
+	v := m.channel_ids
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldChannelIds returns the old "channel_ids" field's value of the UpstreamPriceMonitorConfig entity.
+// If the UpstreamPriceMonitorConfig object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UpstreamPriceMonitorConfigMutation) OldChannelIds(ctx context.Context) (v []int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldChannelIds is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldChannelIds requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldChannelIds: %w", err)
+	}
+	return oldValue.ChannelIds, nil
+}
+
+// AppendChannelIds adds i to the "channel_ids" field.
+func (m *UpstreamPriceMonitorConfigMutation) AppendChannelIds(i []int64) {
+	m.appendchannel_ids = append(m.appendchannel_ids, i...)
+}
+
+// AppendedChannelIds returns the list of values that were appended to the "channel_ids" field in this mutation.
+func (m *UpstreamPriceMonitorConfigMutation) AppendedChannelIds() ([]int64, bool) {
+	if len(m.appendchannel_ids) == 0 {
+		return nil, false
+	}
+	return m.appendchannel_ids, true
+}
+
+// ResetChannelIds resets all changes to the "channel_ids" field.
+func (m *UpstreamPriceMonitorConfigMutation) ResetChannelIds() {
+	m.channel_ids = nil
+	m.appendchannel_ids = nil
+}
+
+// SetNotifyEmails sets the "notify_emails" field.
+func (m *UpstreamPriceMonitorConfigMutation) SetNotifyEmails(s []string) {
+	m.notify_emails = &s
+	m.appendnotify_emails = nil
+}
+
+// NotifyEmails returns the value of the "notify_emails" field in the mutation.
+func (m *UpstreamPriceMonitorConfigMutation) NotifyEmails() (r []string, exists bool) {
+	v := m.notify_emails
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldNotifyEmails returns the old "notify_emails" field's value of the UpstreamPriceMonitorConfig entity.
+// If the UpstreamPriceMonitorConfig object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UpstreamPriceMonitorConfigMutation) OldNotifyEmails(ctx context.Context) (v []string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldNotifyEmails is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldNotifyEmails requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldNotifyEmails: %w", err)
+	}
+	return oldValue.NotifyEmails, nil
+}
+
+// AppendNotifyEmails adds s to the "notify_emails" field.
+func (m *UpstreamPriceMonitorConfigMutation) AppendNotifyEmails(s []string) {
+	m.appendnotify_emails = append(m.appendnotify_emails, s...)
+}
+
+// AppendedNotifyEmails returns the list of values that were appended to the "notify_emails" field in this mutation.
+func (m *UpstreamPriceMonitorConfigMutation) AppendedNotifyEmails() ([]string, bool) {
+	if len(m.appendnotify_emails) == 0 {
+		return nil, false
+	}
+	return m.appendnotify_emails, true
+}
+
+// ResetNotifyEmails resets all changes to the "notify_emails" field.
+func (m *UpstreamPriceMonitorConfigMutation) ResetNotifyEmails() {
+	m.notify_emails = nil
+	m.appendnotify_emails = nil
+}
+
+// SetProfitMin sets the "profit_min" field.
+func (m *UpstreamPriceMonitorConfigMutation) SetProfitMin(f float64) {
+	m.profit_min = &f
+	m.addprofit_min = nil
+}
+
+// ProfitMin returns the value of the "profit_min" field in the mutation.
+func (m *UpstreamPriceMonitorConfigMutation) ProfitMin() (r float64, exists bool) {
+	v := m.profit_min
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldProfitMin returns the old "profit_min" field's value of the UpstreamPriceMonitorConfig entity.
+// If the UpstreamPriceMonitorConfig object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UpstreamPriceMonitorConfigMutation) OldProfitMin(ctx context.Context) (v float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldProfitMin is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldProfitMin requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldProfitMin: %w", err)
+	}
+	return oldValue.ProfitMin, nil
+}
+
+// AddProfitMin adds f to the "profit_min" field.
+func (m *UpstreamPriceMonitorConfigMutation) AddProfitMin(f float64) {
+	if m.addprofit_min != nil {
+		*m.addprofit_min += f
+	} else {
+		m.addprofit_min = &f
+	}
+}
+
+// AddedProfitMin returns the value that was added to the "profit_min" field in this mutation.
+func (m *UpstreamPriceMonitorConfigMutation) AddedProfitMin() (r float64, exists bool) {
+	v := m.addprofit_min
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetProfitMin resets all changes to the "profit_min" field.
+func (m *UpstreamPriceMonitorConfigMutation) ResetProfitMin() {
+	m.profit_min = nil
+	m.addprofit_min = nil
+}
+
+// SetProfitMax sets the "profit_max" field.
+func (m *UpstreamPriceMonitorConfigMutation) SetProfitMax(f float64) {
+	m.profit_max = &f
+	m.addprofit_max = nil
+}
+
+// ProfitMax returns the value of the "profit_max" field in the mutation.
+func (m *UpstreamPriceMonitorConfigMutation) ProfitMax() (r float64, exists bool) {
+	v := m.profit_max
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldProfitMax returns the old "profit_max" field's value of the UpstreamPriceMonitorConfig entity.
+// If the UpstreamPriceMonitorConfig object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UpstreamPriceMonitorConfigMutation) OldProfitMax(ctx context.Context) (v float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldProfitMax is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldProfitMax requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldProfitMax: %w", err)
+	}
+	return oldValue.ProfitMax, nil
+}
+
+// AddProfitMax adds f to the "profit_max" field.
+func (m *UpstreamPriceMonitorConfigMutation) AddProfitMax(f float64) {
+	if m.addprofit_max != nil {
+		*m.addprofit_max += f
+	} else {
+		m.addprofit_max = &f
+	}
+}
+
+// AddedProfitMax returns the value that was added to the "profit_max" field in this mutation.
+func (m *UpstreamPriceMonitorConfigMutation) AddedProfitMax() (r float64, exists bool) {
+	v := m.addprofit_max
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetProfitMax resets all changes to the "profit_max" field.
+func (m *UpstreamPriceMonitorConfigMutation) ResetProfitMax() {
+	m.profit_max = nil
+	m.addprofit_max = nil
+}
+
+// SetTargetProfit sets the "target_profit" field.
+func (m *UpstreamPriceMonitorConfigMutation) SetTargetProfit(f float64) {
+	m.target_profit = &f
+	m.addtarget_profit = nil
+}
+
+// TargetProfit returns the value of the "target_profit" field in the mutation.
+func (m *UpstreamPriceMonitorConfigMutation) TargetProfit() (r float64, exists bool) {
+	v := m.target_profit
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTargetProfit returns the old "target_profit" field's value of the UpstreamPriceMonitorConfig entity.
+// If the UpstreamPriceMonitorConfig object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UpstreamPriceMonitorConfigMutation) OldTargetProfit(ctx context.Context) (v *float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTargetProfit is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTargetProfit requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTargetProfit: %w", err)
+	}
+	return oldValue.TargetProfit, nil
+}
+
+// AddTargetProfit adds f to the "target_profit" field.
+func (m *UpstreamPriceMonitorConfigMutation) AddTargetProfit(f float64) {
+	if m.addtarget_profit != nil {
+		*m.addtarget_profit += f
+	} else {
+		m.addtarget_profit = &f
+	}
+}
+
+// AddedTargetProfit returns the value that was added to the "target_profit" field in this mutation.
+func (m *UpstreamPriceMonitorConfigMutation) AddedTargetProfit() (r float64, exists bool) {
+	v := m.addtarget_profit
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearTargetProfit clears the value of the "target_profit" field.
+func (m *UpstreamPriceMonitorConfigMutation) ClearTargetProfit() {
+	m.target_profit = nil
+	m.addtarget_profit = nil
+	m.clearedFields[upstreampricemonitorconfig.FieldTargetProfit] = struct{}{}
+}
+
+// TargetProfitCleared returns if the "target_profit" field was cleared in this mutation.
+func (m *UpstreamPriceMonitorConfigMutation) TargetProfitCleared() bool {
+	_, ok := m.clearedFields[upstreampricemonitorconfig.FieldTargetProfit]
+	return ok
+}
+
+// ResetTargetProfit resets all changes to the "target_profit" field.
+func (m *UpstreamPriceMonitorConfigMutation) ResetTargetProfit() {
+	m.target_profit = nil
+	m.addtarget_profit = nil
+	delete(m.clearedFields, upstreampricemonitorconfig.FieldTargetProfit)
+}
+
+// SetLastRunAt sets the "last_run_at" field.
+func (m *UpstreamPriceMonitorConfigMutation) SetLastRunAt(t time.Time) {
+	m.last_run_at = &t
+}
+
+// LastRunAt returns the value of the "last_run_at" field in the mutation.
+func (m *UpstreamPriceMonitorConfigMutation) LastRunAt() (r time.Time, exists bool) {
+	v := m.last_run_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldLastRunAt returns the old "last_run_at" field's value of the UpstreamPriceMonitorConfig entity.
+// If the UpstreamPriceMonitorConfig object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UpstreamPriceMonitorConfigMutation) OldLastRunAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldLastRunAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldLastRunAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldLastRunAt: %w", err)
+	}
+	return oldValue.LastRunAt, nil
+}
+
+// ClearLastRunAt clears the value of the "last_run_at" field.
+func (m *UpstreamPriceMonitorConfigMutation) ClearLastRunAt() {
+	m.last_run_at = nil
+	m.clearedFields[upstreampricemonitorconfig.FieldLastRunAt] = struct{}{}
+}
+
+// LastRunAtCleared returns if the "last_run_at" field was cleared in this mutation.
+func (m *UpstreamPriceMonitorConfigMutation) LastRunAtCleared() bool {
+	_, ok := m.clearedFields[upstreampricemonitorconfig.FieldLastRunAt]
+	return ok
+}
+
+// ResetLastRunAt resets all changes to the "last_run_at" field.
+func (m *UpstreamPriceMonitorConfigMutation) ResetLastRunAt() {
+	m.last_run_at = nil
+	delete(m.clearedFields, upstreampricemonitorconfig.FieldLastRunAt)
+}
+
+// SetUpdatedBy sets the "updated_by" field.
+func (m *UpstreamPriceMonitorConfigMutation) SetUpdatedBy(i int64) {
+	m.updated_by = &i
+	m.addupdated_by = nil
+}
+
+// UpdatedBy returns the value of the "updated_by" field in the mutation.
+func (m *UpstreamPriceMonitorConfigMutation) UpdatedBy() (r int64, exists bool) {
+	v := m.updated_by
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedBy returns the old "updated_by" field's value of the UpstreamPriceMonitorConfig entity.
+// If the UpstreamPriceMonitorConfig object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UpstreamPriceMonitorConfigMutation) OldUpdatedBy(ctx context.Context) (v *int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedBy is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedBy requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedBy: %w", err)
+	}
+	return oldValue.UpdatedBy, nil
+}
+
+// AddUpdatedBy adds i to the "updated_by" field.
+func (m *UpstreamPriceMonitorConfigMutation) AddUpdatedBy(i int64) {
+	if m.addupdated_by != nil {
+		*m.addupdated_by += i
+	} else {
+		m.addupdated_by = &i
+	}
+}
+
+// AddedUpdatedBy returns the value that was added to the "updated_by" field in this mutation.
+func (m *UpstreamPriceMonitorConfigMutation) AddedUpdatedBy() (r int64, exists bool) {
+	v := m.addupdated_by
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearUpdatedBy clears the value of the "updated_by" field.
+func (m *UpstreamPriceMonitorConfigMutation) ClearUpdatedBy() {
+	m.updated_by = nil
+	m.addupdated_by = nil
+	m.clearedFields[upstreampricemonitorconfig.FieldUpdatedBy] = struct{}{}
+}
+
+// UpdatedByCleared returns if the "updated_by" field was cleared in this mutation.
+func (m *UpstreamPriceMonitorConfigMutation) UpdatedByCleared() bool {
+	_, ok := m.clearedFields[upstreampricemonitorconfig.FieldUpdatedBy]
+	return ok
+}
+
+// ResetUpdatedBy resets all changes to the "updated_by" field.
+func (m *UpstreamPriceMonitorConfigMutation) ResetUpdatedBy() {
+	m.updated_by = nil
+	m.addupdated_by = nil
+	delete(m.clearedFields, upstreampricemonitorconfig.FieldUpdatedBy)
+}
+
+// Where appends a list predicates to the UpstreamPriceMonitorConfigMutation builder.
+func (m *UpstreamPriceMonitorConfigMutation) Where(ps ...predicate.UpstreamPriceMonitorConfig) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the UpstreamPriceMonitorConfigMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *UpstreamPriceMonitorConfigMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.UpstreamPriceMonitorConfig, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *UpstreamPriceMonitorConfigMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *UpstreamPriceMonitorConfigMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (UpstreamPriceMonitorConfig).
+func (m *UpstreamPriceMonitorConfigMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *UpstreamPriceMonitorConfigMutation) Fields() []string {
+	fields := make([]string, 0, 11)
+	if m.created_at != nil {
+		fields = append(fields, upstreampricemonitorconfig.FieldCreatedAt)
+	}
+	if m.updated_at != nil {
+		fields = append(fields, upstreampricemonitorconfig.FieldUpdatedAt)
+	}
+	if m.enabled != nil {
+		fields = append(fields, upstreampricemonitorconfig.FieldEnabled)
+	}
+	if m.interval_seconds != nil {
+		fields = append(fields, upstreampricemonitorconfig.FieldIntervalSeconds)
+	}
+	if m.channel_ids != nil {
+		fields = append(fields, upstreampricemonitorconfig.FieldChannelIds)
+	}
+	if m.notify_emails != nil {
+		fields = append(fields, upstreampricemonitorconfig.FieldNotifyEmails)
+	}
+	if m.profit_min != nil {
+		fields = append(fields, upstreampricemonitorconfig.FieldProfitMin)
+	}
+	if m.profit_max != nil {
+		fields = append(fields, upstreampricemonitorconfig.FieldProfitMax)
+	}
+	if m.target_profit != nil {
+		fields = append(fields, upstreampricemonitorconfig.FieldTargetProfit)
+	}
+	if m.last_run_at != nil {
+		fields = append(fields, upstreampricemonitorconfig.FieldLastRunAt)
+	}
+	if m.updated_by != nil {
+		fields = append(fields, upstreampricemonitorconfig.FieldUpdatedBy)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *UpstreamPriceMonitorConfigMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case upstreampricemonitorconfig.FieldCreatedAt:
+		return m.CreatedAt()
+	case upstreampricemonitorconfig.FieldUpdatedAt:
+		return m.UpdatedAt()
+	case upstreampricemonitorconfig.FieldEnabled:
+		return m.Enabled()
+	case upstreampricemonitorconfig.FieldIntervalSeconds:
+		return m.IntervalSeconds()
+	case upstreampricemonitorconfig.FieldChannelIds:
+		return m.ChannelIds()
+	case upstreampricemonitorconfig.FieldNotifyEmails:
+		return m.NotifyEmails()
+	case upstreampricemonitorconfig.FieldProfitMin:
+		return m.ProfitMin()
+	case upstreampricemonitorconfig.FieldProfitMax:
+		return m.ProfitMax()
+	case upstreampricemonitorconfig.FieldTargetProfit:
+		return m.TargetProfit()
+	case upstreampricemonitorconfig.FieldLastRunAt:
+		return m.LastRunAt()
+	case upstreampricemonitorconfig.FieldUpdatedBy:
+		return m.UpdatedBy()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *UpstreamPriceMonitorConfigMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case upstreampricemonitorconfig.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case upstreampricemonitorconfig.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
+	case upstreampricemonitorconfig.FieldEnabled:
+		return m.OldEnabled(ctx)
+	case upstreampricemonitorconfig.FieldIntervalSeconds:
+		return m.OldIntervalSeconds(ctx)
+	case upstreampricemonitorconfig.FieldChannelIds:
+		return m.OldChannelIds(ctx)
+	case upstreampricemonitorconfig.FieldNotifyEmails:
+		return m.OldNotifyEmails(ctx)
+	case upstreampricemonitorconfig.FieldProfitMin:
+		return m.OldProfitMin(ctx)
+	case upstreampricemonitorconfig.FieldProfitMax:
+		return m.OldProfitMax(ctx)
+	case upstreampricemonitorconfig.FieldTargetProfit:
+		return m.OldTargetProfit(ctx)
+	case upstreampricemonitorconfig.FieldLastRunAt:
+		return m.OldLastRunAt(ctx)
+	case upstreampricemonitorconfig.FieldUpdatedBy:
+		return m.OldUpdatedBy(ctx)
+	}
+	return nil, fmt.Errorf("unknown UpstreamPriceMonitorConfig field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *UpstreamPriceMonitorConfigMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case upstreampricemonitorconfig.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	case upstreampricemonitorconfig.FieldUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
+		return nil
+	case upstreampricemonitorconfig.FieldEnabled:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetEnabled(v)
+		return nil
+	case upstreampricemonitorconfig.FieldIntervalSeconds:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetIntervalSeconds(v)
+		return nil
+	case upstreampricemonitorconfig.FieldChannelIds:
+		v, ok := value.([]int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetChannelIds(v)
+		return nil
+	case upstreampricemonitorconfig.FieldNotifyEmails:
+		v, ok := value.([]string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetNotifyEmails(v)
+		return nil
+	case upstreampricemonitorconfig.FieldProfitMin:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetProfitMin(v)
+		return nil
+	case upstreampricemonitorconfig.FieldProfitMax:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetProfitMax(v)
+		return nil
+	case upstreampricemonitorconfig.FieldTargetProfit:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTargetProfit(v)
+		return nil
+	case upstreampricemonitorconfig.FieldLastRunAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetLastRunAt(v)
+		return nil
+	case upstreampricemonitorconfig.FieldUpdatedBy:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedBy(v)
+		return nil
+	}
+	return fmt.Errorf("unknown UpstreamPriceMonitorConfig field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *UpstreamPriceMonitorConfigMutation) AddedFields() []string {
+	var fields []string
+	if m.addinterval_seconds != nil {
+		fields = append(fields, upstreampricemonitorconfig.FieldIntervalSeconds)
+	}
+	if m.addprofit_min != nil {
+		fields = append(fields, upstreampricemonitorconfig.FieldProfitMin)
+	}
+	if m.addprofit_max != nil {
+		fields = append(fields, upstreampricemonitorconfig.FieldProfitMax)
+	}
+	if m.addtarget_profit != nil {
+		fields = append(fields, upstreampricemonitorconfig.FieldTargetProfit)
+	}
+	if m.addupdated_by != nil {
+		fields = append(fields, upstreampricemonitorconfig.FieldUpdatedBy)
+	}
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *UpstreamPriceMonitorConfigMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case upstreampricemonitorconfig.FieldIntervalSeconds:
+		return m.AddedIntervalSeconds()
+	case upstreampricemonitorconfig.FieldProfitMin:
+		return m.AddedProfitMin()
+	case upstreampricemonitorconfig.FieldProfitMax:
+		return m.AddedProfitMax()
+	case upstreampricemonitorconfig.FieldTargetProfit:
+		return m.AddedTargetProfit()
+	case upstreampricemonitorconfig.FieldUpdatedBy:
+		return m.AddedUpdatedBy()
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *UpstreamPriceMonitorConfigMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case upstreampricemonitorconfig.FieldIntervalSeconds:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddIntervalSeconds(v)
+		return nil
+	case upstreampricemonitorconfig.FieldProfitMin:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddProfitMin(v)
+		return nil
+	case upstreampricemonitorconfig.FieldProfitMax:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddProfitMax(v)
+		return nil
+	case upstreampricemonitorconfig.FieldTargetProfit:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddTargetProfit(v)
+		return nil
+	case upstreampricemonitorconfig.FieldUpdatedBy:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddUpdatedBy(v)
+		return nil
+	}
+	return fmt.Errorf("unknown UpstreamPriceMonitorConfig numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *UpstreamPriceMonitorConfigMutation) ClearedFields() []string {
+	var fields []string
+	if m.FieldCleared(upstreampricemonitorconfig.FieldTargetProfit) {
+		fields = append(fields, upstreampricemonitorconfig.FieldTargetProfit)
+	}
+	if m.FieldCleared(upstreampricemonitorconfig.FieldLastRunAt) {
+		fields = append(fields, upstreampricemonitorconfig.FieldLastRunAt)
+	}
+	if m.FieldCleared(upstreampricemonitorconfig.FieldUpdatedBy) {
+		fields = append(fields, upstreampricemonitorconfig.FieldUpdatedBy)
+	}
+	return fields
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *UpstreamPriceMonitorConfigMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *UpstreamPriceMonitorConfigMutation) ClearField(name string) error {
+	switch name {
+	case upstreampricemonitorconfig.FieldTargetProfit:
+		m.ClearTargetProfit()
+		return nil
+	case upstreampricemonitorconfig.FieldLastRunAt:
+		m.ClearLastRunAt()
+		return nil
+	case upstreampricemonitorconfig.FieldUpdatedBy:
+		m.ClearUpdatedBy()
+		return nil
+	}
+	return fmt.Errorf("unknown UpstreamPriceMonitorConfig nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *UpstreamPriceMonitorConfigMutation) ResetField(name string) error {
+	switch name {
+	case upstreampricemonitorconfig.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	case upstreampricemonitorconfig.FieldUpdatedAt:
+		m.ResetUpdatedAt()
+		return nil
+	case upstreampricemonitorconfig.FieldEnabled:
+		m.ResetEnabled()
+		return nil
+	case upstreampricemonitorconfig.FieldIntervalSeconds:
+		m.ResetIntervalSeconds()
+		return nil
+	case upstreampricemonitorconfig.FieldChannelIds:
+		m.ResetChannelIds()
+		return nil
+	case upstreampricemonitorconfig.FieldNotifyEmails:
+		m.ResetNotifyEmails()
+		return nil
+	case upstreampricemonitorconfig.FieldProfitMin:
+		m.ResetProfitMin()
+		return nil
+	case upstreampricemonitorconfig.FieldProfitMax:
+		m.ResetProfitMax()
+		return nil
+	case upstreampricemonitorconfig.FieldTargetProfit:
+		m.ResetTargetProfit()
+		return nil
+	case upstreampricemonitorconfig.FieldLastRunAt:
+		m.ResetLastRunAt()
+		return nil
+	case upstreampricemonitorconfig.FieldUpdatedBy:
+		m.ResetUpdatedBy()
+		return nil
+	}
+	return fmt.Errorf("unknown UpstreamPriceMonitorConfig field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *UpstreamPriceMonitorConfigMutation) AddedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *UpstreamPriceMonitorConfigMutation) AddedIDs(name string) []ent.Value {
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *UpstreamPriceMonitorConfigMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *UpstreamPriceMonitorConfigMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *UpstreamPriceMonitorConfigMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *UpstreamPriceMonitorConfigMutation) EdgeCleared(name string) bool {
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *UpstreamPriceMonitorConfigMutation) ClearEdge(name string) error {
+	return fmt.Errorf("unknown UpstreamPriceMonitorConfig unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *UpstreamPriceMonitorConfigMutation) ResetEdge(name string) error {
+	return fmt.Errorf("unknown UpstreamPriceMonitorConfig edge %s", name)
+}
+
+// UpstreamPriceMonitorRunMutation represents an operation that mutates the UpstreamPriceMonitorRun nodes in the graph.
+type UpstreamPriceMonitorRunMutation struct {
+	config
+	op                    Op
+	typ                   string
+	id                    *int64
+	created_at            *time.Time
+	updated_at            *time.Time
+	status                *upstreampricemonitorrun.Status
+	started_at            *time.Time
+	finished_at           *time.Time
+	upstream_fetched_at   *time.Time
+	model_count           *int
+	addmodel_count        *int
+	matched_count         *int
+	addmatched_count      *int
+	out_of_range_count    *int
+	addout_of_range_count *int
+	summary               *string
+	error_message         *string
+	channel_ids           *[]int64
+	appendchannel_ids     []int64
+	profit_min            *float64
+	addprofit_min         *float64
+	profit_max            *float64
+	addprofit_max         *float64
+	target_profit         *float64
+	addtarget_profit      *float64
+	clearedFields         map[string]struct{}
+	items                 map[int64]struct{}
+	removeditems          map[int64]struct{}
+	cleareditems          bool
+	done                  bool
+	oldValue              func(context.Context) (*UpstreamPriceMonitorRun, error)
+	predicates            []predicate.UpstreamPriceMonitorRun
+}
+
+var _ ent.Mutation = (*UpstreamPriceMonitorRunMutation)(nil)
+
+// upstreampricemonitorrunOption allows management of the mutation configuration using functional options.
+type upstreampricemonitorrunOption func(*UpstreamPriceMonitorRunMutation)
+
+// newUpstreamPriceMonitorRunMutation creates new mutation for the UpstreamPriceMonitorRun entity.
+func newUpstreamPriceMonitorRunMutation(c config, op Op, opts ...upstreampricemonitorrunOption) *UpstreamPriceMonitorRunMutation {
+	m := &UpstreamPriceMonitorRunMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeUpstreamPriceMonitorRun,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withUpstreamPriceMonitorRunID sets the ID field of the mutation.
+func withUpstreamPriceMonitorRunID(id int64) upstreampricemonitorrunOption {
+	return func(m *UpstreamPriceMonitorRunMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *UpstreamPriceMonitorRun
+		)
+		m.oldValue = func(ctx context.Context) (*UpstreamPriceMonitorRun, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().UpstreamPriceMonitorRun.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withUpstreamPriceMonitorRun sets the old UpstreamPriceMonitorRun of the mutation.
+func withUpstreamPriceMonitorRun(node *UpstreamPriceMonitorRun) upstreampricemonitorrunOption {
+	return func(m *UpstreamPriceMonitorRunMutation) {
+		m.oldValue = func(context.Context) (*UpstreamPriceMonitorRun, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m UpstreamPriceMonitorRunMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m UpstreamPriceMonitorRunMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *UpstreamPriceMonitorRunMutation) ID() (id int64, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *UpstreamPriceMonitorRunMutation) IDs(ctx context.Context) ([]int64, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []int64{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().UpstreamPriceMonitorRun.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *UpstreamPriceMonitorRunMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *UpstreamPriceMonitorRunMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the UpstreamPriceMonitorRun entity.
+// If the UpstreamPriceMonitorRun object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UpstreamPriceMonitorRunMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *UpstreamPriceMonitorRunMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (m *UpstreamPriceMonitorRunMutation) SetUpdatedAt(t time.Time) {
+	m.updated_at = &t
+}
+
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *UpstreamPriceMonitorRunMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updated_at" field's value of the UpstreamPriceMonitorRun entity.
+// If the UpstreamPriceMonitorRun object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UpstreamPriceMonitorRunMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *UpstreamPriceMonitorRunMutation) ResetUpdatedAt() {
+	m.updated_at = nil
+}
+
+// SetStatus sets the "status" field.
+func (m *UpstreamPriceMonitorRunMutation) SetStatus(u upstreampricemonitorrun.Status) {
+	m.status = &u
+}
+
+// Status returns the value of the "status" field in the mutation.
+func (m *UpstreamPriceMonitorRunMutation) Status() (r upstreampricemonitorrun.Status, exists bool) {
+	v := m.status
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldStatus returns the old "status" field's value of the UpstreamPriceMonitorRun entity.
+// If the UpstreamPriceMonitorRun object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UpstreamPriceMonitorRunMutation) OldStatus(ctx context.Context) (v upstreampricemonitorrun.Status, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldStatus is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldStatus requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldStatus: %w", err)
+	}
+	return oldValue.Status, nil
+}
+
+// ResetStatus resets all changes to the "status" field.
+func (m *UpstreamPriceMonitorRunMutation) ResetStatus() {
+	m.status = nil
+}
+
+// SetStartedAt sets the "started_at" field.
+func (m *UpstreamPriceMonitorRunMutation) SetStartedAt(t time.Time) {
+	m.started_at = &t
+}
+
+// StartedAt returns the value of the "started_at" field in the mutation.
+func (m *UpstreamPriceMonitorRunMutation) StartedAt() (r time.Time, exists bool) {
+	v := m.started_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldStartedAt returns the old "started_at" field's value of the UpstreamPriceMonitorRun entity.
+// If the UpstreamPriceMonitorRun object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UpstreamPriceMonitorRunMutation) OldStartedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldStartedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldStartedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldStartedAt: %w", err)
+	}
+	return oldValue.StartedAt, nil
+}
+
+// ResetStartedAt resets all changes to the "started_at" field.
+func (m *UpstreamPriceMonitorRunMutation) ResetStartedAt() {
+	m.started_at = nil
+}
+
+// SetFinishedAt sets the "finished_at" field.
+func (m *UpstreamPriceMonitorRunMutation) SetFinishedAt(t time.Time) {
+	m.finished_at = &t
+}
+
+// FinishedAt returns the value of the "finished_at" field in the mutation.
+func (m *UpstreamPriceMonitorRunMutation) FinishedAt() (r time.Time, exists bool) {
+	v := m.finished_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldFinishedAt returns the old "finished_at" field's value of the UpstreamPriceMonitorRun entity.
+// If the UpstreamPriceMonitorRun object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UpstreamPriceMonitorRunMutation) OldFinishedAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldFinishedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldFinishedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldFinishedAt: %w", err)
+	}
+	return oldValue.FinishedAt, nil
+}
+
+// ClearFinishedAt clears the value of the "finished_at" field.
+func (m *UpstreamPriceMonitorRunMutation) ClearFinishedAt() {
+	m.finished_at = nil
+	m.clearedFields[upstreampricemonitorrun.FieldFinishedAt] = struct{}{}
+}
+
+// FinishedAtCleared returns if the "finished_at" field was cleared in this mutation.
+func (m *UpstreamPriceMonitorRunMutation) FinishedAtCleared() bool {
+	_, ok := m.clearedFields[upstreampricemonitorrun.FieldFinishedAt]
+	return ok
+}
+
+// ResetFinishedAt resets all changes to the "finished_at" field.
+func (m *UpstreamPriceMonitorRunMutation) ResetFinishedAt() {
+	m.finished_at = nil
+	delete(m.clearedFields, upstreampricemonitorrun.FieldFinishedAt)
+}
+
+// SetUpstreamFetchedAt sets the "upstream_fetched_at" field.
+func (m *UpstreamPriceMonitorRunMutation) SetUpstreamFetchedAt(t time.Time) {
+	m.upstream_fetched_at = &t
+}
+
+// UpstreamFetchedAt returns the value of the "upstream_fetched_at" field in the mutation.
+func (m *UpstreamPriceMonitorRunMutation) UpstreamFetchedAt() (r time.Time, exists bool) {
+	v := m.upstream_fetched_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpstreamFetchedAt returns the old "upstream_fetched_at" field's value of the UpstreamPriceMonitorRun entity.
+// If the UpstreamPriceMonitorRun object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UpstreamPriceMonitorRunMutation) OldUpstreamFetchedAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpstreamFetchedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpstreamFetchedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpstreamFetchedAt: %w", err)
+	}
+	return oldValue.UpstreamFetchedAt, nil
+}
+
+// ClearUpstreamFetchedAt clears the value of the "upstream_fetched_at" field.
+func (m *UpstreamPriceMonitorRunMutation) ClearUpstreamFetchedAt() {
+	m.upstream_fetched_at = nil
+	m.clearedFields[upstreampricemonitorrun.FieldUpstreamFetchedAt] = struct{}{}
+}
+
+// UpstreamFetchedAtCleared returns if the "upstream_fetched_at" field was cleared in this mutation.
+func (m *UpstreamPriceMonitorRunMutation) UpstreamFetchedAtCleared() bool {
+	_, ok := m.clearedFields[upstreampricemonitorrun.FieldUpstreamFetchedAt]
+	return ok
+}
+
+// ResetUpstreamFetchedAt resets all changes to the "upstream_fetched_at" field.
+func (m *UpstreamPriceMonitorRunMutation) ResetUpstreamFetchedAt() {
+	m.upstream_fetched_at = nil
+	delete(m.clearedFields, upstreampricemonitorrun.FieldUpstreamFetchedAt)
+}
+
+// SetModelCount sets the "model_count" field.
+func (m *UpstreamPriceMonitorRunMutation) SetModelCount(i int) {
+	m.model_count = &i
+	m.addmodel_count = nil
+}
+
+// ModelCount returns the value of the "model_count" field in the mutation.
+func (m *UpstreamPriceMonitorRunMutation) ModelCount() (r int, exists bool) {
+	v := m.model_count
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldModelCount returns the old "model_count" field's value of the UpstreamPriceMonitorRun entity.
+// If the UpstreamPriceMonitorRun object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UpstreamPriceMonitorRunMutation) OldModelCount(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldModelCount is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldModelCount requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldModelCount: %w", err)
+	}
+	return oldValue.ModelCount, nil
+}
+
+// AddModelCount adds i to the "model_count" field.
+func (m *UpstreamPriceMonitorRunMutation) AddModelCount(i int) {
+	if m.addmodel_count != nil {
+		*m.addmodel_count += i
+	} else {
+		m.addmodel_count = &i
+	}
+}
+
+// AddedModelCount returns the value that was added to the "model_count" field in this mutation.
+func (m *UpstreamPriceMonitorRunMutation) AddedModelCount() (r int, exists bool) {
+	v := m.addmodel_count
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetModelCount resets all changes to the "model_count" field.
+func (m *UpstreamPriceMonitorRunMutation) ResetModelCount() {
+	m.model_count = nil
+	m.addmodel_count = nil
+}
+
+// SetMatchedCount sets the "matched_count" field.
+func (m *UpstreamPriceMonitorRunMutation) SetMatchedCount(i int) {
+	m.matched_count = &i
+	m.addmatched_count = nil
+}
+
+// MatchedCount returns the value of the "matched_count" field in the mutation.
+func (m *UpstreamPriceMonitorRunMutation) MatchedCount() (r int, exists bool) {
+	v := m.matched_count
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldMatchedCount returns the old "matched_count" field's value of the UpstreamPriceMonitorRun entity.
+// If the UpstreamPriceMonitorRun object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UpstreamPriceMonitorRunMutation) OldMatchedCount(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldMatchedCount is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldMatchedCount requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldMatchedCount: %w", err)
+	}
+	return oldValue.MatchedCount, nil
+}
+
+// AddMatchedCount adds i to the "matched_count" field.
+func (m *UpstreamPriceMonitorRunMutation) AddMatchedCount(i int) {
+	if m.addmatched_count != nil {
+		*m.addmatched_count += i
+	} else {
+		m.addmatched_count = &i
+	}
+}
+
+// AddedMatchedCount returns the value that was added to the "matched_count" field in this mutation.
+func (m *UpstreamPriceMonitorRunMutation) AddedMatchedCount() (r int, exists bool) {
+	v := m.addmatched_count
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetMatchedCount resets all changes to the "matched_count" field.
+func (m *UpstreamPriceMonitorRunMutation) ResetMatchedCount() {
+	m.matched_count = nil
+	m.addmatched_count = nil
+}
+
+// SetOutOfRangeCount sets the "out_of_range_count" field.
+func (m *UpstreamPriceMonitorRunMutation) SetOutOfRangeCount(i int) {
+	m.out_of_range_count = &i
+	m.addout_of_range_count = nil
+}
+
+// OutOfRangeCount returns the value of the "out_of_range_count" field in the mutation.
+func (m *UpstreamPriceMonitorRunMutation) OutOfRangeCount() (r int, exists bool) {
+	v := m.out_of_range_count
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldOutOfRangeCount returns the old "out_of_range_count" field's value of the UpstreamPriceMonitorRun entity.
+// If the UpstreamPriceMonitorRun object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UpstreamPriceMonitorRunMutation) OldOutOfRangeCount(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldOutOfRangeCount is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldOutOfRangeCount requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldOutOfRangeCount: %w", err)
+	}
+	return oldValue.OutOfRangeCount, nil
+}
+
+// AddOutOfRangeCount adds i to the "out_of_range_count" field.
+func (m *UpstreamPriceMonitorRunMutation) AddOutOfRangeCount(i int) {
+	if m.addout_of_range_count != nil {
+		*m.addout_of_range_count += i
+	} else {
+		m.addout_of_range_count = &i
+	}
+}
+
+// AddedOutOfRangeCount returns the value that was added to the "out_of_range_count" field in this mutation.
+func (m *UpstreamPriceMonitorRunMutation) AddedOutOfRangeCount() (r int, exists bool) {
+	v := m.addout_of_range_count
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetOutOfRangeCount resets all changes to the "out_of_range_count" field.
+func (m *UpstreamPriceMonitorRunMutation) ResetOutOfRangeCount() {
+	m.out_of_range_count = nil
+	m.addout_of_range_count = nil
+}
+
+// SetSummary sets the "summary" field.
+func (m *UpstreamPriceMonitorRunMutation) SetSummary(s string) {
+	m.summary = &s
+}
+
+// Summary returns the value of the "summary" field in the mutation.
+func (m *UpstreamPriceMonitorRunMutation) Summary() (r string, exists bool) {
+	v := m.summary
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSummary returns the old "summary" field's value of the UpstreamPriceMonitorRun entity.
+// If the UpstreamPriceMonitorRun object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UpstreamPriceMonitorRunMutation) OldSummary(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSummary is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSummary requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSummary: %w", err)
+	}
+	return oldValue.Summary, nil
+}
+
+// ResetSummary resets all changes to the "summary" field.
+func (m *UpstreamPriceMonitorRunMutation) ResetSummary() {
+	m.summary = nil
+}
+
+// SetErrorMessage sets the "error_message" field.
+func (m *UpstreamPriceMonitorRunMutation) SetErrorMessage(s string) {
+	m.error_message = &s
+}
+
+// ErrorMessage returns the value of the "error_message" field in the mutation.
+func (m *UpstreamPriceMonitorRunMutation) ErrorMessage() (r string, exists bool) {
+	v := m.error_message
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldErrorMessage returns the old "error_message" field's value of the UpstreamPriceMonitorRun entity.
+// If the UpstreamPriceMonitorRun object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UpstreamPriceMonitorRunMutation) OldErrorMessage(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldErrorMessage is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldErrorMessage requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldErrorMessage: %w", err)
+	}
+	return oldValue.ErrorMessage, nil
+}
+
+// ClearErrorMessage clears the value of the "error_message" field.
+func (m *UpstreamPriceMonitorRunMutation) ClearErrorMessage() {
+	m.error_message = nil
+	m.clearedFields[upstreampricemonitorrun.FieldErrorMessage] = struct{}{}
+}
+
+// ErrorMessageCleared returns if the "error_message" field was cleared in this mutation.
+func (m *UpstreamPriceMonitorRunMutation) ErrorMessageCleared() bool {
+	_, ok := m.clearedFields[upstreampricemonitorrun.FieldErrorMessage]
+	return ok
+}
+
+// ResetErrorMessage resets all changes to the "error_message" field.
+func (m *UpstreamPriceMonitorRunMutation) ResetErrorMessage() {
+	m.error_message = nil
+	delete(m.clearedFields, upstreampricemonitorrun.FieldErrorMessage)
+}
+
+// SetChannelIds sets the "channel_ids" field.
+func (m *UpstreamPriceMonitorRunMutation) SetChannelIds(i []int64) {
+	m.channel_ids = &i
+	m.appendchannel_ids = nil
+}
+
+// ChannelIds returns the value of the "channel_ids" field in the mutation.
+func (m *UpstreamPriceMonitorRunMutation) ChannelIds() (r []int64, exists bool) {
+	v := m.channel_ids
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldChannelIds returns the old "channel_ids" field's value of the UpstreamPriceMonitorRun entity.
+// If the UpstreamPriceMonitorRun object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UpstreamPriceMonitorRunMutation) OldChannelIds(ctx context.Context) (v []int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldChannelIds is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldChannelIds requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldChannelIds: %w", err)
+	}
+	return oldValue.ChannelIds, nil
+}
+
+// AppendChannelIds adds i to the "channel_ids" field.
+func (m *UpstreamPriceMonitorRunMutation) AppendChannelIds(i []int64) {
+	m.appendchannel_ids = append(m.appendchannel_ids, i...)
+}
+
+// AppendedChannelIds returns the list of values that were appended to the "channel_ids" field in this mutation.
+func (m *UpstreamPriceMonitorRunMutation) AppendedChannelIds() ([]int64, bool) {
+	if len(m.appendchannel_ids) == 0 {
+		return nil, false
+	}
+	return m.appendchannel_ids, true
+}
+
+// ResetChannelIds resets all changes to the "channel_ids" field.
+func (m *UpstreamPriceMonitorRunMutation) ResetChannelIds() {
+	m.channel_ids = nil
+	m.appendchannel_ids = nil
+}
+
+// SetProfitMin sets the "profit_min" field.
+func (m *UpstreamPriceMonitorRunMutation) SetProfitMin(f float64) {
+	m.profit_min = &f
+	m.addprofit_min = nil
+}
+
+// ProfitMin returns the value of the "profit_min" field in the mutation.
+func (m *UpstreamPriceMonitorRunMutation) ProfitMin() (r float64, exists bool) {
+	v := m.profit_min
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldProfitMin returns the old "profit_min" field's value of the UpstreamPriceMonitorRun entity.
+// If the UpstreamPriceMonitorRun object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UpstreamPriceMonitorRunMutation) OldProfitMin(ctx context.Context) (v float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldProfitMin is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldProfitMin requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldProfitMin: %w", err)
+	}
+	return oldValue.ProfitMin, nil
+}
+
+// AddProfitMin adds f to the "profit_min" field.
+func (m *UpstreamPriceMonitorRunMutation) AddProfitMin(f float64) {
+	if m.addprofit_min != nil {
+		*m.addprofit_min += f
+	} else {
+		m.addprofit_min = &f
+	}
+}
+
+// AddedProfitMin returns the value that was added to the "profit_min" field in this mutation.
+func (m *UpstreamPriceMonitorRunMutation) AddedProfitMin() (r float64, exists bool) {
+	v := m.addprofit_min
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetProfitMin resets all changes to the "profit_min" field.
+func (m *UpstreamPriceMonitorRunMutation) ResetProfitMin() {
+	m.profit_min = nil
+	m.addprofit_min = nil
+}
+
+// SetProfitMax sets the "profit_max" field.
+func (m *UpstreamPriceMonitorRunMutation) SetProfitMax(f float64) {
+	m.profit_max = &f
+	m.addprofit_max = nil
+}
+
+// ProfitMax returns the value of the "profit_max" field in the mutation.
+func (m *UpstreamPriceMonitorRunMutation) ProfitMax() (r float64, exists bool) {
+	v := m.profit_max
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldProfitMax returns the old "profit_max" field's value of the UpstreamPriceMonitorRun entity.
+// If the UpstreamPriceMonitorRun object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UpstreamPriceMonitorRunMutation) OldProfitMax(ctx context.Context) (v float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldProfitMax is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldProfitMax requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldProfitMax: %w", err)
+	}
+	return oldValue.ProfitMax, nil
+}
+
+// AddProfitMax adds f to the "profit_max" field.
+func (m *UpstreamPriceMonitorRunMutation) AddProfitMax(f float64) {
+	if m.addprofit_max != nil {
+		*m.addprofit_max += f
+	} else {
+		m.addprofit_max = &f
+	}
+}
+
+// AddedProfitMax returns the value that was added to the "profit_max" field in this mutation.
+func (m *UpstreamPriceMonitorRunMutation) AddedProfitMax() (r float64, exists bool) {
+	v := m.addprofit_max
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetProfitMax resets all changes to the "profit_max" field.
+func (m *UpstreamPriceMonitorRunMutation) ResetProfitMax() {
+	m.profit_max = nil
+	m.addprofit_max = nil
+}
+
+// SetTargetProfit sets the "target_profit" field.
+func (m *UpstreamPriceMonitorRunMutation) SetTargetProfit(f float64) {
+	m.target_profit = &f
+	m.addtarget_profit = nil
+}
+
+// TargetProfit returns the value of the "target_profit" field in the mutation.
+func (m *UpstreamPriceMonitorRunMutation) TargetProfit() (r float64, exists bool) {
+	v := m.target_profit
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTargetProfit returns the old "target_profit" field's value of the UpstreamPriceMonitorRun entity.
+// If the UpstreamPriceMonitorRun object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UpstreamPriceMonitorRunMutation) OldTargetProfit(ctx context.Context) (v *float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTargetProfit is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTargetProfit requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTargetProfit: %w", err)
+	}
+	return oldValue.TargetProfit, nil
+}
+
+// AddTargetProfit adds f to the "target_profit" field.
+func (m *UpstreamPriceMonitorRunMutation) AddTargetProfit(f float64) {
+	if m.addtarget_profit != nil {
+		*m.addtarget_profit += f
+	} else {
+		m.addtarget_profit = &f
+	}
+}
+
+// AddedTargetProfit returns the value that was added to the "target_profit" field in this mutation.
+func (m *UpstreamPriceMonitorRunMutation) AddedTargetProfit() (r float64, exists bool) {
+	v := m.addtarget_profit
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearTargetProfit clears the value of the "target_profit" field.
+func (m *UpstreamPriceMonitorRunMutation) ClearTargetProfit() {
+	m.target_profit = nil
+	m.addtarget_profit = nil
+	m.clearedFields[upstreampricemonitorrun.FieldTargetProfit] = struct{}{}
+}
+
+// TargetProfitCleared returns if the "target_profit" field was cleared in this mutation.
+func (m *UpstreamPriceMonitorRunMutation) TargetProfitCleared() bool {
+	_, ok := m.clearedFields[upstreampricemonitorrun.FieldTargetProfit]
+	return ok
+}
+
+// ResetTargetProfit resets all changes to the "target_profit" field.
+func (m *UpstreamPriceMonitorRunMutation) ResetTargetProfit() {
+	m.target_profit = nil
+	m.addtarget_profit = nil
+	delete(m.clearedFields, upstreampricemonitorrun.FieldTargetProfit)
+}
+
+// AddItemIDs adds the "items" edge to the UpstreamPriceMonitorRunItem entity by ids.
+func (m *UpstreamPriceMonitorRunMutation) AddItemIDs(ids ...int64) {
+	if m.items == nil {
+		m.items = make(map[int64]struct{})
+	}
+	for i := range ids {
+		m.items[ids[i]] = struct{}{}
+	}
+}
+
+// ClearItems clears the "items" edge to the UpstreamPriceMonitorRunItem entity.
+func (m *UpstreamPriceMonitorRunMutation) ClearItems() {
+	m.cleareditems = true
+}
+
+// ItemsCleared reports if the "items" edge to the UpstreamPriceMonitorRunItem entity was cleared.
+func (m *UpstreamPriceMonitorRunMutation) ItemsCleared() bool {
+	return m.cleareditems
+}
+
+// RemoveItemIDs removes the "items" edge to the UpstreamPriceMonitorRunItem entity by IDs.
+func (m *UpstreamPriceMonitorRunMutation) RemoveItemIDs(ids ...int64) {
+	if m.removeditems == nil {
+		m.removeditems = make(map[int64]struct{})
+	}
+	for i := range ids {
+		delete(m.items, ids[i])
+		m.removeditems[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedItems returns the removed IDs of the "items" edge to the UpstreamPriceMonitorRunItem entity.
+func (m *UpstreamPriceMonitorRunMutation) RemovedItemsIDs() (ids []int64) {
+	for id := range m.removeditems {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ItemsIDs returns the "items" edge IDs in the mutation.
+func (m *UpstreamPriceMonitorRunMutation) ItemsIDs() (ids []int64) {
+	for id := range m.items {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetItems resets all changes to the "items" edge.
+func (m *UpstreamPriceMonitorRunMutation) ResetItems() {
+	m.items = nil
+	m.cleareditems = false
+	m.removeditems = nil
+}
+
+// Where appends a list predicates to the UpstreamPriceMonitorRunMutation builder.
+func (m *UpstreamPriceMonitorRunMutation) Where(ps ...predicate.UpstreamPriceMonitorRun) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the UpstreamPriceMonitorRunMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *UpstreamPriceMonitorRunMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.UpstreamPriceMonitorRun, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *UpstreamPriceMonitorRunMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *UpstreamPriceMonitorRunMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (UpstreamPriceMonitorRun).
+func (m *UpstreamPriceMonitorRunMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *UpstreamPriceMonitorRunMutation) Fields() []string {
+	fields := make([]string, 0, 15)
+	if m.created_at != nil {
+		fields = append(fields, upstreampricemonitorrun.FieldCreatedAt)
+	}
+	if m.updated_at != nil {
+		fields = append(fields, upstreampricemonitorrun.FieldUpdatedAt)
+	}
+	if m.status != nil {
+		fields = append(fields, upstreampricemonitorrun.FieldStatus)
+	}
+	if m.started_at != nil {
+		fields = append(fields, upstreampricemonitorrun.FieldStartedAt)
+	}
+	if m.finished_at != nil {
+		fields = append(fields, upstreampricemonitorrun.FieldFinishedAt)
+	}
+	if m.upstream_fetched_at != nil {
+		fields = append(fields, upstreampricemonitorrun.FieldUpstreamFetchedAt)
+	}
+	if m.model_count != nil {
+		fields = append(fields, upstreampricemonitorrun.FieldModelCount)
+	}
+	if m.matched_count != nil {
+		fields = append(fields, upstreampricemonitorrun.FieldMatchedCount)
+	}
+	if m.out_of_range_count != nil {
+		fields = append(fields, upstreampricemonitorrun.FieldOutOfRangeCount)
+	}
+	if m.summary != nil {
+		fields = append(fields, upstreampricemonitorrun.FieldSummary)
+	}
+	if m.error_message != nil {
+		fields = append(fields, upstreampricemonitorrun.FieldErrorMessage)
+	}
+	if m.channel_ids != nil {
+		fields = append(fields, upstreampricemonitorrun.FieldChannelIds)
+	}
+	if m.profit_min != nil {
+		fields = append(fields, upstreampricemonitorrun.FieldProfitMin)
+	}
+	if m.profit_max != nil {
+		fields = append(fields, upstreampricemonitorrun.FieldProfitMax)
+	}
+	if m.target_profit != nil {
+		fields = append(fields, upstreampricemonitorrun.FieldTargetProfit)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *UpstreamPriceMonitorRunMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case upstreampricemonitorrun.FieldCreatedAt:
+		return m.CreatedAt()
+	case upstreampricemonitorrun.FieldUpdatedAt:
+		return m.UpdatedAt()
+	case upstreampricemonitorrun.FieldStatus:
+		return m.Status()
+	case upstreampricemonitorrun.FieldStartedAt:
+		return m.StartedAt()
+	case upstreampricemonitorrun.FieldFinishedAt:
+		return m.FinishedAt()
+	case upstreampricemonitorrun.FieldUpstreamFetchedAt:
+		return m.UpstreamFetchedAt()
+	case upstreampricemonitorrun.FieldModelCount:
+		return m.ModelCount()
+	case upstreampricemonitorrun.FieldMatchedCount:
+		return m.MatchedCount()
+	case upstreampricemonitorrun.FieldOutOfRangeCount:
+		return m.OutOfRangeCount()
+	case upstreampricemonitorrun.FieldSummary:
+		return m.Summary()
+	case upstreampricemonitorrun.FieldErrorMessage:
+		return m.ErrorMessage()
+	case upstreampricemonitorrun.FieldChannelIds:
+		return m.ChannelIds()
+	case upstreampricemonitorrun.FieldProfitMin:
+		return m.ProfitMin()
+	case upstreampricemonitorrun.FieldProfitMax:
+		return m.ProfitMax()
+	case upstreampricemonitorrun.FieldTargetProfit:
+		return m.TargetProfit()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *UpstreamPriceMonitorRunMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case upstreampricemonitorrun.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case upstreampricemonitorrun.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
+	case upstreampricemonitorrun.FieldStatus:
+		return m.OldStatus(ctx)
+	case upstreampricemonitorrun.FieldStartedAt:
+		return m.OldStartedAt(ctx)
+	case upstreampricemonitorrun.FieldFinishedAt:
+		return m.OldFinishedAt(ctx)
+	case upstreampricemonitorrun.FieldUpstreamFetchedAt:
+		return m.OldUpstreamFetchedAt(ctx)
+	case upstreampricemonitorrun.FieldModelCount:
+		return m.OldModelCount(ctx)
+	case upstreampricemonitorrun.FieldMatchedCount:
+		return m.OldMatchedCount(ctx)
+	case upstreampricemonitorrun.FieldOutOfRangeCount:
+		return m.OldOutOfRangeCount(ctx)
+	case upstreampricemonitorrun.FieldSummary:
+		return m.OldSummary(ctx)
+	case upstreampricemonitorrun.FieldErrorMessage:
+		return m.OldErrorMessage(ctx)
+	case upstreampricemonitorrun.FieldChannelIds:
+		return m.OldChannelIds(ctx)
+	case upstreampricemonitorrun.FieldProfitMin:
+		return m.OldProfitMin(ctx)
+	case upstreampricemonitorrun.FieldProfitMax:
+		return m.OldProfitMax(ctx)
+	case upstreampricemonitorrun.FieldTargetProfit:
+		return m.OldTargetProfit(ctx)
+	}
+	return nil, fmt.Errorf("unknown UpstreamPriceMonitorRun field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *UpstreamPriceMonitorRunMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case upstreampricemonitorrun.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	case upstreampricemonitorrun.FieldUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
+		return nil
+	case upstreampricemonitorrun.FieldStatus:
+		v, ok := value.(upstreampricemonitorrun.Status)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetStatus(v)
+		return nil
+	case upstreampricemonitorrun.FieldStartedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetStartedAt(v)
+		return nil
+	case upstreampricemonitorrun.FieldFinishedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetFinishedAt(v)
+		return nil
+	case upstreampricemonitorrun.FieldUpstreamFetchedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpstreamFetchedAt(v)
+		return nil
+	case upstreampricemonitorrun.FieldModelCount:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetModelCount(v)
+		return nil
+	case upstreampricemonitorrun.FieldMatchedCount:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetMatchedCount(v)
+		return nil
+	case upstreampricemonitorrun.FieldOutOfRangeCount:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetOutOfRangeCount(v)
+		return nil
+	case upstreampricemonitorrun.FieldSummary:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSummary(v)
+		return nil
+	case upstreampricemonitorrun.FieldErrorMessage:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetErrorMessage(v)
+		return nil
+	case upstreampricemonitorrun.FieldChannelIds:
+		v, ok := value.([]int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetChannelIds(v)
+		return nil
+	case upstreampricemonitorrun.FieldProfitMin:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetProfitMin(v)
+		return nil
+	case upstreampricemonitorrun.FieldProfitMax:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetProfitMax(v)
+		return nil
+	case upstreampricemonitorrun.FieldTargetProfit:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTargetProfit(v)
+		return nil
+	}
+	return fmt.Errorf("unknown UpstreamPriceMonitorRun field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *UpstreamPriceMonitorRunMutation) AddedFields() []string {
+	var fields []string
+	if m.addmodel_count != nil {
+		fields = append(fields, upstreampricemonitorrun.FieldModelCount)
+	}
+	if m.addmatched_count != nil {
+		fields = append(fields, upstreampricemonitorrun.FieldMatchedCount)
+	}
+	if m.addout_of_range_count != nil {
+		fields = append(fields, upstreampricemonitorrun.FieldOutOfRangeCount)
+	}
+	if m.addprofit_min != nil {
+		fields = append(fields, upstreampricemonitorrun.FieldProfitMin)
+	}
+	if m.addprofit_max != nil {
+		fields = append(fields, upstreampricemonitorrun.FieldProfitMax)
+	}
+	if m.addtarget_profit != nil {
+		fields = append(fields, upstreampricemonitorrun.FieldTargetProfit)
+	}
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *UpstreamPriceMonitorRunMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case upstreampricemonitorrun.FieldModelCount:
+		return m.AddedModelCount()
+	case upstreampricemonitorrun.FieldMatchedCount:
+		return m.AddedMatchedCount()
+	case upstreampricemonitorrun.FieldOutOfRangeCount:
+		return m.AddedOutOfRangeCount()
+	case upstreampricemonitorrun.FieldProfitMin:
+		return m.AddedProfitMin()
+	case upstreampricemonitorrun.FieldProfitMax:
+		return m.AddedProfitMax()
+	case upstreampricemonitorrun.FieldTargetProfit:
+		return m.AddedTargetProfit()
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *UpstreamPriceMonitorRunMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case upstreampricemonitorrun.FieldModelCount:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddModelCount(v)
+		return nil
+	case upstreampricemonitorrun.FieldMatchedCount:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddMatchedCount(v)
+		return nil
+	case upstreampricemonitorrun.FieldOutOfRangeCount:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddOutOfRangeCount(v)
+		return nil
+	case upstreampricemonitorrun.FieldProfitMin:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddProfitMin(v)
+		return nil
+	case upstreampricemonitorrun.FieldProfitMax:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddProfitMax(v)
+		return nil
+	case upstreampricemonitorrun.FieldTargetProfit:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddTargetProfit(v)
+		return nil
+	}
+	return fmt.Errorf("unknown UpstreamPriceMonitorRun numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *UpstreamPriceMonitorRunMutation) ClearedFields() []string {
+	var fields []string
+	if m.FieldCleared(upstreampricemonitorrun.FieldFinishedAt) {
+		fields = append(fields, upstreampricemonitorrun.FieldFinishedAt)
+	}
+	if m.FieldCleared(upstreampricemonitorrun.FieldUpstreamFetchedAt) {
+		fields = append(fields, upstreampricemonitorrun.FieldUpstreamFetchedAt)
+	}
+	if m.FieldCleared(upstreampricemonitorrun.FieldErrorMessage) {
+		fields = append(fields, upstreampricemonitorrun.FieldErrorMessage)
+	}
+	if m.FieldCleared(upstreampricemonitorrun.FieldTargetProfit) {
+		fields = append(fields, upstreampricemonitorrun.FieldTargetProfit)
+	}
+	return fields
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *UpstreamPriceMonitorRunMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *UpstreamPriceMonitorRunMutation) ClearField(name string) error {
+	switch name {
+	case upstreampricemonitorrun.FieldFinishedAt:
+		m.ClearFinishedAt()
+		return nil
+	case upstreampricemonitorrun.FieldUpstreamFetchedAt:
+		m.ClearUpstreamFetchedAt()
+		return nil
+	case upstreampricemonitorrun.FieldErrorMessage:
+		m.ClearErrorMessage()
+		return nil
+	case upstreampricemonitorrun.FieldTargetProfit:
+		m.ClearTargetProfit()
+		return nil
+	}
+	return fmt.Errorf("unknown UpstreamPriceMonitorRun nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *UpstreamPriceMonitorRunMutation) ResetField(name string) error {
+	switch name {
+	case upstreampricemonitorrun.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	case upstreampricemonitorrun.FieldUpdatedAt:
+		m.ResetUpdatedAt()
+		return nil
+	case upstreampricemonitorrun.FieldStatus:
+		m.ResetStatus()
+		return nil
+	case upstreampricemonitorrun.FieldStartedAt:
+		m.ResetStartedAt()
+		return nil
+	case upstreampricemonitorrun.FieldFinishedAt:
+		m.ResetFinishedAt()
+		return nil
+	case upstreampricemonitorrun.FieldUpstreamFetchedAt:
+		m.ResetUpstreamFetchedAt()
+		return nil
+	case upstreampricemonitorrun.FieldModelCount:
+		m.ResetModelCount()
+		return nil
+	case upstreampricemonitorrun.FieldMatchedCount:
+		m.ResetMatchedCount()
+		return nil
+	case upstreampricemonitorrun.FieldOutOfRangeCount:
+		m.ResetOutOfRangeCount()
+		return nil
+	case upstreampricemonitorrun.FieldSummary:
+		m.ResetSummary()
+		return nil
+	case upstreampricemonitorrun.FieldErrorMessage:
+		m.ResetErrorMessage()
+		return nil
+	case upstreampricemonitorrun.FieldChannelIds:
+		m.ResetChannelIds()
+		return nil
+	case upstreampricemonitorrun.FieldProfitMin:
+		m.ResetProfitMin()
+		return nil
+	case upstreampricemonitorrun.FieldProfitMax:
+		m.ResetProfitMax()
+		return nil
+	case upstreampricemonitorrun.FieldTargetProfit:
+		m.ResetTargetProfit()
+		return nil
+	}
+	return fmt.Errorf("unknown UpstreamPriceMonitorRun field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *UpstreamPriceMonitorRunMutation) AddedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.items != nil {
+		edges = append(edges, upstreampricemonitorrun.EdgeItems)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *UpstreamPriceMonitorRunMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case upstreampricemonitorrun.EdgeItems:
+		ids := make([]ent.Value, 0, len(m.items))
+		for id := range m.items {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *UpstreamPriceMonitorRunMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.removeditems != nil {
+		edges = append(edges, upstreampricemonitorrun.EdgeItems)
+	}
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *UpstreamPriceMonitorRunMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	case upstreampricemonitorrun.EdgeItems:
+		ids := make([]ent.Value, 0, len(m.removeditems))
+		for id := range m.removeditems {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *UpstreamPriceMonitorRunMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.cleareditems {
+		edges = append(edges, upstreampricemonitorrun.EdgeItems)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *UpstreamPriceMonitorRunMutation) EdgeCleared(name string) bool {
+	switch name {
+	case upstreampricemonitorrun.EdgeItems:
+		return m.cleareditems
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *UpstreamPriceMonitorRunMutation) ClearEdge(name string) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown UpstreamPriceMonitorRun unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *UpstreamPriceMonitorRunMutation) ResetEdge(name string) error {
+	switch name {
+	case upstreampricemonitorrun.EdgeItems:
+		m.ResetItems()
+		return nil
+	}
+	return fmt.Errorf("unknown UpstreamPriceMonitorRun edge %s", name)
+}
+
+// UpstreamPriceMonitorRunItemMutation represents an operation that mutates the UpstreamPriceMonitorRunItem nodes in the graph.
+type UpstreamPriceMonitorRunItemMutation struct {
+	config
+	op                       Op
+	typ                      string
+	id                       *int64
+	channel_id               *int64
+	addchannel_id            *int64
+	channel_name             *string
+	model                    *string
+	status                   *upstreampricemonitorrunitem.Status
+	upstream_input           *float64
+	addupstream_input        *float64
+	upstream_output          *float64
+	addupstream_output       *float64
+	upstream_cache_read      *float64
+	addupstream_cache_read   *float64
+	upstream_cache_write     *float64
+	addupstream_cache_write  *float64
+	local_input              *float64
+	addlocal_input           *float64
+	local_output             *float64
+	addlocal_output          *float64
+	local_cache_read         *float64
+	addlocal_cache_read      *float64
+	local_cache_write        *float64
+	addlocal_cache_write     *float64
+	suggested_input          *float64
+	addsuggested_input       *float64
+	suggested_output         *float64
+	addsuggested_output      *float64
+	suggested_cache_read     *float64
+	addsuggested_cache_read  *float64
+	suggested_cache_write    *float64
+	addsuggested_cache_write *float64
+	margin_input             *float64
+	addmargin_input          *float64
+	message                  *string
+	created_at               *time.Time
+	clearedFields            map[string]struct{}
+	run                      *int64
+	clearedrun               bool
+	done                     bool
+	oldValue                 func(context.Context) (*UpstreamPriceMonitorRunItem, error)
+	predicates               []predicate.UpstreamPriceMonitorRunItem
+}
+
+var _ ent.Mutation = (*UpstreamPriceMonitorRunItemMutation)(nil)
+
+// upstreampricemonitorrunitemOption allows management of the mutation configuration using functional options.
+type upstreampricemonitorrunitemOption func(*UpstreamPriceMonitorRunItemMutation)
+
+// newUpstreamPriceMonitorRunItemMutation creates new mutation for the UpstreamPriceMonitorRunItem entity.
+func newUpstreamPriceMonitorRunItemMutation(c config, op Op, opts ...upstreampricemonitorrunitemOption) *UpstreamPriceMonitorRunItemMutation {
+	m := &UpstreamPriceMonitorRunItemMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeUpstreamPriceMonitorRunItem,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withUpstreamPriceMonitorRunItemID sets the ID field of the mutation.
+func withUpstreamPriceMonitorRunItemID(id int64) upstreampricemonitorrunitemOption {
+	return func(m *UpstreamPriceMonitorRunItemMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *UpstreamPriceMonitorRunItem
+		)
+		m.oldValue = func(ctx context.Context) (*UpstreamPriceMonitorRunItem, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().UpstreamPriceMonitorRunItem.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withUpstreamPriceMonitorRunItem sets the old UpstreamPriceMonitorRunItem of the mutation.
+func withUpstreamPriceMonitorRunItem(node *UpstreamPriceMonitorRunItem) upstreampricemonitorrunitemOption {
+	return func(m *UpstreamPriceMonitorRunItemMutation) {
+		m.oldValue = func(context.Context) (*UpstreamPriceMonitorRunItem, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m UpstreamPriceMonitorRunItemMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m UpstreamPriceMonitorRunItemMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *UpstreamPriceMonitorRunItemMutation) ID() (id int64, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *UpstreamPriceMonitorRunItemMutation) IDs(ctx context.Context) ([]int64, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []int64{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().UpstreamPriceMonitorRunItem.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetRunID sets the "run_id" field.
+func (m *UpstreamPriceMonitorRunItemMutation) SetRunID(i int64) {
+	m.run = &i
+}
+
+// RunID returns the value of the "run_id" field in the mutation.
+func (m *UpstreamPriceMonitorRunItemMutation) RunID() (r int64, exists bool) {
+	v := m.run
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRunID returns the old "run_id" field's value of the UpstreamPriceMonitorRunItem entity.
+// If the UpstreamPriceMonitorRunItem object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UpstreamPriceMonitorRunItemMutation) OldRunID(ctx context.Context) (v int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRunID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRunID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRunID: %w", err)
+	}
+	return oldValue.RunID, nil
+}
+
+// ResetRunID resets all changes to the "run_id" field.
+func (m *UpstreamPriceMonitorRunItemMutation) ResetRunID() {
+	m.run = nil
+}
+
+// SetChannelID sets the "channel_id" field.
+func (m *UpstreamPriceMonitorRunItemMutation) SetChannelID(i int64) {
+	m.channel_id = &i
+	m.addchannel_id = nil
+}
+
+// ChannelID returns the value of the "channel_id" field in the mutation.
+func (m *UpstreamPriceMonitorRunItemMutation) ChannelID() (r int64, exists bool) {
+	v := m.channel_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldChannelID returns the old "channel_id" field's value of the UpstreamPriceMonitorRunItem entity.
+// If the UpstreamPriceMonitorRunItem object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UpstreamPriceMonitorRunItemMutation) OldChannelID(ctx context.Context) (v int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldChannelID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldChannelID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldChannelID: %w", err)
+	}
+	return oldValue.ChannelID, nil
+}
+
+// AddChannelID adds i to the "channel_id" field.
+func (m *UpstreamPriceMonitorRunItemMutation) AddChannelID(i int64) {
+	if m.addchannel_id != nil {
+		*m.addchannel_id += i
+	} else {
+		m.addchannel_id = &i
+	}
+}
+
+// AddedChannelID returns the value that was added to the "channel_id" field in this mutation.
+func (m *UpstreamPriceMonitorRunItemMutation) AddedChannelID() (r int64, exists bool) {
+	v := m.addchannel_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetChannelID resets all changes to the "channel_id" field.
+func (m *UpstreamPriceMonitorRunItemMutation) ResetChannelID() {
+	m.channel_id = nil
+	m.addchannel_id = nil
+}
+
+// SetChannelName sets the "channel_name" field.
+func (m *UpstreamPriceMonitorRunItemMutation) SetChannelName(s string) {
+	m.channel_name = &s
+}
+
+// ChannelName returns the value of the "channel_name" field in the mutation.
+func (m *UpstreamPriceMonitorRunItemMutation) ChannelName() (r string, exists bool) {
+	v := m.channel_name
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldChannelName returns the old "channel_name" field's value of the UpstreamPriceMonitorRunItem entity.
+// If the UpstreamPriceMonitorRunItem object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UpstreamPriceMonitorRunItemMutation) OldChannelName(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldChannelName is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldChannelName requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldChannelName: %w", err)
+	}
+	return oldValue.ChannelName, nil
+}
+
+// ResetChannelName resets all changes to the "channel_name" field.
+func (m *UpstreamPriceMonitorRunItemMutation) ResetChannelName() {
+	m.channel_name = nil
+}
+
+// SetModel sets the "model" field.
+func (m *UpstreamPriceMonitorRunItemMutation) SetModel(s string) {
+	m.model = &s
+}
+
+// Model returns the value of the "model" field in the mutation.
+func (m *UpstreamPriceMonitorRunItemMutation) Model() (r string, exists bool) {
+	v := m.model
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldModel returns the old "model" field's value of the UpstreamPriceMonitorRunItem entity.
+// If the UpstreamPriceMonitorRunItem object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UpstreamPriceMonitorRunItemMutation) OldModel(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldModel is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldModel requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldModel: %w", err)
+	}
+	return oldValue.Model, nil
+}
+
+// ResetModel resets all changes to the "model" field.
+func (m *UpstreamPriceMonitorRunItemMutation) ResetModel() {
+	m.model = nil
+}
+
+// SetStatus sets the "status" field.
+func (m *UpstreamPriceMonitorRunItemMutation) SetStatus(u upstreampricemonitorrunitem.Status) {
+	m.status = &u
+}
+
+// Status returns the value of the "status" field in the mutation.
+func (m *UpstreamPriceMonitorRunItemMutation) Status() (r upstreampricemonitorrunitem.Status, exists bool) {
+	v := m.status
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldStatus returns the old "status" field's value of the UpstreamPriceMonitorRunItem entity.
+// If the UpstreamPriceMonitorRunItem object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UpstreamPriceMonitorRunItemMutation) OldStatus(ctx context.Context) (v upstreampricemonitorrunitem.Status, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldStatus is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldStatus requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldStatus: %w", err)
+	}
+	return oldValue.Status, nil
+}
+
+// ResetStatus resets all changes to the "status" field.
+func (m *UpstreamPriceMonitorRunItemMutation) ResetStatus() {
+	m.status = nil
+}
+
+// SetUpstreamInput sets the "upstream_input" field.
+func (m *UpstreamPriceMonitorRunItemMutation) SetUpstreamInput(f float64) {
+	m.upstream_input = &f
+	m.addupstream_input = nil
+}
+
+// UpstreamInput returns the value of the "upstream_input" field in the mutation.
+func (m *UpstreamPriceMonitorRunItemMutation) UpstreamInput() (r float64, exists bool) {
+	v := m.upstream_input
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpstreamInput returns the old "upstream_input" field's value of the UpstreamPriceMonitorRunItem entity.
+// If the UpstreamPriceMonitorRunItem object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UpstreamPriceMonitorRunItemMutation) OldUpstreamInput(ctx context.Context) (v *float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpstreamInput is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpstreamInput requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpstreamInput: %w", err)
+	}
+	return oldValue.UpstreamInput, nil
+}
+
+// AddUpstreamInput adds f to the "upstream_input" field.
+func (m *UpstreamPriceMonitorRunItemMutation) AddUpstreamInput(f float64) {
+	if m.addupstream_input != nil {
+		*m.addupstream_input += f
+	} else {
+		m.addupstream_input = &f
+	}
+}
+
+// AddedUpstreamInput returns the value that was added to the "upstream_input" field in this mutation.
+func (m *UpstreamPriceMonitorRunItemMutation) AddedUpstreamInput() (r float64, exists bool) {
+	v := m.addupstream_input
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearUpstreamInput clears the value of the "upstream_input" field.
+func (m *UpstreamPriceMonitorRunItemMutation) ClearUpstreamInput() {
+	m.upstream_input = nil
+	m.addupstream_input = nil
+	m.clearedFields[upstreampricemonitorrunitem.FieldUpstreamInput] = struct{}{}
+}
+
+// UpstreamInputCleared returns if the "upstream_input" field was cleared in this mutation.
+func (m *UpstreamPriceMonitorRunItemMutation) UpstreamInputCleared() bool {
+	_, ok := m.clearedFields[upstreampricemonitorrunitem.FieldUpstreamInput]
+	return ok
+}
+
+// ResetUpstreamInput resets all changes to the "upstream_input" field.
+func (m *UpstreamPriceMonitorRunItemMutation) ResetUpstreamInput() {
+	m.upstream_input = nil
+	m.addupstream_input = nil
+	delete(m.clearedFields, upstreampricemonitorrunitem.FieldUpstreamInput)
+}
+
+// SetUpstreamOutput sets the "upstream_output" field.
+func (m *UpstreamPriceMonitorRunItemMutation) SetUpstreamOutput(f float64) {
+	m.upstream_output = &f
+	m.addupstream_output = nil
+}
+
+// UpstreamOutput returns the value of the "upstream_output" field in the mutation.
+func (m *UpstreamPriceMonitorRunItemMutation) UpstreamOutput() (r float64, exists bool) {
+	v := m.upstream_output
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpstreamOutput returns the old "upstream_output" field's value of the UpstreamPriceMonitorRunItem entity.
+// If the UpstreamPriceMonitorRunItem object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UpstreamPriceMonitorRunItemMutation) OldUpstreamOutput(ctx context.Context) (v *float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpstreamOutput is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpstreamOutput requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpstreamOutput: %w", err)
+	}
+	return oldValue.UpstreamOutput, nil
+}
+
+// AddUpstreamOutput adds f to the "upstream_output" field.
+func (m *UpstreamPriceMonitorRunItemMutation) AddUpstreamOutput(f float64) {
+	if m.addupstream_output != nil {
+		*m.addupstream_output += f
+	} else {
+		m.addupstream_output = &f
+	}
+}
+
+// AddedUpstreamOutput returns the value that was added to the "upstream_output" field in this mutation.
+func (m *UpstreamPriceMonitorRunItemMutation) AddedUpstreamOutput() (r float64, exists bool) {
+	v := m.addupstream_output
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearUpstreamOutput clears the value of the "upstream_output" field.
+func (m *UpstreamPriceMonitorRunItemMutation) ClearUpstreamOutput() {
+	m.upstream_output = nil
+	m.addupstream_output = nil
+	m.clearedFields[upstreampricemonitorrunitem.FieldUpstreamOutput] = struct{}{}
+}
+
+// UpstreamOutputCleared returns if the "upstream_output" field was cleared in this mutation.
+func (m *UpstreamPriceMonitorRunItemMutation) UpstreamOutputCleared() bool {
+	_, ok := m.clearedFields[upstreampricemonitorrunitem.FieldUpstreamOutput]
+	return ok
+}
+
+// ResetUpstreamOutput resets all changes to the "upstream_output" field.
+func (m *UpstreamPriceMonitorRunItemMutation) ResetUpstreamOutput() {
+	m.upstream_output = nil
+	m.addupstream_output = nil
+	delete(m.clearedFields, upstreampricemonitorrunitem.FieldUpstreamOutput)
+}
+
+// SetUpstreamCacheRead sets the "upstream_cache_read" field.
+func (m *UpstreamPriceMonitorRunItemMutation) SetUpstreamCacheRead(f float64) {
+	m.upstream_cache_read = &f
+	m.addupstream_cache_read = nil
+}
+
+// UpstreamCacheRead returns the value of the "upstream_cache_read" field in the mutation.
+func (m *UpstreamPriceMonitorRunItemMutation) UpstreamCacheRead() (r float64, exists bool) {
+	v := m.upstream_cache_read
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpstreamCacheRead returns the old "upstream_cache_read" field's value of the UpstreamPriceMonitorRunItem entity.
+// If the UpstreamPriceMonitorRunItem object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UpstreamPriceMonitorRunItemMutation) OldUpstreamCacheRead(ctx context.Context) (v *float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpstreamCacheRead is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpstreamCacheRead requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpstreamCacheRead: %w", err)
+	}
+	return oldValue.UpstreamCacheRead, nil
+}
+
+// AddUpstreamCacheRead adds f to the "upstream_cache_read" field.
+func (m *UpstreamPriceMonitorRunItemMutation) AddUpstreamCacheRead(f float64) {
+	if m.addupstream_cache_read != nil {
+		*m.addupstream_cache_read += f
+	} else {
+		m.addupstream_cache_read = &f
+	}
+}
+
+// AddedUpstreamCacheRead returns the value that was added to the "upstream_cache_read" field in this mutation.
+func (m *UpstreamPriceMonitorRunItemMutation) AddedUpstreamCacheRead() (r float64, exists bool) {
+	v := m.addupstream_cache_read
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearUpstreamCacheRead clears the value of the "upstream_cache_read" field.
+func (m *UpstreamPriceMonitorRunItemMutation) ClearUpstreamCacheRead() {
+	m.upstream_cache_read = nil
+	m.addupstream_cache_read = nil
+	m.clearedFields[upstreampricemonitorrunitem.FieldUpstreamCacheRead] = struct{}{}
+}
+
+// UpstreamCacheReadCleared returns if the "upstream_cache_read" field was cleared in this mutation.
+func (m *UpstreamPriceMonitorRunItemMutation) UpstreamCacheReadCleared() bool {
+	_, ok := m.clearedFields[upstreampricemonitorrunitem.FieldUpstreamCacheRead]
+	return ok
+}
+
+// ResetUpstreamCacheRead resets all changes to the "upstream_cache_read" field.
+func (m *UpstreamPriceMonitorRunItemMutation) ResetUpstreamCacheRead() {
+	m.upstream_cache_read = nil
+	m.addupstream_cache_read = nil
+	delete(m.clearedFields, upstreampricemonitorrunitem.FieldUpstreamCacheRead)
+}
+
+// SetUpstreamCacheWrite sets the "upstream_cache_write" field.
+func (m *UpstreamPriceMonitorRunItemMutation) SetUpstreamCacheWrite(f float64) {
+	m.upstream_cache_write = &f
+	m.addupstream_cache_write = nil
+}
+
+// UpstreamCacheWrite returns the value of the "upstream_cache_write" field in the mutation.
+func (m *UpstreamPriceMonitorRunItemMutation) UpstreamCacheWrite() (r float64, exists bool) {
+	v := m.upstream_cache_write
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpstreamCacheWrite returns the old "upstream_cache_write" field's value of the UpstreamPriceMonitorRunItem entity.
+// If the UpstreamPriceMonitorRunItem object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UpstreamPriceMonitorRunItemMutation) OldUpstreamCacheWrite(ctx context.Context) (v *float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpstreamCacheWrite is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpstreamCacheWrite requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpstreamCacheWrite: %w", err)
+	}
+	return oldValue.UpstreamCacheWrite, nil
+}
+
+// AddUpstreamCacheWrite adds f to the "upstream_cache_write" field.
+func (m *UpstreamPriceMonitorRunItemMutation) AddUpstreamCacheWrite(f float64) {
+	if m.addupstream_cache_write != nil {
+		*m.addupstream_cache_write += f
+	} else {
+		m.addupstream_cache_write = &f
+	}
+}
+
+// AddedUpstreamCacheWrite returns the value that was added to the "upstream_cache_write" field in this mutation.
+func (m *UpstreamPriceMonitorRunItemMutation) AddedUpstreamCacheWrite() (r float64, exists bool) {
+	v := m.addupstream_cache_write
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearUpstreamCacheWrite clears the value of the "upstream_cache_write" field.
+func (m *UpstreamPriceMonitorRunItemMutation) ClearUpstreamCacheWrite() {
+	m.upstream_cache_write = nil
+	m.addupstream_cache_write = nil
+	m.clearedFields[upstreampricemonitorrunitem.FieldUpstreamCacheWrite] = struct{}{}
+}
+
+// UpstreamCacheWriteCleared returns if the "upstream_cache_write" field was cleared in this mutation.
+func (m *UpstreamPriceMonitorRunItemMutation) UpstreamCacheWriteCleared() bool {
+	_, ok := m.clearedFields[upstreampricemonitorrunitem.FieldUpstreamCacheWrite]
+	return ok
+}
+
+// ResetUpstreamCacheWrite resets all changes to the "upstream_cache_write" field.
+func (m *UpstreamPriceMonitorRunItemMutation) ResetUpstreamCacheWrite() {
+	m.upstream_cache_write = nil
+	m.addupstream_cache_write = nil
+	delete(m.clearedFields, upstreampricemonitorrunitem.FieldUpstreamCacheWrite)
+}
+
+// SetLocalInput sets the "local_input" field.
+func (m *UpstreamPriceMonitorRunItemMutation) SetLocalInput(f float64) {
+	m.local_input = &f
+	m.addlocal_input = nil
+}
+
+// LocalInput returns the value of the "local_input" field in the mutation.
+func (m *UpstreamPriceMonitorRunItemMutation) LocalInput() (r float64, exists bool) {
+	v := m.local_input
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldLocalInput returns the old "local_input" field's value of the UpstreamPriceMonitorRunItem entity.
+// If the UpstreamPriceMonitorRunItem object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UpstreamPriceMonitorRunItemMutation) OldLocalInput(ctx context.Context) (v *float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldLocalInput is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldLocalInput requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldLocalInput: %w", err)
+	}
+	return oldValue.LocalInput, nil
+}
+
+// AddLocalInput adds f to the "local_input" field.
+func (m *UpstreamPriceMonitorRunItemMutation) AddLocalInput(f float64) {
+	if m.addlocal_input != nil {
+		*m.addlocal_input += f
+	} else {
+		m.addlocal_input = &f
+	}
+}
+
+// AddedLocalInput returns the value that was added to the "local_input" field in this mutation.
+func (m *UpstreamPriceMonitorRunItemMutation) AddedLocalInput() (r float64, exists bool) {
+	v := m.addlocal_input
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearLocalInput clears the value of the "local_input" field.
+func (m *UpstreamPriceMonitorRunItemMutation) ClearLocalInput() {
+	m.local_input = nil
+	m.addlocal_input = nil
+	m.clearedFields[upstreampricemonitorrunitem.FieldLocalInput] = struct{}{}
+}
+
+// LocalInputCleared returns if the "local_input" field was cleared in this mutation.
+func (m *UpstreamPriceMonitorRunItemMutation) LocalInputCleared() bool {
+	_, ok := m.clearedFields[upstreampricemonitorrunitem.FieldLocalInput]
+	return ok
+}
+
+// ResetLocalInput resets all changes to the "local_input" field.
+func (m *UpstreamPriceMonitorRunItemMutation) ResetLocalInput() {
+	m.local_input = nil
+	m.addlocal_input = nil
+	delete(m.clearedFields, upstreampricemonitorrunitem.FieldLocalInput)
+}
+
+// SetLocalOutput sets the "local_output" field.
+func (m *UpstreamPriceMonitorRunItemMutation) SetLocalOutput(f float64) {
+	m.local_output = &f
+	m.addlocal_output = nil
+}
+
+// LocalOutput returns the value of the "local_output" field in the mutation.
+func (m *UpstreamPriceMonitorRunItemMutation) LocalOutput() (r float64, exists bool) {
+	v := m.local_output
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldLocalOutput returns the old "local_output" field's value of the UpstreamPriceMonitorRunItem entity.
+// If the UpstreamPriceMonitorRunItem object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UpstreamPriceMonitorRunItemMutation) OldLocalOutput(ctx context.Context) (v *float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldLocalOutput is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldLocalOutput requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldLocalOutput: %w", err)
+	}
+	return oldValue.LocalOutput, nil
+}
+
+// AddLocalOutput adds f to the "local_output" field.
+func (m *UpstreamPriceMonitorRunItemMutation) AddLocalOutput(f float64) {
+	if m.addlocal_output != nil {
+		*m.addlocal_output += f
+	} else {
+		m.addlocal_output = &f
+	}
+}
+
+// AddedLocalOutput returns the value that was added to the "local_output" field in this mutation.
+func (m *UpstreamPriceMonitorRunItemMutation) AddedLocalOutput() (r float64, exists bool) {
+	v := m.addlocal_output
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearLocalOutput clears the value of the "local_output" field.
+func (m *UpstreamPriceMonitorRunItemMutation) ClearLocalOutput() {
+	m.local_output = nil
+	m.addlocal_output = nil
+	m.clearedFields[upstreampricemonitorrunitem.FieldLocalOutput] = struct{}{}
+}
+
+// LocalOutputCleared returns if the "local_output" field was cleared in this mutation.
+func (m *UpstreamPriceMonitorRunItemMutation) LocalOutputCleared() bool {
+	_, ok := m.clearedFields[upstreampricemonitorrunitem.FieldLocalOutput]
+	return ok
+}
+
+// ResetLocalOutput resets all changes to the "local_output" field.
+func (m *UpstreamPriceMonitorRunItemMutation) ResetLocalOutput() {
+	m.local_output = nil
+	m.addlocal_output = nil
+	delete(m.clearedFields, upstreampricemonitorrunitem.FieldLocalOutput)
+}
+
+// SetLocalCacheRead sets the "local_cache_read" field.
+func (m *UpstreamPriceMonitorRunItemMutation) SetLocalCacheRead(f float64) {
+	m.local_cache_read = &f
+	m.addlocal_cache_read = nil
+}
+
+// LocalCacheRead returns the value of the "local_cache_read" field in the mutation.
+func (m *UpstreamPriceMonitorRunItemMutation) LocalCacheRead() (r float64, exists bool) {
+	v := m.local_cache_read
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldLocalCacheRead returns the old "local_cache_read" field's value of the UpstreamPriceMonitorRunItem entity.
+// If the UpstreamPriceMonitorRunItem object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UpstreamPriceMonitorRunItemMutation) OldLocalCacheRead(ctx context.Context) (v *float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldLocalCacheRead is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldLocalCacheRead requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldLocalCacheRead: %w", err)
+	}
+	return oldValue.LocalCacheRead, nil
+}
+
+// AddLocalCacheRead adds f to the "local_cache_read" field.
+func (m *UpstreamPriceMonitorRunItemMutation) AddLocalCacheRead(f float64) {
+	if m.addlocal_cache_read != nil {
+		*m.addlocal_cache_read += f
+	} else {
+		m.addlocal_cache_read = &f
+	}
+}
+
+// AddedLocalCacheRead returns the value that was added to the "local_cache_read" field in this mutation.
+func (m *UpstreamPriceMonitorRunItemMutation) AddedLocalCacheRead() (r float64, exists bool) {
+	v := m.addlocal_cache_read
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearLocalCacheRead clears the value of the "local_cache_read" field.
+func (m *UpstreamPriceMonitorRunItemMutation) ClearLocalCacheRead() {
+	m.local_cache_read = nil
+	m.addlocal_cache_read = nil
+	m.clearedFields[upstreampricemonitorrunitem.FieldLocalCacheRead] = struct{}{}
+}
+
+// LocalCacheReadCleared returns if the "local_cache_read" field was cleared in this mutation.
+func (m *UpstreamPriceMonitorRunItemMutation) LocalCacheReadCleared() bool {
+	_, ok := m.clearedFields[upstreampricemonitorrunitem.FieldLocalCacheRead]
+	return ok
+}
+
+// ResetLocalCacheRead resets all changes to the "local_cache_read" field.
+func (m *UpstreamPriceMonitorRunItemMutation) ResetLocalCacheRead() {
+	m.local_cache_read = nil
+	m.addlocal_cache_read = nil
+	delete(m.clearedFields, upstreampricemonitorrunitem.FieldLocalCacheRead)
+}
+
+// SetLocalCacheWrite sets the "local_cache_write" field.
+func (m *UpstreamPriceMonitorRunItemMutation) SetLocalCacheWrite(f float64) {
+	m.local_cache_write = &f
+	m.addlocal_cache_write = nil
+}
+
+// LocalCacheWrite returns the value of the "local_cache_write" field in the mutation.
+func (m *UpstreamPriceMonitorRunItemMutation) LocalCacheWrite() (r float64, exists bool) {
+	v := m.local_cache_write
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldLocalCacheWrite returns the old "local_cache_write" field's value of the UpstreamPriceMonitorRunItem entity.
+// If the UpstreamPriceMonitorRunItem object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UpstreamPriceMonitorRunItemMutation) OldLocalCacheWrite(ctx context.Context) (v *float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldLocalCacheWrite is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldLocalCacheWrite requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldLocalCacheWrite: %w", err)
+	}
+	return oldValue.LocalCacheWrite, nil
+}
+
+// AddLocalCacheWrite adds f to the "local_cache_write" field.
+func (m *UpstreamPriceMonitorRunItemMutation) AddLocalCacheWrite(f float64) {
+	if m.addlocal_cache_write != nil {
+		*m.addlocal_cache_write += f
+	} else {
+		m.addlocal_cache_write = &f
+	}
+}
+
+// AddedLocalCacheWrite returns the value that was added to the "local_cache_write" field in this mutation.
+func (m *UpstreamPriceMonitorRunItemMutation) AddedLocalCacheWrite() (r float64, exists bool) {
+	v := m.addlocal_cache_write
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearLocalCacheWrite clears the value of the "local_cache_write" field.
+func (m *UpstreamPriceMonitorRunItemMutation) ClearLocalCacheWrite() {
+	m.local_cache_write = nil
+	m.addlocal_cache_write = nil
+	m.clearedFields[upstreampricemonitorrunitem.FieldLocalCacheWrite] = struct{}{}
+}
+
+// LocalCacheWriteCleared returns if the "local_cache_write" field was cleared in this mutation.
+func (m *UpstreamPriceMonitorRunItemMutation) LocalCacheWriteCleared() bool {
+	_, ok := m.clearedFields[upstreampricemonitorrunitem.FieldLocalCacheWrite]
+	return ok
+}
+
+// ResetLocalCacheWrite resets all changes to the "local_cache_write" field.
+func (m *UpstreamPriceMonitorRunItemMutation) ResetLocalCacheWrite() {
+	m.local_cache_write = nil
+	m.addlocal_cache_write = nil
+	delete(m.clearedFields, upstreampricemonitorrunitem.FieldLocalCacheWrite)
+}
+
+// SetSuggestedInput sets the "suggested_input" field.
+func (m *UpstreamPriceMonitorRunItemMutation) SetSuggestedInput(f float64) {
+	m.suggested_input = &f
+	m.addsuggested_input = nil
+}
+
+// SuggestedInput returns the value of the "suggested_input" field in the mutation.
+func (m *UpstreamPriceMonitorRunItemMutation) SuggestedInput() (r float64, exists bool) {
+	v := m.suggested_input
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSuggestedInput returns the old "suggested_input" field's value of the UpstreamPriceMonitorRunItem entity.
+// If the UpstreamPriceMonitorRunItem object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UpstreamPriceMonitorRunItemMutation) OldSuggestedInput(ctx context.Context) (v *float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSuggestedInput is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSuggestedInput requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSuggestedInput: %w", err)
+	}
+	return oldValue.SuggestedInput, nil
+}
+
+// AddSuggestedInput adds f to the "suggested_input" field.
+func (m *UpstreamPriceMonitorRunItemMutation) AddSuggestedInput(f float64) {
+	if m.addsuggested_input != nil {
+		*m.addsuggested_input += f
+	} else {
+		m.addsuggested_input = &f
+	}
+}
+
+// AddedSuggestedInput returns the value that was added to the "suggested_input" field in this mutation.
+func (m *UpstreamPriceMonitorRunItemMutation) AddedSuggestedInput() (r float64, exists bool) {
+	v := m.addsuggested_input
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearSuggestedInput clears the value of the "suggested_input" field.
+func (m *UpstreamPriceMonitorRunItemMutation) ClearSuggestedInput() {
+	m.suggested_input = nil
+	m.addsuggested_input = nil
+	m.clearedFields[upstreampricemonitorrunitem.FieldSuggestedInput] = struct{}{}
+}
+
+// SuggestedInputCleared returns if the "suggested_input" field was cleared in this mutation.
+func (m *UpstreamPriceMonitorRunItemMutation) SuggestedInputCleared() bool {
+	_, ok := m.clearedFields[upstreampricemonitorrunitem.FieldSuggestedInput]
+	return ok
+}
+
+// ResetSuggestedInput resets all changes to the "suggested_input" field.
+func (m *UpstreamPriceMonitorRunItemMutation) ResetSuggestedInput() {
+	m.suggested_input = nil
+	m.addsuggested_input = nil
+	delete(m.clearedFields, upstreampricemonitorrunitem.FieldSuggestedInput)
+}
+
+// SetSuggestedOutput sets the "suggested_output" field.
+func (m *UpstreamPriceMonitorRunItemMutation) SetSuggestedOutput(f float64) {
+	m.suggested_output = &f
+	m.addsuggested_output = nil
+}
+
+// SuggestedOutput returns the value of the "suggested_output" field in the mutation.
+func (m *UpstreamPriceMonitorRunItemMutation) SuggestedOutput() (r float64, exists bool) {
+	v := m.suggested_output
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSuggestedOutput returns the old "suggested_output" field's value of the UpstreamPriceMonitorRunItem entity.
+// If the UpstreamPriceMonitorRunItem object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UpstreamPriceMonitorRunItemMutation) OldSuggestedOutput(ctx context.Context) (v *float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSuggestedOutput is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSuggestedOutput requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSuggestedOutput: %w", err)
+	}
+	return oldValue.SuggestedOutput, nil
+}
+
+// AddSuggestedOutput adds f to the "suggested_output" field.
+func (m *UpstreamPriceMonitorRunItemMutation) AddSuggestedOutput(f float64) {
+	if m.addsuggested_output != nil {
+		*m.addsuggested_output += f
+	} else {
+		m.addsuggested_output = &f
+	}
+}
+
+// AddedSuggestedOutput returns the value that was added to the "suggested_output" field in this mutation.
+func (m *UpstreamPriceMonitorRunItemMutation) AddedSuggestedOutput() (r float64, exists bool) {
+	v := m.addsuggested_output
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearSuggestedOutput clears the value of the "suggested_output" field.
+func (m *UpstreamPriceMonitorRunItemMutation) ClearSuggestedOutput() {
+	m.suggested_output = nil
+	m.addsuggested_output = nil
+	m.clearedFields[upstreampricemonitorrunitem.FieldSuggestedOutput] = struct{}{}
+}
+
+// SuggestedOutputCleared returns if the "suggested_output" field was cleared in this mutation.
+func (m *UpstreamPriceMonitorRunItemMutation) SuggestedOutputCleared() bool {
+	_, ok := m.clearedFields[upstreampricemonitorrunitem.FieldSuggestedOutput]
+	return ok
+}
+
+// ResetSuggestedOutput resets all changes to the "suggested_output" field.
+func (m *UpstreamPriceMonitorRunItemMutation) ResetSuggestedOutput() {
+	m.suggested_output = nil
+	m.addsuggested_output = nil
+	delete(m.clearedFields, upstreampricemonitorrunitem.FieldSuggestedOutput)
+}
+
+// SetSuggestedCacheRead sets the "suggested_cache_read" field.
+func (m *UpstreamPriceMonitorRunItemMutation) SetSuggestedCacheRead(f float64) {
+	m.suggested_cache_read = &f
+	m.addsuggested_cache_read = nil
+}
+
+// SuggestedCacheRead returns the value of the "suggested_cache_read" field in the mutation.
+func (m *UpstreamPriceMonitorRunItemMutation) SuggestedCacheRead() (r float64, exists bool) {
+	v := m.suggested_cache_read
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSuggestedCacheRead returns the old "suggested_cache_read" field's value of the UpstreamPriceMonitorRunItem entity.
+// If the UpstreamPriceMonitorRunItem object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UpstreamPriceMonitorRunItemMutation) OldSuggestedCacheRead(ctx context.Context) (v *float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSuggestedCacheRead is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSuggestedCacheRead requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSuggestedCacheRead: %w", err)
+	}
+	return oldValue.SuggestedCacheRead, nil
+}
+
+// AddSuggestedCacheRead adds f to the "suggested_cache_read" field.
+func (m *UpstreamPriceMonitorRunItemMutation) AddSuggestedCacheRead(f float64) {
+	if m.addsuggested_cache_read != nil {
+		*m.addsuggested_cache_read += f
+	} else {
+		m.addsuggested_cache_read = &f
+	}
+}
+
+// AddedSuggestedCacheRead returns the value that was added to the "suggested_cache_read" field in this mutation.
+func (m *UpstreamPriceMonitorRunItemMutation) AddedSuggestedCacheRead() (r float64, exists bool) {
+	v := m.addsuggested_cache_read
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearSuggestedCacheRead clears the value of the "suggested_cache_read" field.
+func (m *UpstreamPriceMonitorRunItemMutation) ClearSuggestedCacheRead() {
+	m.suggested_cache_read = nil
+	m.addsuggested_cache_read = nil
+	m.clearedFields[upstreampricemonitorrunitem.FieldSuggestedCacheRead] = struct{}{}
+}
+
+// SuggestedCacheReadCleared returns if the "suggested_cache_read" field was cleared in this mutation.
+func (m *UpstreamPriceMonitorRunItemMutation) SuggestedCacheReadCleared() bool {
+	_, ok := m.clearedFields[upstreampricemonitorrunitem.FieldSuggestedCacheRead]
+	return ok
+}
+
+// ResetSuggestedCacheRead resets all changes to the "suggested_cache_read" field.
+func (m *UpstreamPriceMonitorRunItemMutation) ResetSuggestedCacheRead() {
+	m.suggested_cache_read = nil
+	m.addsuggested_cache_read = nil
+	delete(m.clearedFields, upstreampricemonitorrunitem.FieldSuggestedCacheRead)
+}
+
+// SetSuggestedCacheWrite sets the "suggested_cache_write" field.
+func (m *UpstreamPriceMonitorRunItemMutation) SetSuggestedCacheWrite(f float64) {
+	m.suggested_cache_write = &f
+	m.addsuggested_cache_write = nil
+}
+
+// SuggestedCacheWrite returns the value of the "suggested_cache_write" field in the mutation.
+func (m *UpstreamPriceMonitorRunItemMutation) SuggestedCacheWrite() (r float64, exists bool) {
+	v := m.suggested_cache_write
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSuggestedCacheWrite returns the old "suggested_cache_write" field's value of the UpstreamPriceMonitorRunItem entity.
+// If the UpstreamPriceMonitorRunItem object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UpstreamPriceMonitorRunItemMutation) OldSuggestedCacheWrite(ctx context.Context) (v *float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSuggestedCacheWrite is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSuggestedCacheWrite requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSuggestedCacheWrite: %w", err)
+	}
+	return oldValue.SuggestedCacheWrite, nil
+}
+
+// AddSuggestedCacheWrite adds f to the "suggested_cache_write" field.
+func (m *UpstreamPriceMonitorRunItemMutation) AddSuggestedCacheWrite(f float64) {
+	if m.addsuggested_cache_write != nil {
+		*m.addsuggested_cache_write += f
+	} else {
+		m.addsuggested_cache_write = &f
+	}
+}
+
+// AddedSuggestedCacheWrite returns the value that was added to the "suggested_cache_write" field in this mutation.
+func (m *UpstreamPriceMonitorRunItemMutation) AddedSuggestedCacheWrite() (r float64, exists bool) {
+	v := m.addsuggested_cache_write
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearSuggestedCacheWrite clears the value of the "suggested_cache_write" field.
+func (m *UpstreamPriceMonitorRunItemMutation) ClearSuggestedCacheWrite() {
+	m.suggested_cache_write = nil
+	m.addsuggested_cache_write = nil
+	m.clearedFields[upstreampricemonitorrunitem.FieldSuggestedCacheWrite] = struct{}{}
+}
+
+// SuggestedCacheWriteCleared returns if the "suggested_cache_write" field was cleared in this mutation.
+func (m *UpstreamPriceMonitorRunItemMutation) SuggestedCacheWriteCleared() bool {
+	_, ok := m.clearedFields[upstreampricemonitorrunitem.FieldSuggestedCacheWrite]
+	return ok
+}
+
+// ResetSuggestedCacheWrite resets all changes to the "suggested_cache_write" field.
+func (m *UpstreamPriceMonitorRunItemMutation) ResetSuggestedCacheWrite() {
+	m.suggested_cache_write = nil
+	m.addsuggested_cache_write = nil
+	delete(m.clearedFields, upstreampricemonitorrunitem.FieldSuggestedCacheWrite)
+}
+
+// SetMarginInput sets the "margin_input" field.
+func (m *UpstreamPriceMonitorRunItemMutation) SetMarginInput(f float64) {
+	m.margin_input = &f
+	m.addmargin_input = nil
+}
+
+// MarginInput returns the value of the "margin_input" field in the mutation.
+func (m *UpstreamPriceMonitorRunItemMutation) MarginInput() (r float64, exists bool) {
+	v := m.margin_input
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldMarginInput returns the old "margin_input" field's value of the UpstreamPriceMonitorRunItem entity.
+// If the UpstreamPriceMonitorRunItem object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UpstreamPriceMonitorRunItemMutation) OldMarginInput(ctx context.Context) (v *float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldMarginInput is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldMarginInput requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldMarginInput: %w", err)
+	}
+	return oldValue.MarginInput, nil
+}
+
+// AddMarginInput adds f to the "margin_input" field.
+func (m *UpstreamPriceMonitorRunItemMutation) AddMarginInput(f float64) {
+	if m.addmargin_input != nil {
+		*m.addmargin_input += f
+	} else {
+		m.addmargin_input = &f
+	}
+}
+
+// AddedMarginInput returns the value that was added to the "margin_input" field in this mutation.
+func (m *UpstreamPriceMonitorRunItemMutation) AddedMarginInput() (r float64, exists bool) {
+	v := m.addmargin_input
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearMarginInput clears the value of the "margin_input" field.
+func (m *UpstreamPriceMonitorRunItemMutation) ClearMarginInput() {
+	m.margin_input = nil
+	m.addmargin_input = nil
+	m.clearedFields[upstreampricemonitorrunitem.FieldMarginInput] = struct{}{}
+}
+
+// MarginInputCleared returns if the "margin_input" field was cleared in this mutation.
+func (m *UpstreamPriceMonitorRunItemMutation) MarginInputCleared() bool {
+	_, ok := m.clearedFields[upstreampricemonitorrunitem.FieldMarginInput]
+	return ok
+}
+
+// ResetMarginInput resets all changes to the "margin_input" field.
+func (m *UpstreamPriceMonitorRunItemMutation) ResetMarginInput() {
+	m.margin_input = nil
+	m.addmargin_input = nil
+	delete(m.clearedFields, upstreampricemonitorrunitem.FieldMarginInput)
+}
+
+// SetMessage sets the "message" field.
+func (m *UpstreamPriceMonitorRunItemMutation) SetMessage(s string) {
+	m.message = &s
+}
+
+// Message returns the value of the "message" field in the mutation.
+func (m *UpstreamPriceMonitorRunItemMutation) Message() (r string, exists bool) {
+	v := m.message
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldMessage returns the old "message" field's value of the UpstreamPriceMonitorRunItem entity.
+// If the UpstreamPriceMonitorRunItem object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UpstreamPriceMonitorRunItemMutation) OldMessage(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldMessage is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldMessage requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldMessage: %w", err)
+	}
+	return oldValue.Message, nil
+}
+
+// ResetMessage resets all changes to the "message" field.
+func (m *UpstreamPriceMonitorRunItemMutation) ResetMessage() {
+	m.message = nil
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *UpstreamPriceMonitorRunItemMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *UpstreamPriceMonitorRunItemMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the UpstreamPriceMonitorRunItem entity.
+// If the UpstreamPriceMonitorRunItem object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UpstreamPriceMonitorRunItemMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *UpstreamPriceMonitorRunItemMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// ClearRun clears the "run" edge to the UpstreamPriceMonitorRun entity.
+func (m *UpstreamPriceMonitorRunItemMutation) ClearRun() {
+	m.clearedrun = true
+	m.clearedFields[upstreampricemonitorrunitem.FieldRunID] = struct{}{}
+}
+
+// RunCleared reports if the "run" edge to the UpstreamPriceMonitorRun entity was cleared.
+func (m *UpstreamPriceMonitorRunItemMutation) RunCleared() bool {
+	return m.clearedrun
+}
+
+// RunIDs returns the "run" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// RunID instead. It exists only for internal usage by the builders.
+func (m *UpstreamPriceMonitorRunItemMutation) RunIDs() (ids []int64) {
+	if id := m.run; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetRun resets all changes to the "run" edge.
+func (m *UpstreamPriceMonitorRunItemMutation) ResetRun() {
+	m.run = nil
+	m.clearedrun = false
+}
+
+// Where appends a list predicates to the UpstreamPriceMonitorRunItemMutation builder.
+func (m *UpstreamPriceMonitorRunItemMutation) Where(ps ...predicate.UpstreamPriceMonitorRunItem) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the UpstreamPriceMonitorRunItemMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *UpstreamPriceMonitorRunItemMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.UpstreamPriceMonitorRunItem, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *UpstreamPriceMonitorRunItemMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *UpstreamPriceMonitorRunItemMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (UpstreamPriceMonitorRunItem).
+func (m *UpstreamPriceMonitorRunItemMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *UpstreamPriceMonitorRunItemMutation) Fields() []string {
+	fields := make([]string, 0, 20)
+	if m.run != nil {
+		fields = append(fields, upstreampricemonitorrunitem.FieldRunID)
+	}
+	if m.channel_id != nil {
+		fields = append(fields, upstreampricemonitorrunitem.FieldChannelID)
+	}
+	if m.channel_name != nil {
+		fields = append(fields, upstreampricemonitorrunitem.FieldChannelName)
+	}
+	if m.model != nil {
+		fields = append(fields, upstreampricemonitorrunitem.FieldModel)
+	}
+	if m.status != nil {
+		fields = append(fields, upstreampricemonitorrunitem.FieldStatus)
+	}
+	if m.upstream_input != nil {
+		fields = append(fields, upstreampricemonitorrunitem.FieldUpstreamInput)
+	}
+	if m.upstream_output != nil {
+		fields = append(fields, upstreampricemonitorrunitem.FieldUpstreamOutput)
+	}
+	if m.upstream_cache_read != nil {
+		fields = append(fields, upstreampricemonitorrunitem.FieldUpstreamCacheRead)
+	}
+	if m.upstream_cache_write != nil {
+		fields = append(fields, upstreampricemonitorrunitem.FieldUpstreamCacheWrite)
+	}
+	if m.local_input != nil {
+		fields = append(fields, upstreampricemonitorrunitem.FieldLocalInput)
+	}
+	if m.local_output != nil {
+		fields = append(fields, upstreampricemonitorrunitem.FieldLocalOutput)
+	}
+	if m.local_cache_read != nil {
+		fields = append(fields, upstreampricemonitorrunitem.FieldLocalCacheRead)
+	}
+	if m.local_cache_write != nil {
+		fields = append(fields, upstreampricemonitorrunitem.FieldLocalCacheWrite)
+	}
+	if m.suggested_input != nil {
+		fields = append(fields, upstreampricemonitorrunitem.FieldSuggestedInput)
+	}
+	if m.suggested_output != nil {
+		fields = append(fields, upstreampricemonitorrunitem.FieldSuggestedOutput)
+	}
+	if m.suggested_cache_read != nil {
+		fields = append(fields, upstreampricemonitorrunitem.FieldSuggestedCacheRead)
+	}
+	if m.suggested_cache_write != nil {
+		fields = append(fields, upstreampricemonitorrunitem.FieldSuggestedCacheWrite)
+	}
+	if m.margin_input != nil {
+		fields = append(fields, upstreampricemonitorrunitem.FieldMarginInput)
+	}
+	if m.message != nil {
+		fields = append(fields, upstreampricemonitorrunitem.FieldMessage)
+	}
+	if m.created_at != nil {
+		fields = append(fields, upstreampricemonitorrunitem.FieldCreatedAt)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *UpstreamPriceMonitorRunItemMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case upstreampricemonitorrunitem.FieldRunID:
+		return m.RunID()
+	case upstreampricemonitorrunitem.FieldChannelID:
+		return m.ChannelID()
+	case upstreampricemonitorrunitem.FieldChannelName:
+		return m.ChannelName()
+	case upstreampricemonitorrunitem.FieldModel:
+		return m.Model()
+	case upstreampricemonitorrunitem.FieldStatus:
+		return m.Status()
+	case upstreampricemonitorrunitem.FieldUpstreamInput:
+		return m.UpstreamInput()
+	case upstreampricemonitorrunitem.FieldUpstreamOutput:
+		return m.UpstreamOutput()
+	case upstreampricemonitorrunitem.FieldUpstreamCacheRead:
+		return m.UpstreamCacheRead()
+	case upstreampricemonitorrunitem.FieldUpstreamCacheWrite:
+		return m.UpstreamCacheWrite()
+	case upstreampricemonitorrunitem.FieldLocalInput:
+		return m.LocalInput()
+	case upstreampricemonitorrunitem.FieldLocalOutput:
+		return m.LocalOutput()
+	case upstreampricemonitorrunitem.FieldLocalCacheRead:
+		return m.LocalCacheRead()
+	case upstreampricemonitorrunitem.FieldLocalCacheWrite:
+		return m.LocalCacheWrite()
+	case upstreampricemonitorrunitem.FieldSuggestedInput:
+		return m.SuggestedInput()
+	case upstreampricemonitorrunitem.FieldSuggestedOutput:
+		return m.SuggestedOutput()
+	case upstreampricemonitorrunitem.FieldSuggestedCacheRead:
+		return m.SuggestedCacheRead()
+	case upstreampricemonitorrunitem.FieldSuggestedCacheWrite:
+		return m.SuggestedCacheWrite()
+	case upstreampricemonitorrunitem.FieldMarginInput:
+		return m.MarginInput()
+	case upstreampricemonitorrunitem.FieldMessage:
+		return m.Message()
+	case upstreampricemonitorrunitem.FieldCreatedAt:
+		return m.CreatedAt()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *UpstreamPriceMonitorRunItemMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case upstreampricemonitorrunitem.FieldRunID:
+		return m.OldRunID(ctx)
+	case upstreampricemonitorrunitem.FieldChannelID:
+		return m.OldChannelID(ctx)
+	case upstreampricemonitorrunitem.FieldChannelName:
+		return m.OldChannelName(ctx)
+	case upstreampricemonitorrunitem.FieldModel:
+		return m.OldModel(ctx)
+	case upstreampricemonitorrunitem.FieldStatus:
+		return m.OldStatus(ctx)
+	case upstreampricemonitorrunitem.FieldUpstreamInput:
+		return m.OldUpstreamInput(ctx)
+	case upstreampricemonitorrunitem.FieldUpstreamOutput:
+		return m.OldUpstreamOutput(ctx)
+	case upstreampricemonitorrunitem.FieldUpstreamCacheRead:
+		return m.OldUpstreamCacheRead(ctx)
+	case upstreampricemonitorrunitem.FieldUpstreamCacheWrite:
+		return m.OldUpstreamCacheWrite(ctx)
+	case upstreampricemonitorrunitem.FieldLocalInput:
+		return m.OldLocalInput(ctx)
+	case upstreampricemonitorrunitem.FieldLocalOutput:
+		return m.OldLocalOutput(ctx)
+	case upstreampricemonitorrunitem.FieldLocalCacheRead:
+		return m.OldLocalCacheRead(ctx)
+	case upstreampricemonitorrunitem.FieldLocalCacheWrite:
+		return m.OldLocalCacheWrite(ctx)
+	case upstreampricemonitorrunitem.FieldSuggestedInput:
+		return m.OldSuggestedInput(ctx)
+	case upstreampricemonitorrunitem.FieldSuggestedOutput:
+		return m.OldSuggestedOutput(ctx)
+	case upstreampricemonitorrunitem.FieldSuggestedCacheRead:
+		return m.OldSuggestedCacheRead(ctx)
+	case upstreampricemonitorrunitem.FieldSuggestedCacheWrite:
+		return m.OldSuggestedCacheWrite(ctx)
+	case upstreampricemonitorrunitem.FieldMarginInput:
+		return m.OldMarginInput(ctx)
+	case upstreampricemonitorrunitem.FieldMessage:
+		return m.OldMessage(ctx)
+	case upstreampricemonitorrunitem.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	}
+	return nil, fmt.Errorf("unknown UpstreamPriceMonitorRunItem field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *UpstreamPriceMonitorRunItemMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case upstreampricemonitorrunitem.FieldRunID:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRunID(v)
+		return nil
+	case upstreampricemonitorrunitem.FieldChannelID:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetChannelID(v)
+		return nil
+	case upstreampricemonitorrunitem.FieldChannelName:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetChannelName(v)
+		return nil
+	case upstreampricemonitorrunitem.FieldModel:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetModel(v)
+		return nil
+	case upstreampricemonitorrunitem.FieldStatus:
+		v, ok := value.(upstreampricemonitorrunitem.Status)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetStatus(v)
+		return nil
+	case upstreampricemonitorrunitem.FieldUpstreamInput:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpstreamInput(v)
+		return nil
+	case upstreampricemonitorrunitem.FieldUpstreamOutput:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpstreamOutput(v)
+		return nil
+	case upstreampricemonitorrunitem.FieldUpstreamCacheRead:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpstreamCacheRead(v)
+		return nil
+	case upstreampricemonitorrunitem.FieldUpstreamCacheWrite:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpstreamCacheWrite(v)
+		return nil
+	case upstreampricemonitorrunitem.FieldLocalInput:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetLocalInput(v)
+		return nil
+	case upstreampricemonitorrunitem.FieldLocalOutput:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetLocalOutput(v)
+		return nil
+	case upstreampricemonitorrunitem.FieldLocalCacheRead:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetLocalCacheRead(v)
+		return nil
+	case upstreampricemonitorrunitem.FieldLocalCacheWrite:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetLocalCacheWrite(v)
+		return nil
+	case upstreampricemonitorrunitem.FieldSuggestedInput:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSuggestedInput(v)
+		return nil
+	case upstreampricemonitorrunitem.FieldSuggestedOutput:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSuggestedOutput(v)
+		return nil
+	case upstreampricemonitorrunitem.FieldSuggestedCacheRead:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSuggestedCacheRead(v)
+		return nil
+	case upstreampricemonitorrunitem.FieldSuggestedCacheWrite:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSuggestedCacheWrite(v)
+		return nil
+	case upstreampricemonitorrunitem.FieldMarginInput:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetMarginInput(v)
+		return nil
+	case upstreampricemonitorrunitem.FieldMessage:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetMessage(v)
+		return nil
+	case upstreampricemonitorrunitem.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	}
+	return fmt.Errorf("unknown UpstreamPriceMonitorRunItem field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *UpstreamPriceMonitorRunItemMutation) AddedFields() []string {
+	var fields []string
+	if m.addchannel_id != nil {
+		fields = append(fields, upstreampricemonitorrunitem.FieldChannelID)
+	}
+	if m.addupstream_input != nil {
+		fields = append(fields, upstreampricemonitorrunitem.FieldUpstreamInput)
+	}
+	if m.addupstream_output != nil {
+		fields = append(fields, upstreampricemonitorrunitem.FieldUpstreamOutput)
+	}
+	if m.addupstream_cache_read != nil {
+		fields = append(fields, upstreampricemonitorrunitem.FieldUpstreamCacheRead)
+	}
+	if m.addupstream_cache_write != nil {
+		fields = append(fields, upstreampricemonitorrunitem.FieldUpstreamCacheWrite)
+	}
+	if m.addlocal_input != nil {
+		fields = append(fields, upstreampricemonitorrunitem.FieldLocalInput)
+	}
+	if m.addlocal_output != nil {
+		fields = append(fields, upstreampricemonitorrunitem.FieldLocalOutput)
+	}
+	if m.addlocal_cache_read != nil {
+		fields = append(fields, upstreampricemonitorrunitem.FieldLocalCacheRead)
+	}
+	if m.addlocal_cache_write != nil {
+		fields = append(fields, upstreampricemonitorrunitem.FieldLocalCacheWrite)
+	}
+	if m.addsuggested_input != nil {
+		fields = append(fields, upstreampricemonitorrunitem.FieldSuggestedInput)
+	}
+	if m.addsuggested_output != nil {
+		fields = append(fields, upstreampricemonitorrunitem.FieldSuggestedOutput)
+	}
+	if m.addsuggested_cache_read != nil {
+		fields = append(fields, upstreampricemonitorrunitem.FieldSuggestedCacheRead)
+	}
+	if m.addsuggested_cache_write != nil {
+		fields = append(fields, upstreampricemonitorrunitem.FieldSuggestedCacheWrite)
+	}
+	if m.addmargin_input != nil {
+		fields = append(fields, upstreampricemonitorrunitem.FieldMarginInput)
+	}
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *UpstreamPriceMonitorRunItemMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case upstreampricemonitorrunitem.FieldChannelID:
+		return m.AddedChannelID()
+	case upstreampricemonitorrunitem.FieldUpstreamInput:
+		return m.AddedUpstreamInput()
+	case upstreampricemonitorrunitem.FieldUpstreamOutput:
+		return m.AddedUpstreamOutput()
+	case upstreampricemonitorrunitem.FieldUpstreamCacheRead:
+		return m.AddedUpstreamCacheRead()
+	case upstreampricemonitorrunitem.FieldUpstreamCacheWrite:
+		return m.AddedUpstreamCacheWrite()
+	case upstreampricemonitorrunitem.FieldLocalInput:
+		return m.AddedLocalInput()
+	case upstreampricemonitorrunitem.FieldLocalOutput:
+		return m.AddedLocalOutput()
+	case upstreampricemonitorrunitem.FieldLocalCacheRead:
+		return m.AddedLocalCacheRead()
+	case upstreampricemonitorrunitem.FieldLocalCacheWrite:
+		return m.AddedLocalCacheWrite()
+	case upstreampricemonitorrunitem.FieldSuggestedInput:
+		return m.AddedSuggestedInput()
+	case upstreampricemonitorrunitem.FieldSuggestedOutput:
+		return m.AddedSuggestedOutput()
+	case upstreampricemonitorrunitem.FieldSuggestedCacheRead:
+		return m.AddedSuggestedCacheRead()
+	case upstreampricemonitorrunitem.FieldSuggestedCacheWrite:
+		return m.AddedSuggestedCacheWrite()
+	case upstreampricemonitorrunitem.FieldMarginInput:
+		return m.AddedMarginInput()
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *UpstreamPriceMonitorRunItemMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case upstreampricemonitorrunitem.FieldChannelID:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddChannelID(v)
+		return nil
+	case upstreampricemonitorrunitem.FieldUpstreamInput:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddUpstreamInput(v)
+		return nil
+	case upstreampricemonitorrunitem.FieldUpstreamOutput:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddUpstreamOutput(v)
+		return nil
+	case upstreampricemonitorrunitem.FieldUpstreamCacheRead:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddUpstreamCacheRead(v)
+		return nil
+	case upstreampricemonitorrunitem.FieldUpstreamCacheWrite:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddUpstreamCacheWrite(v)
+		return nil
+	case upstreampricemonitorrunitem.FieldLocalInput:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddLocalInput(v)
+		return nil
+	case upstreampricemonitorrunitem.FieldLocalOutput:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddLocalOutput(v)
+		return nil
+	case upstreampricemonitorrunitem.FieldLocalCacheRead:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddLocalCacheRead(v)
+		return nil
+	case upstreampricemonitorrunitem.FieldLocalCacheWrite:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddLocalCacheWrite(v)
+		return nil
+	case upstreampricemonitorrunitem.FieldSuggestedInput:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddSuggestedInput(v)
+		return nil
+	case upstreampricemonitorrunitem.FieldSuggestedOutput:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddSuggestedOutput(v)
+		return nil
+	case upstreampricemonitorrunitem.FieldSuggestedCacheRead:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddSuggestedCacheRead(v)
+		return nil
+	case upstreampricemonitorrunitem.FieldSuggestedCacheWrite:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddSuggestedCacheWrite(v)
+		return nil
+	case upstreampricemonitorrunitem.FieldMarginInput:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddMarginInput(v)
+		return nil
+	}
+	return fmt.Errorf("unknown UpstreamPriceMonitorRunItem numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *UpstreamPriceMonitorRunItemMutation) ClearedFields() []string {
+	var fields []string
+	if m.FieldCleared(upstreampricemonitorrunitem.FieldUpstreamInput) {
+		fields = append(fields, upstreampricemonitorrunitem.FieldUpstreamInput)
+	}
+	if m.FieldCleared(upstreampricemonitorrunitem.FieldUpstreamOutput) {
+		fields = append(fields, upstreampricemonitorrunitem.FieldUpstreamOutput)
+	}
+	if m.FieldCleared(upstreampricemonitorrunitem.FieldUpstreamCacheRead) {
+		fields = append(fields, upstreampricemonitorrunitem.FieldUpstreamCacheRead)
+	}
+	if m.FieldCleared(upstreampricemonitorrunitem.FieldUpstreamCacheWrite) {
+		fields = append(fields, upstreampricemonitorrunitem.FieldUpstreamCacheWrite)
+	}
+	if m.FieldCleared(upstreampricemonitorrunitem.FieldLocalInput) {
+		fields = append(fields, upstreampricemonitorrunitem.FieldLocalInput)
+	}
+	if m.FieldCleared(upstreampricemonitorrunitem.FieldLocalOutput) {
+		fields = append(fields, upstreampricemonitorrunitem.FieldLocalOutput)
+	}
+	if m.FieldCleared(upstreampricemonitorrunitem.FieldLocalCacheRead) {
+		fields = append(fields, upstreampricemonitorrunitem.FieldLocalCacheRead)
+	}
+	if m.FieldCleared(upstreampricemonitorrunitem.FieldLocalCacheWrite) {
+		fields = append(fields, upstreampricemonitorrunitem.FieldLocalCacheWrite)
+	}
+	if m.FieldCleared(upstreampricemonitorrunitem.FieldSuggestedInput) {
+		fields = append(fields, upstreampricemonitorrunitem.FieldSuggestedInput)
+	}
+	if m.FieldCleared(upstreampricemonitorrunitem.FieldSuggestedOutput) {
+		fields = append(fields, upstreampricemonitorrunitem.FieldSuggestedOutput)
+	}
+	if m.FieldCleared(upstreampricemonitorrunitem.FieldSuggestedCacheRead) {
+		fields = append(fields, upstreampricemonitorrunitem.FieldSuggestedCacheRead)
+	}
+	if m.FieldCleared(upstreampricemonitorrunitem.FieldSuggestedCacheWrite) {
+		fields = append(fields, upstreampricemonitorrunitem.FieldSuggestedCacheWrite)
+	}
+	if m.FieldCleared(upstreampricemonitorrunitem.FieldMarginInput) {
+		fields = append(fields, upstreampricemonitorrunitem.FieldMarginInput)
+	}
+	return fields
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *UpstreamPriceMonitorRunItemMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *UpstreamPriceMonitorRunItemMutation) ClearField(name string) error {
+	switch name {
+	case upstreampricemonitorrunitem.FieldUpstreamInput:
+		m.ClearUpstreamInput()
+		return nil
+	case upstreampricemonitorrunitem.FieldUpstreamOutput:
+		m.ClearUpstreamOutput()
+		return nil
+	case upstreampricemonitorrunitem.FieldUpstreamCacheRead:
+		m.ClearUpstreamCacheRead()
+		return nil
+	case upstreampricemonitorrunitem.FieldUpstreamCacheWrite:
+		m.ClearUpstreamCacheWrite()
+		return nil
+	case upstreampricemonitorrunitem.FieldLocalInput:
+		m.ClearLocalInput()
+		return nil
+	case upstreampricemonitorrunitem.FieldLocalOutput:
+		m.ClearLocalOutput()
+		return nil
+	case upstreampricemonitorrunitem.FieldLocalCacheRead:
+		m.ClearLocalCacheRead()
+		return nil
+	case upstreampricemonitorrunitem.FieldLocalCacheWrite:
+		m.ClearLocalCacheWrite()
+		return nil
+	case upstreampricemonitorrunitem.FieldSuggestedInput:
+		m.ClearSuggestedInput()
+		return nil
+	case upstreampricemonitorrunitem.FieldSuggestedOutput:
+		m.ClearSuggestedOutput()
+		return nil
+	case upstreampricemonitorrunitem.FieldSuggestedCacheRead:
+		m.ClearSuggestedCacheRead()
+		return nil
+	case upstreampricemonitorrunitem.FieldSuggestedCacheWrite:
+		m.ClearSuggestedCacheWrite()
+		return nil
+	case upstreampricemonitorrunitem.FieldMarginInput:
+		m.ClearMarginInput()
+		return nil
+	}
+	return fmt.Errorf("unknown UpstreamPriceMonitorRunItem nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *UpstreamPriceMonitorRunItemMutation) ResetField(name string) error {
+	switch name {
+	case upstreampricemonitorrunitem.FieldRunID:
+		m.ResetRunID()
+		return nil
+	case upstreampricemonitorrunitem.FieldChannelID:
+		m.ResetChannelID()
+		return nil
+	case upstreampricemonitorrunitem.FieldChannelName:
+		m.ResetChannelName()
+		return nil
+	case upstreampricemonitorrunitem.FieldModel:
+		m.ResetModel()
+		return nil
+	case upstreampricemonitorrunitem.FieldStatus:
+		m.ResetStatus()
+		return nil
+	case upstreampricemonitorrunitem.FieldUpstreamInput:
+		m.ResetUpstreamInput()
+		return nil
+	case upstreampricemonitorrunitem.FieldUpstreamOutput:
+		m.ResetUpstreamOutput()
+		return nil
+	case upstreampricemonitorrunitem.FieldUpstreamCacheRead:
+		m.ResetUpstreamCacheRead()
+		return nil
+	case upstreampricemonitorrunitem.FieldUpstreamCacheWrite:
+		m.ResetUpstreamCacheWrite()
+		return nil
+	case upstreampricemonitorrunitem.FieldLocalInput:
+		m.ResetLocalInput()
+		return nil
+	case upstreampricemonitorrunitem.FieldLocalOutput:
+		m.ResetLocalOutput()
+		return nil
+	case upstreampricemonitorrunitem.FieldLocalCacheRead:
+		m.ResetLocalCacheRead()
+		return nil
+	case upstreampricemonitorrunitem.FieldLocalCacheWrite:
+		m.ResetLocalCacheWrite()
+		return nil
+	case upstreampricemonitorrunitem.FieldSuggestedInput:
+		m.ResetSuggestedInput()
+		return nil
+	case upstreampricemonitorrunitem.FieldSuggestedOutput:
+		m.ResetSuggestedOutput()
+		return nil
+	case upstreampricemonitorrunitem.FieldSuggestedCacheRead:
+		m.ResetSuggestedCacheRead()
+		return nil
+	case upstreampricemonitorrunitem.FieldSuggestedCacheWrite:
+		m.ResetSuggestedCacheWrite()
+		return nil
+	case upstreampricemonitorrunitem.FieldMarginInput:
+		m.ResetMarginInput()
+		return nil
+	case upstreampricemonitorrunitem.FieldMessage:
+		m.ResetMessage()
+		return nil
+	case upstreampricemonitorrunitem.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	}
+	return fmt.Errorf("unknown UpstreamPriceMonitorRunItem field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *UpstreamPriceMonitorRunItemMutation) AddedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.run != nil {
+		edges = append(edges, upstreampricemonitorrunitem.EdgeRun)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *UpstreamPriceMonitorRunItemMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case upstreampricemonitorrunitem.EdgeRun:
+		if id := m.run; id != nil {
+			return []ent.Value{*id}
+		}
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *UpstreamPriceMonitorRunItemMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 1)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *UpstreamPriceMonitorRunItemMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *UpstreamPriceMonitorRunItemMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.clearedrun {
+		edges = append(edges, upstreampricemonitorrunitem.EdgeRun)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *UpstreamPriceMonitorRunItemMutation) EdgeCleared(name string) bool {
+	switch name {
+	case upstreampricemonitorrunitem.EdgeRun:
+		return m.clearedrun
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *UpstreamPriceMonitorRunItemMutation) ClearEdge(name string) error {
+	switch name {
+	case upstreampricemonitorrunitem.EdgeRun:
+		m.ClearRun()
+		return nil
+	}
+	return fmt.Errorf("unknown UpstreamPriceMonitorRunItem unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *UpstreamPriceMonitorRunItemMutation) ResetEdge(name string) error {
+	switch name {
+	case upstreampricemonitorrunitem.EdgeRun:
+		m.ResetRun()
+		return nil
+	}
+	return fmt.Errorf("unknown UpstreamPriceMonitorRunItem edge %s", name)
 }
 
 // UsageCleanupTaskMutation represents an operation that mutates the UsageCleanupTask nodes in the graph.

@@ -46,6 +46,9 @@ import (
 	"github.com/Wei-Shaw/sub2api/ent/setting"
 	"github.com/Wei-Shaw/sub2api/ent/subscriptionplan"
 	"github.com/Wei-Shaw/sub2api/ent/tlsfingerprintprofile"
+	"github.com/Wei-Shaw/sub2api/ent/upstreampricemonitorconfig"
+	"github.com/Wei-Shaw/sub2api/ent/upstreampricemonitorrun"
+	"github.com/Wei-Shaw/sub2api/ent/upstreampricemonitorrunitem"
 	"github.com/Wei-Shaw/sub2api/ent/usagecleanuptask"
 	"github.com/Wei-Shaw/sub2api/ent/usagelog"
 	"github.com/Wei-Shaw/sub2api/ent/user"
@@ -125,6 +128,12 @@ type Client struct {
 	SubscriptionPlan *SubscriptionPlanClient
 	// TLSFingerprintProfile is the client for interacting with the TLSFingerprintProfile builders.
 	TLSFingerprintProfile *TLSFingerprintProfileClient
+	// UpstreamPriceMonitorConfig is the client for interacting with the UpstreamPriceMonitorConfig builders.
+	UpstreamPriceMonitorConfig *UpstreamPriceMonitorConfigClient
+	// UpstreamPriceMonitorRun is the client for interacting with the UpstreamPriceMonitorRun builders.
+	UpstreamPriceMonitorRun *UpstreamPriceMonitorRunClient
+	// UpstreamPriceMonitorRunItem is the client for interacting with the UpstreamPriceMonitorRunItem builders.
+	UpstreamPriceMonitorRunItem *UpstreamPriceMonitorRunItemClient
 	// UsageCleanupTask is the client for interacting with the UsageCleanupTask builders.
 	UsageCleanupTask *UsageCleanupTaskClient
 	// UsageLog is the client for interacting with the UsageLog builders.
@@ -183,6 +192,9 @@ func (c *Client) init() {
 	c.Setting = NewSettingClient(c.config)
 	c.SubscriptionPlan = NewSubscriptionPlanClient(c.config)
 	c.TLSFingerprintProfile = NewTLSFingerprintProfileClient(c.config)
+	c.UpstreamPriceMonitorConfig = NewUpstreamPriceMonitorConfigClient(c.config)
+	c.UpstreamPriceMonitorRun = NewUpstreamPriceMonitorRunClient(c.config)
+	c.UpstreamPriceMonitorRunItem = NewUpstreamPriceMonitorRunItemClient(c.config)
 	c.UsageCleanupTask = NewUsageCleanupTaskClient(c.config)
 	c.UsageLog = NewUsageLogClient(c.config)
 	c.User = NewUserClient(c.config)
@@ -314,6 +326,9 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		Setting:                       NewSettingClient(cfg),
 		SubscriptionPlan:              NewSubscriptionPlanClient(cfg),
 		TLSFingerprintProfile:         NewTLSFingerprintProfileClient(cfg),
+		UpstreamPriceMonitorConfig:    NewUpstreamPriceMonitorConfigClient(cfg),
+		UpstreamPriceMonitorRun:       NewUpstreamPriceMonitorRunClient(cfg),
+		UpstreamPriceMonitorRunItem:   NewUpstreamPriceMonitorRunItemClient(cfg),
 		UsageCleanupTask:              NewUsageCleanupTaskClient(cfg),
 		UsageLog:                      NewUsageLogClient(cfg),
 		User:                          NewUserClient(cfg),
@@ -372,6 +387,9 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		Setting:                       NewSettingClient(cfg),
 		SubscriptionPlan:              NewSubscriptionPlanClient(cfg),
 		TLSFingerprintProfile:         NewTLSFingerprintProfileClient(cfg),
+		UpstreamPriceMonitorConfig:    NewUpstreamPriceMonitorConfigClient(cfg),
+		UpstreamPriceMonitorRun:       NewUpstreamPriceMonitorRunClient(cfg),
+		UpstreamPriceMonitorRunItem:   NewUpstreamPriceMonitorRunItemClient(cfg),
 		UsageCleanupTask:              NewUsageCleanupTaskClient(cfg),
 		UsageLog:                      NewUsageLogClient(cfg),
 		User:                          NewUserClient(cfg),
@@ -417,9 +435,10 @@ func (c *Client) Use(hooks ...Hook) {
 		c.IdentityAdoptionDecision, c.PaymentAuditLog, c.PaymentOrder,
 		c.PaymentProviderInstance, c.PendingAuthSession, c.PromoCode, c.PromoCodeUsage,
 		c.Proxy, c.RedeemCode, c.SecuritySecret, c.Setting, c.SubscriptionPlan,
-		c.TLSFingerprintProfile, c.UsageCleanupTask, c.UsageLog, c.User,
-		c.UserAllowedGroup, c.UserAttributeDefinition, c.UserAttributeValue,
-		c.UserPlatformQuota, c.UserSubscription,
+		c.TLSFingerprintProfile, c.UpstreamPriceMonitorConfig,
+		c.UpstreamPriceMonitorRun, c.UpstreamPriceMonitorRunItem, c.UsageCleanupTask,
+		c.UsageLog, c.User, c.UserAllowedGroup, c.UserAttributeDefinition,
+		c.UserAttributeValue, c.UserPlatformQuota, c.UserSubscription,
 	} {
 		n.Use(hooks...)
 	}
@@ -437,9 +456,10 @@ func (c *Client) Intercept(interceptors ...Interceptor) {
 		c.IdentityAdoptionDecision, c.PaymentAuditLog, c.PaymentOrder,
 		c.PaymentProviderInstance, c.PendingAuthSession, c.PromoCode, c.PromoCodeUsage,
 		c.Proxy, c.RedeemCode, c.SecuritySecret, c.Setting, c.SubscriptionPlan,
-		c.TLSFingerprintProfile, c.UsageCleanupTask, c.UsageLog, c.User,
-		c.UserAllowedGroup, c.UserAttributeDefinition, c.UserAttributeValue,
-		c.UserPlatformQuota, c.UserSubscription,
+		c.TLSFingerprintProfile, c.UpstreamPriceMonitorConfig,
+		c.UpstreamPriceMonitorRun, c.UpstreamPriceMonitorRunItem, c.UsageCleanupTask,
+		c.UsageLog, c.User, c.UserAllowedGroup, c.UserAttributeDefinition,
+		c.UserAttributeValue, c.UserPlatformQuota, c.UserSubscription,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -510,6 +530,12 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.SubscriptionPlan.mutate(ctx, m)
 	case *TLSFingerprintProfileMutation:
 		return c.TLSFingerprintProfile.mutate(ctx, m)
+	case *UpstreamPriceMonitorConfigMutation:
+		return c.UpstreamPriceMonitorConfig.mutate(ctx, m)
+	case *UpstreamPriceMonitorRunMutation:
+		return c.UpstreamPriceMonitorRun.mutate(ctx, m)
+	case *UpstreamPriceMonitorRunItemMutation:
+		return c.UpstreamPriceMonitorRunItem.mutate(ctx, m)
 	case *UsageCleanupTaskMutation:
 		return c.UsageCleanupTask.mutate(ctx, m)
 	case *UsageLogMutation:
@@ -5351,6 +5377,437 @@ func (c *TLSFingerprintProfileClient) mutate(ctx context.Context, m *TLSFingerpr
 	}
 }
 
+// UpstreamPriceMonitorConfigClient is a client for the UpstreamPriceMonitorConfig schema.
+type UpstreamPriceMonitorConfigClient struct {
+	config
+}
+
+// NewUpstreamPriceMonitorConfigClient returns a client for the UpstreamPriceMonitorConfig from the given config.
+func NewUpstreamPriceMonitorConfigClient(c config) *UpstreamPriceMonitorConfigClient {
+	return &UpstreamPriceMonitorConfigClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `upstreampricemonitorconfig.Hooks(f(g(h())))`.
+func (c *UpstreamPriceMonitorConfigClient) Use(hooks ...Hook) {
+	c.hooks.UpstreamPriceMonitorConfig = append(c.hooks.UpstreamPriceMonitorConfig, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `upstreampricemonitorconfig.Intercept(f(g(h())))`.
+func (c *UpstreamPriceMonitorConfigClient) Intercept(interceptors ...Interceptor) {
+	c.inters.UpstreamPriceMonitorConfig = append(c.inters.UpstreamPriceMonitorConfig, interceptors...)
+}
+
+// Create returns a builder for creating a UpstreamPriceMonitorConfig entity.
+func (c *UpstreamPriceMonitorConfigClient) Create() *UpstreamPriceMonitorConfigCreate {
+	mutation := newUpstreamPriceMonitorConfigMutation(c.config, OpCreate)
+	return &UpstreamPriceMonitorConfigCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of UpstreamPriceMonitorConfig entities.
+func (c *UpstreamPriceMonitorConfigClient) CreateBulk(builders ...*UpstreamPriceMonitorConfigCreate) *UpstreamPriceMonitorConfigCreateBulk {
+	return &UpstreamPriceMonitorConfigCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *UpstreamPriceMonitorConfigClient) MapCreateBulk(slice any, setFunc func(*UpstreamPriceMonitorConfigCreate, int)) *UpstreamPriceMonitorConfigCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &UpstreamPriceMonitorConfigCreateBulk{err: fmt.Errorf("calling to UpstreamPriceMonitorConfigClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*UpstreamPriceMonitorConfigCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &UpstreamPriceMonitorConfigCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for UpstreamPriceMonitorConfig.
+func (c *UpstreamPriceMonitorConfigClient) Update() *UpstreamPriceMonitorConfigUpdate {
+	mutation := newUpstreamPriceMonitorConfigMutation(c.config, OpUpdate)
+	return &UpstreamPriceMonitorConfigUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *UpstreamPriceMonitorConfigClient) UpdateOne(_m *UpstreamPriceMonitorConfig) *UpstreamPriceMonitorConfigUpdateOne {
+	mutation := newUpstreamPriceMonitorConfigMutation(c.config, OpUpdateOne, withUpstreamPriceMonitorConfig(_m))
+	return &UpstreamPriceMonitorConfigUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *UpstreamPriceMonitorConfigClient) UpdateOneID(id int64) *UpstreamPriceMonitorConfigUpdateOne {
+	mutation := newUpstreamPriceMonitorConfigMutation(c.config, OpUpdateOne, withUpstreamPriceMonitorConfigID(id))
+	return &UpstreamPriceMonitorConfigUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for UpstreamPriceMonitorConfig.
+func (c *UpstreamPriceMonitorConfigClient) Delete() *UpstreamPriceMonitorConfigDelete {
+	mutation := newUpstreamPriceMonitorConfigMutation(c.config, OpDelete)
+	return &UpstreamPriceMonitorConfigDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *UpstreamPriceMonitorConfigClient) DeleteOne(_m *UpstreamPriceMonitorConfig) *UpstreamPriceMonitorConfigDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *UpstreamPriceMonitorConfigClient) DeleteOneID(id int64) *UpstreamPriceMonitorConfigDeleteOne {
+	builder := c.Delete().Where(upstreampricemonitorconfig.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &UpstreamPriceMonitorConfigDeleteOne{builder}
+}
+
+// Query returns a query builder for UpstreamPriceMonitorConfig.
+func (c *UpstreamPriceMonitorConfigClient) Query() *UpstreamPriceMonitorConfigQuery {
+	return &UpstreamPriceMonitorConfigQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeUpstreamPriceMonitorConfig},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a UpstreamPriceMonitorConfig entity by its id.
+func (c *UpstreamPriceMonitorConfigClient) Get(ctx context.Context, id int64) (*UpstreamPriceMonitorConfig, error) {
+	return c.Query().Where(upstreampricemonitorconfig.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *UpstreamPriceMonitorConfigClient) GetX(ctx context.Context, id int64) *UpstreamPriceMonitorConfig {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *UpstreamPriceMonitorConfigClient) Hooks() []Hook {
+	return c.hooks.UpstreamPriceMonitorConfig
+}
+
+// Interceptors returns the client interceptors.
+func (c *UpstreamPriceMonitorConfigClient) Interceptors() []Interceptor {
+	return c.inters.UpstreamPriceMonitorConfig
+}
+
+func (c *UpstreamPriceMonitorConfigClient) mutate(ctx context.Context, m *UpstreamPriceMonitorConfigMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&UpstreamPriceMonitorConfigCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&UpstreamPriceMonitorConfigUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&UpstreamPriceMonitorConfigUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&UpstreamPriceMonitorConfigDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown UpstreamPriceMonitorConfig mutation op: %q", m.Op())
+	}
+}
+
+// UpstreamPriceMonitorRunClient is a client for the UpstreamPriceMonitorRun schema.
+type UpstreamPriceMonitorRunClient struct {
+	config
+}
+
+// NewUpstreamPriceMonitorRunClient returns a client for the UpstreamPriceMonitorRun from the given config.
+func NewUpstreamPriceMonitorRunClient(c config) *UpstreamPriceMonitorRunClient {
+	return &UpstreamPriceMonitorRunClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `upstreampricemonitorrun.Hooks(f(g(h())))`.
+func (c *UpstreamPriceMonitorRunClient) Use(hooks ...Hook) {
+	c.hooks.UpstreamPriceMonitorRun = append(c.hooks.UpstreamPriceMonitorRun, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `upstreampricemonitorrun.Intercept(f(g(h())))`.
+func (c *UpstreamPriceMonitorRunClient) Intercept(interceptors ...Interceptor) {
+	c.inters.UpstreamPriceMonitorRun = append(c.inters.UpstreamPriceMonitorRun, interceptors...)
+}
+
+// Create returns a builder for creating a UpstreamPriceMonitorRun entity.
+func (c *UpstreamPriceMonitorRunClient) Create() *UpstreamPriceMonitorRunCreate {
+	mutation := newUpstreamPriceMonitorRunMutation(c.config, OpCreate)
+	return &UpstreamPriceMonitorRunCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of UpstreamPriceMonitorRun entities.
+func (c *UpstreamPriceMonitorRunClient) CreateBulk(builders ...*UpstreamPriceMonitorRunCreate) *UpstreamPriceMonitorRunCreateBulk {
+	return &UpstreamPriceMonitorRunCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *UpstreamPriceMonitorRunClient) MapCreateBulk(slice any, setFunc func(*UpstreamPriceMonitorRunCreate, int)) *UpstreamPriceMonitorRunCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &UpstreamPriceMonitorRunCreateBulk{err: fmt.Errorf("calling to UpstreamPriceMonitorRunClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*UpstreamPriceMonitorRunCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &UpstreamPriceMonitorRunCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for UpstreamPriceMonitorRun.
+func (c *UpstreamPriceMonitorRunClient) Update() *UpstreamPriceMonitorRunUpdate {
+	mutation := newUpstreamPriceMonitorRunMutation(c.config, OpUpdate)
+	return &UpstreamPriceMonitorRunUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *UpstreamPriceMonitorRunClient) UpdateOne(_m *UpstreamPriceMonitorRun) *UpstreamPriceMonitorRunUpdateOne {
+	mutation := newUpstreamPriceMonitorRunMutation(c.config, OpUpdateOne, withUpstreamPriceMonitorRun(_m))
+	return &UpstreamPriceMonitorRunUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *UpstreamPriceMonitorRunClient) UpdateOneID(id int64) *UpstreamPriceMonitorRunUpdateOne {
+	mutation := newUpstreamPriceMonitorRunMutation(c.config, OpUpdateOne, withUpstreamPriceMonitorRunID(id))
+	return &UpstreamPriceMonitorRunUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for UpstreamPriceMonitorRun.
+func (c *UpstreamPriceMonitorRunClient) Delete() *UpstreamPriceMonitorRunDelete {
+	mutation := newUpstreamPriceMonitorRunMutation(c.config, OpDelete)
+	return &UpstreamPriceMonitorRunDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *UpstreamPriceMonitorRunClient) DeleteOne(_m *UpstreamPriceMonitorRun) *UpstreamPriceMonitorRunDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *UpstreamPriceMonitorRunClient) DeleteOneID(id int64) *UpstreamPriceMonitorRunDeleteOne {
+	builder := c.Delete().Where(upstreampricemonitorrun.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &UpstreamPriceMonitorRunDeleteOne{builder}
+}
+
+// Query returns a query builder for UpstreamPriceMonitorRun.
+func (c *UpstreamPriceMonitorRunClient) Query() *UpstreamPriceMonitorRunQuery {
+	return &UpstreamPriceMonitorRunQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeUpstreamPriceMonitorRun},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a UpstreamPriceMonitorRun entity by its id.
+func (c *UpstreamPriceMonitorRunClient) Get(ctx context.Context, id int64) (*UpstreamPriceMonitorRun, error) {
+	return c.Query().Where(upstreampricemonitorrun.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *UpstreamPriceMonitorRunClient) GetX(ctx context.Context, id int64) *UpstreamPriceMonitorRun {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryItems queries the items edge of a UpstreamPriceMonitorRun.
+func (c *UpstreamPriceMonitorRunClient) QueryItems(_m *UpstreamPriceMonitorRun) *UpstreamPriceMonitorRunItemQuery {
+	query := (&UpstreamPriceMonitorRunItemClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(upstreampricemonitorrun.Table, upstreampricemonitorrun.FieldID, id),
+			sqlgraph.To(upstreampricemonitorrunitem.Table, upstreampricemonitorrunitem.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, upstreampricemonitorrun.ItemsTable, upstreampricemonitorrun.ItemsColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *UpstreamPriceMonitorRunClient) Hooks() []Hook {
+	return c.hooks.UpstreamPriceMonitorRun
+}
+
+// Interceptors returns the client interceptors.
+func (c *UpstreamPriceMonitorRunClient) Interceptors() []Interceptor {
+	return c.inters.UpstreamPriceMonitorRun
+}
+
+func (c *UpstreamPriceMonitorRunClient) mutate(ctx context.Context, m *UpstreamPriceMonitorRunMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&UpstreamPriceMonitorRunCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&UpstreamPriceMonitorRunUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&UpstreamPriceMonitorRunUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&UpstreamPriceMonitorRunDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown UpstreamPriceMonitorRun mutation op: %q", m.Op())
+	}
+}
+
+// UpstreamPriceMonitorRunItemClient is a client for the UpstreamPriceMonitorRunItem schema.
+type UpstreamPriceMonitorRunItemClient struct {
+	config
+}
+
+// NewUpstreamPriceMonitorRunItemClient returns a client for the UpstreamPriceMonitorRunItem from the given config.
+func NewUpstreamPriceMonitorRunItemClient(c config) *UpstreamPriceMonitorRunItemClient {
+	return &UpstreamPriceMonitorRunItemClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `upstreampricemonitorrunitem.Hooks(f(g(h())))`.
+func (c *UpstreamPriceMonitorRunItemClient) Use(hooks ...Hook) {
+	c.hooks.UpstreamPriceMonitorRunItem = append(c.hooks.UpstreamPriceMonitorRunItem, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `upstreampricemonitorrunitem.Intercept(f(g(h())))`.
+func (c *UpstreamPriceMonitorRunItemClient) Intercept(interceptors ...Interceptor) {
+	c.inters.UpstreamPriceMonitorRunItem = append(c.inters.UpstreamPriceMonitorRunItem, interceptors...)
+}
+
+// Create returns a builder for creating a UpstreamPriceMonitorRunItem entity.
+func (c *UpstreamPriceMonitorRunItemClient) Create() *UpstreamPriceMonitorRunItemCreate {
+	mutation := newUpstreamPriceMonitorRunItemMutation(c.config, OpCreate)
+	return &UpstreamPriceMonitorRunItemCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of UpstreamPriceMonitorRunItem entities.
+func (c *UpstreamPriceMonitorRunItemClient) CreateBulk(builders ...*UpstreamPriceMonitorRunItemCreate) *UpstreamPriceMonitorRunItemCreateBulk {
+	return &UpstreamPriceMonitorRunItemCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *UpstreamPriceMonitorRunItemClient) MapCreateBulk(slice any, setFunc func(*UpstreamPriceMonitorRunItemCreate, int)) *UpstreamPriceMonitorRunItemCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &UpstreamPriceMonitorRunItemCreateBulk{err: fmt.Errorf("calling to UpstreamPriceMonitorRunItemClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*UpstreamPriceMonitorRunItemCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &UpstreamPriceMonitorRunItemCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for UpstreamPriceMonitorRunItem.
+func (c *UpstreamPriceMonitorRunItemClient) Update() *UpstreamPriceMonitorRunItemUpdate {
+	mutation := newUpstreamPriceMonitorRunItemMutation(c.config, OpUpdate)
+	return &UpstreamPriceMonitorRunItemUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *UpstreamPriceMonitorRunItemClient) UpdateOne(_m *UpstreamPriceMonitorRunItem) *UpstreamPriceMonitorRunItemUpdateOne {
+	mutation := newUpstreamPriceMonitorRunItemMutation(c.config, OpUpdateOne, withUpstreamPriceMonitorRunItem(_m))
+	return &UpstreamPriceMonitorRunItemUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *UpstreamPriceMonitorRunItemClient) UpdateOneID(id int64) *UpstreamPriceMonitorRunItemUpdateOne {
+	mutation := newUpstreamPriceMonitorRunItemMutation(c.config, OpUpdateOne, withUpstreamPriceMonitorRunItemID(id))
+	return &UpstreamPriceMonitorRunItemUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for UpstreamPriceMonitorRunItem.
+func (c *UpstreamPriceMonitorRunItemClient) Delete() *UpstreamPriceMonitorRunItemDelete {
+	mutation := newUpstreamPriceMonitorRunItemMutation(c.config, OpDelete)
+	return &UpstreamPriceMonitorRunItemDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *UpstreamPriceMonitorRunItemClient) DeleteOne(_m *UpstreamPriceMonitorRunItem) *UpstreamPriceMonitorRunItemDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *UpstreamPriceMonitorRunItemClient) DeleteOneID(id int64) *UpstreamPriceMonitorRunItemDeleteOne {
+	builder := c.Delete().Where(upstreampricemonitorrunitem.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &UpstreamPriceMonitorRunItemDeleteOne{builder}
+}
+
+// Query returns a query builder for UpstreamPriceMonitorRunItem.
+func (c *UpstreamPriceMonitorRunItemClient) Query() *UpstreamPriceMonitorRunItemQuery {
+	return &UpstreamPriceMonitorRunItemQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeUpstreamPriceMonitorRunItem},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a UpstreamPriceMonitorRunItem entity by its id.
+func (c *UpstreamPriceMonitorRunItemClient) Get(ctx context.Context, id int64) (*UpstreamPriceMonitorRunItem, error) {
+	return c.Query().Where(upstreampricemonitorrunitem.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *UpstreamPriceMonitorRunItemClient) GetX(ctx context.Context, id int64) *UpstreamPriceMonitorRunItem {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryRun queries the run edge of a UpstreamPriceMonitorRunItem.
+func (c *UpstreamPriceMonitorRunItemClient) QueryRun(_m *UpstreamPriceMonitorRunItem) *UpstreamPriceMonitorRunQuery {
+	query := (&UpstreamPriceMonitorRunClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(upstreampricemonitorrunitem.Table, upstreampricemonitorrunitem.FieldID, id),
+			sqlgraph.To(upstreampricemonitorrun.Table, upstreampricemonitorrun.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, upstreampricemonitorrunitem.RunTable, upstreampricemonitorrunitem.RunColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *UpstreamPriceMonitorRunItemClient) Hooks() []Hook {
+	return c.hooks.UpstreamPriceMonitorRunItem
+}
+
+// Interceptors returns the client interceptors.
+func (c *UpstreamPriceMonitorRunItemClient) Interceptors() []Interceptor {
+	return c.inters.UpstreamPriceMonitorRunItem
+}
+
+func (c *UpstreamPriceMonitorRunItemClient) mutate(ctx context.Context, m *UpstreamPriceMonitorRunItemMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&UpstreamPriceMonitorRunItemCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&UpstreamPriceMonitorRunItemUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&UpstreamPriceMonitorRunItemUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&UpstreamPriceMonitorRunItemDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown UpstreamPriceMonitorRunItem mutation op: %q", m.Op())
+	}
+}
+
 // UsageCleanupTaskClient is a client for the UsageCleanupTask schema.
 type UsageCleanupTaskClient struct {
 	config
@@ -6848,9 +7305,10 @@ type (
 		Group, IdempotencyRecord, IdentityAdoptionDecision, PaymentAuditLog,
 		PaymentOrder, PaymentProviderInstance, PendingAuthSession, PromoCode,
 		PromoCodeUsage, Proxy, RedeemCode, SecuritySecret, Setting, SubscriptionPlan,
-		TLSFingerprintProfile, UsageCleanupTask, UsageLog, User, UserAllowedGroup,
-		UserAttributeDefinition, UserAttributeValue, UserPlatformQuota,
-		UserSubscription []ent.Hook
+		TLSFingerprintProfile, UpstreamPriceMonitorConfig, UpstreamPriceMonitorRun,
+		UpstreamPriceMonitorRunItem, UsageCleanupTask, UsageLog, User,
+		UserAllowedGroup, UserAttributeDefinition, UserAttributeValue,
+		UserPlatformQuota, UserSubscription []ent.Hook
 	}
 	inters struct {
 		APIKey, Account, AccountGroup, Announcement, AnnouncementRead, AuthIdentity,
@@ -6860,9 +7318,10 @@ type (
 		Group, IdempotencyRecord, IdentityAdoptionDecision, PaymentAuditLog,
 		PaymentOrder, PaymentProviderInstance, PendingAuthSession, PromoCode,
 		PromoCodeUsage, Proxy, RedeemCode, SecuritySecret, Setting, SubscriptionPlan,
-		TLSFingerprintProfile, UsageCleanupTask, UsageLog, User, UserAllowedGroup,
-		UserAttributeDefinition, UserAttributeValue, UserPlatformQuota,
-		UserSubscription []ent.Interceptor
+		TLSFingerprintProfile, UpstreamPriceMonitorConfig, UpstreamPriceMonitorRun,
+		UpstreamPriceMonitorRunItem, UsageCleanupTask, UsageLog, User,
+		UserAllowedGroup, UserAttributeDefinition, UserAttributeValue,
+		UserPlatformQuota, UserSubscription []ent.Interceptor
 	}
 )
 

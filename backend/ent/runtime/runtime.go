@@ -37,6 +37,9 @@ import (
 	"github.com/Wei-Shaw/sub2api/ent/setting"
 	"github.com/Wei-Shaw/sub2api/ent/subscriptionplan"
 	"github.com/Wei-Shaw/sub2api/ent/tlsfingerprintprofile"
+	"github.com/Wei-Shaw/sub2api/ent/upstreampricemonitorconfig"
+	"github.com/Wei-Shaw/sub2api/ent/upstreampricemonitorrun"
+	"github.com/Wei-Shaw/sub2api/ent/upstreampricemonitorrunitem"
 	"github.com/Wei-Shaw/sub2api/ent/usagecleanuptask"
 	"github.com/Wei-Shaw/sub2api/ent/usagelog"
 	"github.com/Wei-Shaw/sub2api/ent/user"
@@ -1959,6 +1962,130 @@ func init() {
 	tlsfingerprintprofileDescEnableGrease := tlsfingerprintprofileFields[2].Descriptor()
 	// tlsfingerprintprofile.DefaultEnableGrease holds the default value on creation for the enable_grease field.
 	tlsfingerprintprofile.DefaultEnableGrease = tlsfingerprintprofileDescEnableGrease.Default.(bool)
+	upstreampricemonitorconfigMixin := schema.UpstreamPriceMonitorConfig{}.Mixin()
+	upstreampricemonitorconfigMixinFields0 := upstreampricemonitorconfigMixin[0].Fields()
+	_ = upstreampricemonitorconfigMixinFields0
+	upstreampricemonitorconfigFields := schema.UpstreamPriceMonitorConfig{}.Fields()
+	_ = upstreampricemonitorconfigFields
+	// upstreampricemonitorconfigDescCreatedAt is the schema descriptor for created_at field.
+	upstreampricemonitorconfigDescCreatedAt := upstreampricemonitorconfigMixinFields0[0].Descriptor()
+	// upstreampricemonitorconfig.DefaultCreatedAt holds the default value on creation for the created_at field.
+	upstreampricemonitorconfig.DefaultCreatedAt = upstreampricemonitorconfigDescCreatedAt.Default.(func() time.Time)
+	// upstreampricemonitorconfigDescUpdatedAt is the schema descriptor for updated_at field.
+	upstreampricemonitorconfigDescUpdatedAt := upstreampricemonitorconfigMixinFields0[1].Descriptor()
+	// upstreampricemonitorconfig.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	upstreampricemonitorconfig.DefaultUpdatedAt = upstreampricemonitorconfigDescUpdatedAt.Default.(func() time.Time)
+	// upstreampricemonitorconfig.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	upstreampricemonitorconfig.UpdateDefaultUpdatedAt = upstreampricemonitorconfigDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// upstreampricemonitorconfigDescEnabled is the schema descriptor for enabled field.
+	upstreampricemonitorconfigDescEnabled := upstreampricemonitorconfigFields[0].Descriptor()
+	// upstreampricemonitorconfig.DefaultEnabled holds the default value on creation for the enabled field.
+	upstreampricemonitorconfig.DefaultEnabled = upstreampricemonitorconfigDescEnabled.Default.(bool)
+	// upstreampricemonitorconfigDescIntervalSeconds is the schema descriptor for interval_seconds field.
+	upstreampricemonitorconfigDescIntervalSeconds := upstreampricemonitorconfigFields[1].Descriptor()
+	// upstreampricemonitorconfig.DefaultIntervalSeconds holds the default value on creation for the interval_seconds field.
+	upstreampricemonitorconfig.DefaultIntervalSeconds = upstreampricemonitorconfigDescIntervalSeconds.Default.(int)
+	// upstreampricemonitorconfig.IntervalSecondsValidator is a validator for the "interval_seconds" field. It is called by the builders before save.
+	upstreampricemonitorconfig.IntervalSecondsValidator = upstreampricemonitorconfigDescIntervalSeconds.Validators[0].(func(int) error)
+	// upstreampricemonitorconfigDescChannelIds is the schema descriptor for channel_ids field.
+	upstreampricemonitorconfigDescChannelIds := upstreampricemonitorconfigFields[2].Descriptor()
+	// upstreampricemonitorconfig.DefaultChannelIds holds the default value on creation for the channel_ids field.
+	upstreampricemonitorconfig.DefaultChannelIds = upstreampricemonitorconfigDescChannelIds.Default.([]int64)
+	// upstreampricemonitorconfigDescNotifyEmails is the schema descriptor for notify_emails field.
+	upstreampricemonitorconfigDescNotifyEmails := upstreampricemonitorconfigFields[3].Descriptor()
+	// upstreampricemonitorconfig.DefaultNotifyEmails holds the default value on creation for the notify_emails field.
+	upstreampricemonitorconfig.DefaultNotifyEmails = upstreampricemonitorconfigDescNotifyEmails.Default.([]string)
+	// upstreampricemonitorconfigDescProfitMin is the schema descriptor for profit_min field.
+	upstreampricemonitorconfigDescProfitMin := upstreampricemonitorconfigFields[4].Descriptor()
+	// upstreampricemonitorconfig.DefaultProfitMin holds the default value on creation for the profit_min field.
+	upstreampricemonitorconfig.DefaultProfitMin = upstreampricemonitorconfigDescProfitMin.Default.(float64)
+	// upstreampricemonitorconfigDescProfitMax is the schema descriptor for profit_max field.
+	upstreampricemonitorconfigDescProfitMax := upstreampricemonitorconfigFields[5].Descriptor()
+	// upstreampricemonitorconfig.DefaultProfitMax holds the default value on creation for the profit_max field.
+	upstreampricemonitorconfig.DefaultProfitMax = upstreampricemonitorconfigDescProfitMax.Default.(float64)
+	upstreampricemonitorrunMixin := schema.UpstreamPriceMonitorRun{}.Mixin()
+	upstreampricemonitorrunMixinFields0 := upstreampricemonitorrunMixin[0].Fields()
+	_ = upstreampricemonitorrunMixinFields0
+	upstreampricemonitorrunFields := schema.UpstreamPriceMonitorRun{}.Fields()
+	_ = upstreampricemonitorrunFields
+	// upstreampricemonitorrunDescCreatedAt is the schema descriptor for created_at field.
+	upstreampricemonitorrunDescCreatedAt := upstreampricemonitorrunMixinFields0[0].Descriptor()
+	// upstreampricemonitorrun.DefaultCreatedAt holds the default value on creation for the created_at field.
+	upstreampricemonitorrun.DefaultCreatedAt = upstreampricemonitorrunDescCreatedAt.Default.(func() time.Time)
+	// upstreampricemonitorrunDescUpdatedAt is the schema descriptor for updated_at field.
+	upstreampricemonitorrunDescUpdatedAt := upstreampricemonitorrunMixinFields0[1].Descriptor()
+	// upstreampricemonitorrun.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	upstreampricemonitorrun.DefaultUpdatedAt = upstreampricemonitorrunDescUpdatedAt.Default.(func() time.Time)
+	// upstreampricemonitorrun.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	upstreampricemonitorrun.UpdateDefaultUpdatedAt = upstreampricemonitorrunDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// upstreampricemonitorrunDescStartedAt is the schema descriptor for started_at field.
+	upstreampricemonitorrunDescStartedAt := upstreampricemonitorrunFields[1].Descriptor()
+	// upstreampricemonitorrun.DefaultStartedAt holds the default value on creation for the started_at field.
+	upstreampricemonitorrun.DefaultStartedAt = upstreampricemonitorrunDescStartedAt.Default.(func() time.Time)
+	// upstreampricemonitorrunDescModelCount is the schema descriptor for model_count field.
+	upstreampricemonitorrunDescModelCount := upstreampricemonitorrunFields[4].Descriptor()
+	// upstreampricemonitorrun.DefaultModelCount holds the default value on creation for the model_count field.
+	upstreampricemonitorrun.DefaultModelCount = upstreampricemonitorrunDescModelCount.Default.(int)
+	// upstreampricemonitorrunDescMatchedCount is the schema descriptor for matched_count field.
+	upstreampricemonitorrunDescMatchedCount := upstreampricemonitorrunFields[5].Descriptor()
+	// upstreampricemonitorrun.DefaultMatchedCount holds the default value on creation for the matched_count field.
+	upstreampricemonitorrun.DefaultMatchedCount = upstreampricemonitorrunDescMatchedCount.Default.(int)
+	// upstreampricemonitorrunDescOutOfRangeCount is the schema descriptor for out_of_range_count field.
+	upstreampricemonitorrunDescOutOfRangeCount := upstreampricemonitorrunFields[6].Descriptor()
+	// upstreampricemonitorrun.DefaultOutOfRangeCount holds the default value on creation for the out_of_range_count field.
+	upstreampricemonitorrun.DefaultOutOfRangeCount = upstreampricemonitorrunDescOutOfRangeCount.Default.(int)
+	// upstreampricemonitorrunDescSummary is the schema descriptor for summary field.
+	upstreampricemonitorrunDescSummary := upstreampricemonitorrunFields[7].Descriptor()
+	// upstreampricemonitorrun.DefaultSummary holds the default value on creation for the summary field.
+	upstreampricemonitorrun.DefaultSummary = upstreampricemonitorrunDescSummary.Default.(string)
+	// upstreampricemonitorrunDescChannelIds is the schema descriptor for channel_ids field.
+	upstreampricemonitorrunDescChannelIds := upstreampricemonitorrunFields[9].Descriptor()
+	// upstreampricemonitorrun.DefaultChannelIds holds the default value on creation for the channel_ids field.
+	upstreampricemonitorrun.DefaultChannelIds = upstreampricemonitorrunDescChannelIds.Default.([]int64)
+	// upstreampricemonitorrunDescProfitMin is the schema descriptor for profit_min field.
+	upstreampricemonitorrunDescProfitMin := upstreampricemonitorrunFields[10].Descriptor()
+	// upstreampricemonitorrun.DefaultProfitMin holds the default value on creation for the profit_min field.
+	upstreampricemonitorrun.DefaultProfitMin = upstreampricemonitorrunDescProfitMin.Default.(float64)
+	// upstreampricemonitorrunDescProfitMax is the schema descriptor for profit_max field.
+	upstreampricemonitorrunDescProfitMax := upstreampricemonitorrunFields[11].Descriptor()
+	// upstreampricemonitorrun.DefaultProfitMax holds the default value on creation for the profit_max field.
+	upstreampricemonitorrun.DefaultProfitMax = upstreampricemonitorrunDescProfitMax.Default.(float64)
+	upstreampricemonitorrunitemFields := schema.UpstreamPriceMonitorRunItem{}.Fields()
+	_ = upstreampricemonitorrunitemFields
+	// upstreampricemonitorrunitemDescChannelName is the schema descriptor for channel_name field.
+	upstreampricemonitorrunitemDescChannelName := upstreampricemonitorrunitemFields[2].Descriptor()
+	// upstreampricemonitorrunitem.DefaultChannelName holds the default value on creation for the channel_name field.
+	upstreampricemonitorrunitem.DefaultChannelName = upstreampricemonitorrunitemDescChannelName.Default.(string)
+	// upstreampricemonitorrunitem.ChannelNameValidator is a validator for the "channel_name" field. It is called by the builders before save.
+	upstreampricemonitorrunitem.ChannelNameValidator = upstreampricemonitorrunitemDescChannelName.Validators[0].(func(string) error)
+	// upstreampricemonitorrunitemDescModel is the schema descriptor for model field.
+	upstreampricemonitorrunitemDescModel := upstreampricemonitorrunitemFields[3].Descriptor()
+	// upstreampricemonitorrunitem.ModelValidator is a validator for the "model" field. It is called by the builders before save.
+	upstreampricemonitorrunitem.ModelValidator = func() func(string) error {
+		validators := upstreampricemonitorrunitemDescModel.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(model string) error {
+			for _, fn := range fns {
+				if err := fn(model); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// upstreampricemonitorrunitemDescMessage is the schema descriptor for message field.
+	upstreampricemonitorrunitemDescMessage := upstreampricemonitorrunitemFields[18].Descriptor()
+	// upstreampricemonitorrunitem.DefaultMessage holds the default value on creation for the message field.
+	upstreampricemonitorrunitem.DefaultMessage = upstreampricemonitorrunitemDescMessage.Default.(string)
+	// upstreampricemonitorrunitem.MessageValidator is a validator for the "message" field. It is called by the builders before save.
+	upstreampricemonitorrunitem.MessageValidator = upstreampricemonitorrunitemDescMessage.Validators[0].(func(string) error)
+	// upstreampricemonitorrunitemDescCreatedAt is the schema descriptor for created_at field.
+	upstreampricemonitorrunitemDescCreatedAt := upstreampricemonitorrunitemFields[19].Descriptor()
+	// upstreampricemonitorrunitem.DefaultCreatedAt holds the default value on creation for the created_at field.
+	upstreampricemonitorrunitem.DefaultCreatedAt = upstreampricemonitorrunitemDescCreatedAt.Default.(func() time.Time)
 	usagecleanuptaskMixin := schema.UsageCleanupTask{}.Mixin()
 	usagecleanuptaskMixinFields0 := usagecleanuptaskMixin[0].Fields()
 	_ = usagecleanuptaskMixinFields0

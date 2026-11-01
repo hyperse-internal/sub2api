@@ -76,6 +76,12 @@ type Tx struct {
 	SubscriptionPlan *SubscriptionPlanClient
 	// TLSFingerprintProfile is the client for interacting with the TLSFingerprintProfile builders.
 	TLSFingerprintProfile *TLSFingerprintProfileClient
+	// UpstreamPriceMonitorConfig is the client for interacting with the UpstreamPriceMonitorConfig builders.
+	UpstreamPriceMonitorConfig *UpstreamPriceMonitorConfigClient
+	// UpstreamPriceMonitorRun is the client for interacting with the UpstreamPriceMonitorRun builders.
+	UpstreamPriceMonitorRun *UpstreamPriceMonitorRunClient
+	// UpstreamPriceMonitorRunItem is the client for interacting with the UpstreamPriceMonitorRunItem builders.
+	UpstreamPriceMonitorRunItem *UpstreamPriceMonitorRunItemClient
 	// UsageCleanupTask is the client for interacting with the UsageCleanupTask builders.
 	UsageCleanupTask *UsageCleanupTaskClient
 	// UsageLog is the client for interacting with the UsageLog builders.
@@ -254,6 +260,9 @@ func (tx *Tx) init() {
 	tx.Setting = NewSettingClient(tx.config)
 	tx.SubscriptionPlan = NewSubscriptionPlanClient(tx.config)
 	tx.TLSFingerprintProfile = NewTLSFingerprintProfileClient(tx.config)
+	tx.UpstreamPriceMonitorConfig = NewUpstreamPriceMonitorConfigClient(tx.config)
+	tx.UpstreamPriceMonitorRun = NewUpstreamPriceMonitorRunClient(tx.config)
+	tx.UpstreamPriceMonitorRunItem = NewUpstreamPriceMonitorRunItemClient(tx.config)
 	tx.UsageCleanupTask = NewUsageCleanupTaskClient(tx.config)
 	tx.UsageLog = NewUsageLogClient(tx.config)
 	tx.User = NewUserClient(tx.config)

@@ -40,6 +40,9 @@ import (
 	"github.com/Wei-Shaw/sub2api/ent/setting"
 	"github.com/Wei-Shaw/sub2api/ent/subscriptionplan"
 	"github.com/Wei-Shaw/sub2api/ent/tlsfingerprintprofile"
+	"github.com/Wei-Shaw/sub2api/ent/upstreampricemonitorconfig"
+	"github.com/Wei-Shaw/sub2api/ent/upstreampricemonitorrun"
+	"github.com/Wei-Shaw/sub2api/ent/upstreampricemonitorrunitem"
 	"github.com/Wei-Shaw/sub2api/ent/usagecleanuptask"
 	"github.com/Wei-Shaw/sub2api/ent/usagelog"
 	"github.com/Wei-Shaw/sub2api/ent/user"
@@ -943,6 +946,87 @@ func (f TraverseTLSFingerprintProfile) Traverse(ctx context.Context, q ent.Query
 	return fmt.Errorf("unexpected query type %T. expect *ent.TLSFingerprintProfileQuery", q)
 }
 
+// The UpstreamPriceMonitorConfigFunc type is an adapter to allow the use of ordinary function as a Querier.
+type UpstreamPriceMonitorConfigFunc func(context.Context, *ent.UpstreamPriceMonitorConfigQuery) (ent.Value, error)
+
+// Query calls f(ctx, q).
+func (f UpstreamPriceMonitorConfigFunc) Query(ctx context.Context, q ent.Query) (ent.Value, error) {
+	if q, ok := q.(*ent.UpstreamPriceMonitorConfigQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *ent.UpstreamPriceMonitorConfigQuery", q)
+}
+
+// The TraverseUpstreamPriceMonitorConfig type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseUpstreamPriceMonitorConfig func(context.Context, *ent.UpstreamPriceMonitorConfigQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseUpstreamPriceMonitorConfig) Intercept(next ent.Querier) ent.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseUpstreamPriceMonitorConfig) Traverse(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.UpstreamPriceMonitorConfigQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *ent.UpstreamPriceMonitorConfigQuery", q)
+}
+
+// The UpstreamPriceMonitorRunFunc type is an adapter to allow the use of ordinary function as a Querier.
+type UpstreamPriceMonitorRunFunc func(context.Context, *ent.UpstreamPriceMonitorRunQuery) (ent.Value, error)
+
+// Query calls f(ctx, q).
+func (f UpstreamPriceMonitorRunFunc) Query(ctx context.Context, q ent.Query) (ent.Value, error) {
+	if q, ok := q.(*ent.UpstreamPriceMonitorRunQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *ent.UpstreamPriceMonitorRunQuery", q)
+}
+
+// The TraverseUpstreamPriceMonitorRun type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseUpstreamPriceMonitorRun func(context.Context, *ent.UpstreamPriceMonitorRunQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseUpstreamPriceMonitorRun) Intercept(next ent.Querier) ent.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseUpstreamPriceMonitorRun) Traverse(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.UpstreamPriceMonitorRunQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *ent.UpstreamPriceMonitorRunQuery", q)
+}
+
+// The UpstreamPriceMonitorRunItemFunc type is an adapter to allow the use of ordinary function as a Querier.
+type UpstreamPriceMonitorRunItemFunc func(context.Context, *ent.UpstreamPriceMonitorRunItemQuery) (ent.Value, error)
+
+// Query calls f(ctx, q).
+func (f UpstreamPriceMonitorRunItemFunc) Query(ctx context.Context, q ent.Query) (ent.Value, error) {
+	if q, ok := q.(*ent.UpstreamPriceMonitorRunItemQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *ent.UpstreamPriceMonitorRunItemQuery", q)
+}
+
+// The TraverseUpstreamPriceMonitorRunItem type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseUpstreamPriceMonitorRunItem func(context.Context, *ent.UpstreamPriceMonitorRunItemQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseUpstreamPriceMonitorRunItem) Intercept(next ent.Querier) ent.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseUpstreamPriceMonitorRunItem) Traverse(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.UpstreamPriceMonitorRunItemQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *ent.UpstreamPriceMonitorRunItemQuery", q)
+}
+
 // The UsageCleanupTaskFunc type is an adapter to allow the use of ordinary function as a Querier.
 type UsageCleanupTaskFunc func(context.Context, *ent.UsageCleanupTaskQuery) (ent.Value, error)
 
@@ -1224,6 +1308,12 @@ func NewQuery(q ent.Query) (Query, error) {
 		return &query[*ent.SubscriptionPlanQuery, predicate.SubscriptionPlan, subscriptionplan.OrderOption]{typ: ent.TypeSubscriptionPlan, tq: q}, nil
 	case *ent.TLSFingerprintProfileQuery:
 		return &query[*ent.TLSFingerprintProfileQuery, predicate.TLSFingerprintProfile, tlsfingerprintprofile.OrderOption]{typ: ent.TypeTLSFingerprintProfile, tq: q}, nil
+	case *ent.UpstreamPriceMonitorConfigQuery:
+		return &query[*ent.UpstreamPriceMonitorConfigQuery, predicate.UpstreamPriceMonitorConfig, upstreampricemonitorconfig.OrderOption]{typ: ent.TypeUpstreamPriceMonitorConfig, tq: q}, nil
+	case *ent.UpstreamPriceMonitorRunQuery:
+		return &query[*ent.UpstreamPriceMonitorRunQuery, predicate.UpstreamPriceMonitorRun, upstreampricemonitorrun.OrderOption]{typ: ent.TypeUpstreamPriceMonitorRun, tq: q}, nil
+	case *ent.UpstreamPriceMonitorRunItemQuery:
+		return &query[*ent.UpstreamPriceMonitorRunItemQuery, predicate.UpstreamPriceMonitorRunItem, upstreampricemonitorrunitem.OrderOption]{typ: ent.TypeUpstreamPriceMonitorRunItem, tq: q}, nil
 	case *ent.UsageCleanupTaskQuery:
 		return &query[*ent.UsageCleanupTaskQuery, predicate.UsageCleanupTask, usagecleanuptask.OrderOption]{typ: ent.TypeUsageCleanupTask, tq: q}, nil
 	case *ent.UsageLogQuery:

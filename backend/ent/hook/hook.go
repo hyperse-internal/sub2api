@@ -381,6 +381,42 @@ func (f TLSFingerprintProfileFunc) Mutate(ctx context.Context, m ent.Mutation) (
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.TLSFingerprintProfileMutation", m)
 }
 
+// The UpstreamPriceMonitorConfigFunc type is an adapter to allow the use of ordinary
+// function as UpstreamPriceMonitorConfig mutator.
+type UpstreamPriceMonitorConfigFunc func(context.Context, *ent.UpstreamPriceMonitorConfigMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f UpstreamPriceMonitorConfigFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.UpstreamPriceMonitorConfigMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.UpstreamPriceMonitorConfigMutation", m)
+}
+
+// The UpstreamPriceMonitorRunFunc type is an adapter to allow the use of ordinary
+// function as UpstreamPriceMonitorRun mutator.
+type UpstreamPriceMonitorRunFunc func(context.Context, *ent.UpstreamPriceMonitorRunMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f UpstreamPriceMonitorRunFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.UpstreamPriceMonitorRunMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.UpstreamPriceMonitorRunMutation", m)
+}
+
+// The UpstreamPriceMonitorRunItemFunc type is an adapter to allow the use of ordinary
+// function as UpstreamPriceMonitorRunItem mutator.
+type UpstreamPriceMonitorRunItemFunc func(context.Context, *ent.UpstreamPriceMonitorRunItemMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f UpstreamPriceMonitorRunItemFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.UpstreamPriceMonitorRunItemMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.UpstreamPriceMonitorRunItemMutation", m)
+}
+
 // The UsageCleanupTaskFunc type is an adapter to allow the use of ordinary
 // function as UsageCleanupTask mutator.
 type UsageCleanupTaskFunc func(context.Context, *ent.UsageCleanupTaskMutation) (ent.Value, error)

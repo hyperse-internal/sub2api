@@ -121,6 +121,9 @@ func RegisterAdminRoutes(
 		registerChannelMonitorRoutes(admin, h, settingService)
 		registerChannelMonitorV2Routes(admin, h, settingService)
 
+		// 上游价格巡检（Teamo → 毛利率）
+		registerUpstreamPriceMonitorRoutes(admin, h)
+
 		// 风控中心
 		registerContentModerationRoutes(admin, h)
 
@@ -791,6 +794,22 @@ func registerChannelRoutes(admin *gin.RouterGroup, h *handler.Handlers) {
 		channels.POST("", h.Admin.Channel.Create)
 		channels.PUT("/:id", h.Admin.Channel.Update)
 		channels.DELETE("/:id", h.Admin.Channel.Delete)
+	}
+}
+
+func registerUpstreamPriceMonitorRoutes(admin *gin.RouterGroup, h *handler.Handlers) {
+	if h == nil || h.Admin == nil || h.Admin.UpstreamPriceMonitor == nil {
+		return
+	}
+	g := admin.Group("/upstream-price-monitor")
+	{
+		g.GET("/config", h.Admin.UpstreamPriceMonitor.GetConfig)
+		g.PUT("/config", h.Admin.UpstreamPriceMonitor.UpdateConfig)
+		g.POST("/run", h.Admin.UpstreamPriceMonitor.Run)
+		g.POST("/sync-price", h.Admin.UpstreamPriceMonitor.SyncPrice)
+		g.GET("/runs", h.Admin.UpstreamPriceMonitor.ListRuns)
+		g.GET("/runs/:id", h.Admin.UpstreamPriceMonitor.GetRun)
+		g.DELETE("/runs/:id", h.Admin.UpstreamPriceMonitor.DeleteRun)
 	}
 }
 

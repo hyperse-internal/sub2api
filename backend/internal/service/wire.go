@@ -987,6 +987,10 @@ var ProviderSet = wire.NewSet(
 	ProvideChannelMonitorV2Service,
 	ProvideChannelMonitorV2Aggregator,
 	NewChannelMonitorRequestTemplateService,
+	NewTeamoUpstreamPricingClient,
+	wire.Bind(new(UpstreamPricingClient), new(*TeamoUpstreamPricingClient)),
+	ProvideUpstreamPriceMonitorService,
+	ProvideUpstreamPriceMonitorRunner,
 	ProvideUserPlatformQuotaUsageFlusher,
 )
 
@@ -1087,4 +1091,23 @@ func ProvideClaudeResetCreditService(accounts AccountRepository, tokens *ClaudeT
 	s := NewClaudeResetCreditService(accounts, tokens, proxies, settings)
 	s.ConfigureRedemption(idem, locks)
 	return s
+}
+
+// ProvideUpstreamPriceMonitorService 创建上游价格巡检服务。
+func ProvideUpstreamPriceMonitorService(
+	repo UpstreamPriceMonitorRepository,
+	channelRepo ChannelRepository,
+	channelService *ChannelService,
+	pricingClient UpstreamPricingClient,
+	emailService *EmailService,
+	settingService *SettingService,
+) *UpstreamPriceMonitorService {
+	return NewUpstreamPriceMonitorService(repo, channelRepo, channelService, pricingClient, emailService, settingService)
+}
+
+// ProvideUpstreamPriceMonitorRunner 创建并启动上游价格巡检调度器。
+func ProvideUpstreamPriceMonitorRunner(svc *UpstreamPriceMonitorService) *UpstreamPriceMonitorRunner {
+	r := NewUpstreamPriceMonitorRunner(svc)
+	r.Start()
+	return r
 }
