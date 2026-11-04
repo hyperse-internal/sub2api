@@ -1,0 +1,62 @@
+---
+title: Overview
+icon: ChartCandlestick
+description: Intraday charting and Smart-T signal tools on the AlphaIO Portal — how they differ and which manual to read.
+---
+
+These manuals cover specialty tools on the **AlphaIO Portal** ([www.alphaio.vip](https://www.alphaio.vip/)), not the AI console at `ai.alphaio.vip`.
+
+<Callout title="Research tools only" type="warn">
+Signals and reminders are for research and self-managed decisions. They are not investment advice and the platform does not place orders for you.
+</Callout>
+
+## Two products in this guide
+
+| Product | Product code | Slot meaning | Delivery |
+| --- | --- | --- | --- |
+| [Fenshi Super](/docs/quants/fenshi-super) | `fenshi_super` | **Watch slots** — how many symbols you can monitor at once | Web chart (~15s refresh), toast + sound |
+| [Smart-T Engine](/docs/quants/follow-t-assist) | `follow_t_assist` | **Follow slots** — how many legs you can track at once | Server minute signals + **Feishu** cards; you execute |
+
+Both are independent SKUs. Fenshi Super has **no position ledger**; Smart-T registers a base lot for alerts and review.
+
+## How to open a product
+
+- **Not subscribed yet**: feature hall or product page → pick a monthly slot plan → checkout
+- **Already subscribed**: top nav **My subscriptions** → **Enter** on that row
+
+Details: [Getting started](/docs/quants/getting-started).
+
+## Suggested path
+
+<Steps>
+<Step>
+
+### Account
+
+Follow [Getting started](/docs/quants/getting-started): invite-code register, verify email, sign in.
+
+</Step>
+<Step>
+
+### Pick a product
+
+- Multi-symbol charts and on-page alerts → [Fenshi Super](/docs/quants/fenshi-super)
+- Feishu push, base-lot tracking, signal review → [Smart-T Engine](/docs/quants/follow-t-assist)
+
+</Step>
+<Step>
+
+### Subscribe, then configure
+
+- Fenshi Super: buy watch slots → open workbench → add symbols
+- Smart-T: **configure Feishu and test first** → add symbols / register base lots → use Feishu for alerts and the console for review
+
+</Step>
+</Steps>
+
+## Related products (not covered yet)
+
+- **Fenshi Leader** (`fenshi_leader`) — same watch UI family, with an L2 capital gate
+- **Smart-T · QMT** (`follow_t_qmt`) — same manage console, local Worker + QMT fills
+
+Open them from the [feature hall](https://www.alphaio.vip/features?domain=pattern) when needed.

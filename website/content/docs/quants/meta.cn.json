@@ -1,0 +1,6 @@
+{
+  "title": "量化工具",
+  "icon": "ChartCandlestick",
+  "defaultOpen": true,
+  "pages": ["index", "getting-started", "fenshi-super", "follow-t-assist"]
+}

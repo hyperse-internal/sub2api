@@ -1,0 +1,62 @@
+---
+title: 总览
+icon: ChartCandlestick
+description: AlphaIO Portal 上的分时盯盘与智T信号工具 — 差异说明与阅读路径。
+---
+
+本分区手册对应 **AlphaIO Portal**（[www.alphaio.vip](https://www.alphaio.vip/)）上的特色量化工具，与 `ai.alphaio.vip` 控制台（API Key / AI 工具）不是同一套产品。
+
+<Callout title="仅供研究参考" type="warn">
+点位与提醒用于研究与自主决策，不构成投资建议；平台不代客下单。
+</Callout>
+
+## 本手册覆盖的两款产品
+
+| 产品 | 产品代码 | 槽位含义 | 交付方式 |
+| --- | --- | --- | --- |
+| [超级分时](/docs/quants/fenshi-super) | `fenshi_super` | **盯盘槽位** — 同时能看几只 | 网页分时（约 15 秒刷新）+ 弹窗 / 提示音 |
+| [智T引擎](/docs/quants/follow-t-assist) | `follow_t_assist` | **跟仓槽位** — 同时能跟几条腿 | 服务端分钟信号 + **飞书**卡片；你自行下单 |
+
+两者是独立商品（独立授权与计费）。超级分时**不含持仓账本**；智T会登记底仓，用于提醒与复盘。
+
+## 怎么进产品页
+
+- **还没开通**：功能大厅或产品页 → 选月付槽位 → 结算
+- **已经开通**：顶部 **我的订阅** → 对应行点 **进入**
+
+细节见 [开始使用](/docs/quants/getting-started)。
+
+## 建议阅读路径
+
+<Steps>
+<Step>
+
+### 账号
+
+先看 [开始使用](/docs/quants/getting-started)：邀请码注册、邮箱验证、登录。
+
+</Step>
+<Step>
+
+### 选择产品
+
+- 需要多票同屏看图、网页内提醒 → [超级分时](/docs/quants/fenshi-super)
+- 需要飞书推送、底仓跟仓、信号复盘 → [智T引擎](/docs/quants/follow-t-assist)
+
+</Step>
+<Step>
+
+### 开通后再配置
+
+- 超级分时：开通盯盘槽位 → 进入盯盘台 → 加票看图
+- 智T：**先配置飞书并测试** → 再加票、登记底仓 → 用飞书收提醒、在管理台复盘
+
+</Step>
+</Steps>
+
+## 相关产品（本手册暂未展开）
+
+- **龙头分时**（`fenshi_leader`）— 同族盯盘界面，叠加 L2 资金闸
+- **智T·QMT**（`follow_t_qmt`）— 同一管理台，本地程序 + 券商 QMT 成交回写
+
+可在 [功能大厅 · 特色功能](https://www.alphaio.vip/features?domain=pattern) 进入。

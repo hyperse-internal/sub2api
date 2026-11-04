@@ -1,0 +1,137 @@
+---
+title: Smart-T Engine
+icon: Bot
+description: Configure Feishu first, then add symbols and base lots, receive alerts in Feishu, and review in the console — full Smart-T walkthrough.
+---
+
+Product page: [https://www.alphaio.vip/features/follow_t_assist](https://www.alphaio.vip/features/follow_t_assist)
+
+**Smart-T Engine** catches dip / high-sell / reversal setups and pushes them via **Feishu** after server minute signals. You place orders yourself. Billing is monthly **follow slots**.
+
+<Callout title="How to open" type="info">
+**Not subscribed**: product page → follow-slot checkout.  
+**Already subscribed**: **My subscriptions** → **Smart-T Engine** → **Enter** (see [Getting started](/docs/quants/getting-started)).
+</Callout>
+
+<Callout title="Recommended order" type="warn">
+Do this in order: **configure Feishu and pass a test → add symbols → register base lot → watch Feishu / review in console**.  
+Adding symbols without Feishu usually means no intraday alerts.
+</Callout>
+
+<Callout title="Delivery channel is Feishu" type="info">
+The web console is for legs, base lots, and review. Intraday alerts go to your Feishu group bot — not by refreshing the page.
+</Callout>
+
+## Who it is for
+
+- Traders who want Feishu alerts, then manual execution
+- Users who want watchlist + signal review in one console
+- Users who accept possible short delay
+
+## Signal abbreviations
+
+Feishu cards often use Chinese intent labels; the console table uses short codes:
+
+| Code | Typical meaning |
+| --- | --- |
+| **TB** | Dip / buy-style suggestion |
+| **TS** | High-sell / sell-style suggestion |
+| **RB** | Reversal dip-style suggestion |
+| **RS** | Reversal high-sell-style suggestion |
+| **EXIT** | Exit-style suggestion after risk rules |
+
+Trust the card’s intent / reason fields. Reminder only — no broker execution.
+
+## Before you start
+
+1. Complete [Getting started](/docs/quants/getting-started)
+2. Prepare a Feishu custom-bot webhook (`https://open.feishu.cn/...`)
+3. Open the console via **My subscriptions → Enter**
+
+## Subscribe follow slots
+
+1. Pick a monthly tier and checkout
+2. Confirm the console shows signal quota like `1/12` and expiry
+3. Use **Upgrade slots** when needed
+
+One slot = one active leg. **Release** frees a slot.
+
+If the header shows both **Signal** and **QMT** quotas, they are independent. Stay on **signal mode** for this SKU; do not switch to QMT mode unless Smart-T · QMT is entitled.
+
+## 1) Strategy settings: Feishu first
+
+**Strategy settings → Feishu notification**:
+
+1. Create a Feishu group → add a custom bot → copy webhook
+2. Paste → **Save webhook** (empty = no push)
+3. Test delivery:
+   - **Test · Assist** (usual for signal line)
+   - **Test · QMT fill** (QMT line)
+   - **Test · Exit**
+4. Configure **push toggles** and **wave-exit / risk** as needed
+
+![Feishu webhook and tests](/docs/assets/quants/follow-t-settings.png)
+
+## 2) Watchlist: add a symbol
+
+1. Stay on **signal mode** (switch to QMT only when entitled)
+2. **Add symbol** by code / name / pinyin and pick a match (uses 1 follow slot)
+
+![Add symbol](/docs/assets/quants/follow-t-add-symbol.png)
+
+The **new-symbol fenshi** filter (e.g. “Fenshi Super”) is the engine tag for that follow leg. It does **not** mean you purchased the separate Fenshi Super watch product. Lists and slots stay independent.
+
+## 3) Register base lot
+
+On the row, click **Register base lot**:
+
+1. Base lots
+2. Anchor price
+3. Confirm
+
+After confirm: the leg becomes trackable, keeps consuming a slot, and later Feishu size / review stats use this base lot. You still trade at your broker.
+
+Then adjust or **Release** as needed.
+
+![Register base lot](/docs/assets/quants/follow-t-register-base.png)
+
+## 4) Intraday (watch Feishu)
+
+1. Feishu receives the card after a minute signal
+2. Cross-check real position and **place the order yourself**
+3. Review under **Intraday signals**; use supplement when you need a manual row for complete history
+
+### What the Feishu card looks like
+
+Typical fields: channel, fenshi type, time, symbol, intent, action, suggested shares, reference price, position / base lot, cost, reason. Footer: reminder only, not a stock tip.
+
+![Feishu card sample](/docs/assets/quants/follow-t-feishu-card.png)
+
+## 5) Intraday signals · compare · high-sell / dip details
+
+1. Switch symbol
+2. Read summary + cumulative curve
+3. Inspect TB / TS / RB / RS / EXIT rows
+4. **Intraday compare** aligns the signal on the minute chart
+5. **High-sell / dip details** lists sizes next to chart markers
+
+![Intraday signals](/docs/assets/quants/follow-t-signals.png)
+
+![High-sell / dip details](/docs/assets/quants/follow-t-detail.png)
+
+## Backtest (optional)
+
+Historical simulation for understanding behavior — **not** a return promise. Day-to-day work stays on Feishu + Intraday signals.
+
+## FAQ
+
+**No Feishu?** Save webhook, run **Test · Assist**, check toggles and leg status.  
+**Slot full?** Release legs or upgrade; stay on signal mode with signal entitlement.  
+**With Fenshi Super?** Separate subscriptions: web watch vs Feishu follow.  
+**Why base lot if I still trade?** Sizing and review stats; no broker execution by the platform.
+
+## Related links
+
+- [Getting started](/docs/quants/getting-started)
+- [Fenshi Super](/docs/quants/fenshi-super)
+- [Product page](https://www.alphaio.vip/features/follow_t_assist)

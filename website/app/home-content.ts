@@ -1,10 +1,10 @@
-const copy = {
+const homeContent = {
   en: {
     eyebrow: 'Documentation',
     title: 'Guides for connecting AlphaIO',
     titleEnd: 'to the tools you already use.',
     description:
-      'Step-by-step docs for account, billing, Claude Code / Codex / Cursor setup, Agent skills, and image generation.',
+      'Step-by-step docs for account, billing, Claude Code / Codex / Cursor setup, Agent skills, image generation, and Portal quant tools.',
     ctaDocs: 'Browse docs',
     ctaStart: 'Start here',
     ctaConsole: 'Open console',
@@ -38,6 +38,12 @@ const copy = {
         slug: 'image-generation',
         title: 'Image generation',
         description: 'Use Image Studio for text-to-image and reference-based editing.',
+      },
+      {
+        slug: 'quants',
+        title: 'Quant tools',
+        description:
+          'Portal manuals for Fenshi Super and Smart-T Engine: invite register, slots, watchlist, Feishu.',
       },
       {
         slug: 'faq',
@@ -104,7 +110,7 @@ const copy = {
     title: '把 AlphaIO',
     titleEnd: '接到你正在用的工具。',
     description:
-      '文档覆盖账号管理、充值兑换与创建 Key、Claude Code / Codex / Cursor 等接入、Agent 技能与图片生成。',
+      '文档覆盖账号管理、充值兑换与创建 Key、Claude Code / Codex / Cursor 等接入、Agent 技能、图片生成，以及 Portal 量化工具。',
     ctaDocs: '浏览文档',
     ctaStart: '从这里开始',
     ctaConsole: '打开控制台',
@@ -137,6 +143,12 @@ const copy = {
         slug: 'image-generation',
         title: '图片生成',
         description: '在图片工作室中完成文生图与参考图编辑。',
+      },
+      {
+        slug: 'quants',
+        title: '量化工具',
+        description:
+          'Portal 超级分时与智T引擎手册：邀请码注册、槽位开通、盯盘加票与飞书跟仓。',
       },
       {
         slug: 'faq',
@@ -198,6 +210,6 @@ const copy = {
   },
 } as const;
 
-export function getHomeCopy(locale: string) {
-  return locale === 'cn' ? copy.cn : copy.en;
+export function getHomeContent(locale: string) {
+  return locale === 'cn' ? homeContent.cn : homeContent.en;
 }

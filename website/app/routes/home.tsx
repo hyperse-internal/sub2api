@@ -4,6 +4,7 @@ import { HomeLayout } from 'fumadocs-ui/layouts/home';
 import {
   ArrowRight,
   BookOpen,
+  ChartCandlestick,
   CircleQuestionMark,
   Image,
   KeyRound,
@@ -14,7 +15,7 @@ import {
   Waypoints,
 } from 'lucide-react';
 import { Logo } from '~/components/Logo';
-import { getHomeCopy } from '~/home-copy';
+import { getHomeContent } from '~/home-content';
 import {
   baseOptions,
   legalDocumentUrl,
@@ -49,6 +50,7 @@ const guideIcons: Record<string, typeof BookOpen> = {
   'tools/cc-switch': Terminal,
   'ai/agent-skills': Sparkles,
   'image-generation': Image,
+  quants: ChartCandlestick,
   faq: CircleQuestionMark,
 };
 
@@ -65,7 +67,7 @@ export default function Home(props: Route.ComponentProps) {
     i18n.hideLocale === 'default-locale' && lang === i18n.defaultLanguage
       ? ''
       : `/${lang}`;
-  const t = getHomeCopy(lang);
+  const t = getHomeContent(lang);
   const isCn = lang === 'cn';
   const year = new Date().getFullYear();
   const docsHome = docsPath(localePrefix);
@@ -121,16 +123,16 @@ export default function Home(props: Route.ComponentProps) {
             {t.guidesDescription}
           </p>
         </div>
-        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {t.guides.map((guide) => {
             const Icon = guideIcons[guide.slug] ?? BookOpen;
             return (
               <Link
                 key={guide.slug}
                 to={docsPath(localePrefix, guide.slug)}
-                className="home-glass home-guide-card group flex flex-col p-5 text-left transition-colors hover:border-[color:var(--home-accent)]"
+                className="home-glass home-guide-card group flex flex-col p-5 text-left transition-colors hover:border-(--home-accent)"
               >
-                <Icon className="text-fd-muted-foreground size-5 transition-colors group-hover:text-[color:var(--home-accent)]" />
+                <Icon className="text-fd-muted-foreground size-5 transition-colors group-hover:text-(--home-accent)" />
                 <h3 className="mt-4 text-base font-medium">{guide.title}</h3>
                 <p className="text-fd-muted-foreground mt-2 flex-1 text-sm leading-relaxed">
                   {guide.description}
@@ -196,9 +198,9 @@ export default function Home(props: Route.ComponentProps) {
             <li key={step.slug}>
               <Link
                 to={docsPath(localePrefix, step.slug)}
-                className="home-glass flex h-full flex-col p-5 text-left transition-colors hover:border-[color:var(--home-accent)]"
+                className="home-glass flex h-full flex-col p-5 text-left transition-colors hover:border-(--home-accent)"
               >
-                <span className="font-mono text-xs tracking-widest text-[color:var(--home-accent)]">
+                <span className="font-mono text-xs tracking-widest text-(--home-accent)">
                   {step.n}
                 </span>
                 <span className="mt-3 text-sm font-medium leading-snug">{step.title}</span>

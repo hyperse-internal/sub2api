@@ -1,0 +1,6 @@
+{
+  "title": "Quant tools",
+  "icon": "ChartCandlestick",
+  "defaultOpen": true,
+  "pages": ["index", "getting-started", "fenshi-super", "follow-t-assist"]
+}
