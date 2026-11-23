@@ -84,7 +84,7 @@ func (c *TeamoUpstreamPricingClient) FetchModelPricing(ctx context.Context) (map
 	if err != nil {
 		return nil, fmt.Errorf("fetch teamo pricing: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	limited := io.LimitReader(resp.Body, upstreamPriceMonitorMaxBody+1)
 	body, err := io.ReadAll(limited)

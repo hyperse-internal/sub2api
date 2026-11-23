@@ -292,9 +292,9 @@ func (s *UpstreamPriceMonitorService) notifyOutOfRange(ctx context.Context, cfg 
 	}
 	subject := fmt.Sprintf("[%s] Upstream price monitor: %d model(s) out of profit range", siteName, run.OutOfRangeCount)
 	var b strings.Builder
-	b.WriteString(fmt.Sprintf("<p>%s</p>", html.EscapeString(run.Summary)))
-	b.WriteString("<table border=\"1\" cellpadding=\"6\" cellspacing=\"0\"><thead><tr>")
-	b.WriteString("<th>Channel</th><th>Model</th><th>Upstream In</th><th>Local In</th><th>Margin</th><th>Suggested In</th></tr></thead><tbody>")
+	_, _ = fmt.Fprintf(&b, "<p>%s</p>", html.EscapeString(run.Summary))
+	_, _ = b.WriteString("<table border=\"1\" cellpadding=\"6\" cellspacing=\"0\"><thead><tr>")
+	_, _ = b.WriteString("<th>Channel</th><th>Model</th><th>Upstream In</th><th>Local In</th><th>Margin</th><th>Suggested In</th></tr></thead><tbody>")
 	n := 0
 	for _, it := range run.Items {
 		if it.Status != UpstreamPriceMonitorItemFail {
@@ -304,24 +304,24 @@ func (s *UpstreamPriceMonitorService) notifyOutOfRange(ctx context.Context, cfg 
 		if n > 30 {
 			break
 		}
-		b.WriteString("<tr>")
-		b.WriteString("<td>" + html.EscapeString(it.ChannelName) + "</td>")
-		b.WriteString("<td>" + html.EscapeString(it.Model) + "</td>")
-		b.WriteString("<td>" + formatOptionalFloat(it.UpstreamInput) + "</td>")
-		b.WriteString("<td>" + formatOptionalFloat(it.LocalInput) + "</td>")
+		_, _ = b.WriteString("<tr>")
+		_, _ = b.WriteString("<td>" + html.EscapeString(it.ChannelName) + "</td>")
+		_, _ = b.WriteString("<td>" + html.EscapeString(it.Model) + "</td>")
+		_, _ = b.WriteString("<td>" + formatOptionalFloat(it.UpstreamInput) + "</td>")
+		_, _ = b.WriteString("<td>" + formatOptionalFloat(it.LocalInput) + "</td>")
 		if it.MarginInput != nil {
-			b.WriteString(fmt.Sprintf("<td>%.2f%%</td>", *it.MarginInput*100))
+			_, _ = fmt.Fprintf(&b, "<td>%.2f%%</td>", *it.MarginInput*100)
 		} else {
-			b.WriteString("<td>-</td>")
+			_, _ = b.WriteString("<td>-</td>")
 		}
-		b.WriteString("<td>" + formatOptionalFloat(it.SuggestedInput) + "</td>")
-		b.WriteString("</tr>")
+		_, _ = b.WriteString("<td>" + formatOptionalFloat(it.SuggestedInput) + "</td>")
+		_, _ = b.WriteString("</tr>")
 	}
-	b.WriteString("</tbody></table>")
+	_, _ = b.WriteString("</tbody></table>")
 	if run.OutOfRangeCount > 30 {
-		b.WriteString(fmt.Sprintf("<p>...and %d more. Open admin → Upstream Price Monitor for full details.</p>", run.OutOfRangeCount-30))
+		_, _ = fmt.Fprintf(&b, "<p>...and %d more. Open admin → Upstream Price Monitor for full details.</p>", run.OutOfRangeCount-30)
 	} else {
-		b.WriteString("<p>Open admin → Upstream Price Monitor for full details. Prices are not auto-updated.</p>")
+		_, _ = b.WriteString("<p>Open admin → Upstream Price Monitor for full details. Prices are not auto-updated.</p>")
 	}
 	body := b.String()
 	for _, to := range cfg.NotifyEmails {
